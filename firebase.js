@@ -6,13 +6,13 @@
 // Udskift disse værdier med dine egne fra Firebase Console
 // console.firebase.google.com → Dit projekt → Projektindstillinger → Din app
 const FB_CONFIG = {
-  apiKey:            "DIN_API_KEY",
-  authDomain:        "DIN_PROJECT.firebaseapp.com",
-  databaseURL:       "https://DIN_PROJECT-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId:         "DIN_PROJECT",
-  storageBucket:     "DIN_PROJECT.appspot.com",
-  messagingSenderId: "DIN_SENDER_ID",
-  appId:             "DIN_APP_ID"
+  apiKey:            "AIzaSyAq8oS6gWmx5O2cuA-sTsCTp7jBSng6VvI",
+  authDomain:        "familiehub-88a59.firebaseapp.com",
+  databaseURL:       "https://familiehub-88a59-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "familiehub-88a59",
+  storageBucket:     "familiehub-88a59.firebasestorage.app",
+  messagingSenderId: "399957886754",
+  appId:             "1:399957886754:web:c37544823d1b1818e6477b"
 };
 
 // ── KRYPTERING ──
