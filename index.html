@@ -1,0 +1,3929 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FamilieHub 🏡</title>
+
+<!-- PWA & Apple -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f4845f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="FamilieHub">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="apple-touch-startup-image" href="icons/icon-512.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fdf6ee;
+    --warm-white: #fff9f3;
+    --beige: #f0e6d3;
+    --brown-light: #e8d5b7;
+    --accent-orange: #f4845f;
+    --accent-green: #7db87a;
+    --accent-blue: #6baed6;
+    --accent-purple: #b39ddb;
+    --accent-pink: #f48fb1;
+    --accent-yellow: #ffd54f;
+    --text-dark: #3d2b1f;
+    --text-mid: #6b4c3b;
+    --text-light: #a07860;
+    --shadow: 0 4px 20px rgba(61,43,31,0.10);
+    --shadow-lg: 0 8px 32px rgba(61,43,31,0.15);
+    --radius: 20px;
+    --radius-sm: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ── LOGIN ── */
+  #loginScreen {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #fdf0e0 0%, #fce4c8 50%, #f9d4b0 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+  }
+
+  .login-logo {
+    font-size: 72px;
+    margin-bottom: 8px;
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .login-title {
+    font-family: 'Lora', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+
+  .login-sub {
+    font-size: 15px;
+    color: var(--text-light);
+    margin-bottom: 40px;
+  }
+
+  .login-card {
+    background: white;
+    border-radius: 28px;
+    padding: 32px 28px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .login-card label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .login-card input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid var(--beige);
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    color: var(--text-dark);
+    background: var(--warm-white);
+    margin-bottom: 20px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .login-card input:focus { border-color: var(--accent-orange); }
+
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent-orange), #e8664a);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 16px rgba(244,132,95,0.4);
+  }
+
+  .btn-primary:active { transform: scale(0.97); }
+
+  .login-error {
+    color: #e53935;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .demo-hint {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-light);
+    background: var(--beige);
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ── MAIN APP ── */
+  #app { display: none; flex-direction: column; min-height: 100vh; }
+
+  /* Header */
+  .app-header {
+    background: linear-gradient(135deg, var(--accent-orange) 0%, #e8664a 100%);
+    padding: 20px 20px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(244,132,95,0.3);
+  }
+
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .header-logo { font-size: 28px; }
+  .header-title { font-family: 'Lora', serif; font-size: 22px; color: white; font-weight: 600; }
+  .header-sub { font-size: 12px; color: rgba(255,255,255,0.8); }
+
+  .header-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.2);
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+
+  .header-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    background: white;
+  }
+
+  .header-username { font-size: 13px; font-weight: 700; color: white; }
+
+  /* Nav */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%; max-width: 480px;
+    background: white;
+    display: flex;
+    border-top: 1px solid var(--beige);
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(61,43,31,0.08);
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 4px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .nav-icon { font-size: 22px; margin-bottom: 2px; }
+  .nav-label { font-size: 10px; font-weight: 700; color: var(--text-light); }
+
+  .nav-item.active .nav-label { color: var(--accent-orange); }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; right: 20%;
+    height: 3px;
+    background: var(--accent-orange);
+    border-radius: 0 0 4px 4px;
+  }
+
+  /* Views */
+  .view-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px 100px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-light);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ── HOME ── */
+  .welcome-banner {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    border-left: 5px solid var(--accent-orange);
+  }
+
+  .welcome-greeting {
+    font-family: 'Lora', serif;
+    font-size: 24px;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+
+  .welcome-date { font-size: 14px; color: var(--text-light); }
+
+  .quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .quick-btn {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform 0.15s;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .quick-btn:active { transform: scale(0.96); }
+  .quick-btn-icon { font-size: 32px; }
+  .quick-btn-label { font-size: 13px; font-weight: 700; color: var(--text-mid); }
+
+  /* Today events */
+  .today-event {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--beige);
+  }
+
+  .today-event:last-child { border-bottom: none; }
+
+  .event-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .event-time { font-size: 12px; font-weight: 700; color: var(--text-light); min-width: 42px; }
+  .event-name { font-size: 15px; font-weight: 600; color: var(--text-dark); }
+  .event-who { font-size: 12px; color: var(--text-light); }
+
+  /* ── CALENDAR ── */
+  .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .cal-month {
+    font-family: 'Lora', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  .cal-nav-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--beige);
+    background: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-mid);
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+
+  .cal-day-name {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-light);
+    padding: 4px 0;
+  }
+
+  .cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    position: relative;
+    transition: all 0.15s;
+  }
+
+  .cal-day:hover { background: var(--beige); }
+  .cal-day.today { background: var(--accent-orange); color: white; font-weight: 800; }
+  .cal-day.has-event::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent-green);
+  }
+
+  .cal-day.today.has-event::after { background: white; }
+  .cal-day.empty { cursor: default; }
+
+  .event-list-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--beige);
+  }
+
+  .event-list-item:last-child { border-bottom: none; }
+
+  .event-color-bar {
+    width: 4px;
+    height: 40px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .event-list-info { flex: 1; }
+  .event-list-name { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+  .event-list-meta { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+  .add-event-btn {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-orange), #e8664a);
+    color: white;
+    font-size: 28px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(244,132,95,0.5);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 99;
+    transition: transform 0.15s;
+  }
+
+  .add-event-btn:active { transform: scale(0.92); }
+
+  /* ── LISTS ── */
+  .list-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .list-tab {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 2px solid var(--beige);
+    background: white;
+    cursor: pointer;
+    white-space: nowrap;
+    color: var(--text-mid);
+    transition: all 0.15s;
+  }
+
+  .list-tab.active {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+    color: white;
+  }
+
+  .list-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .list-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid var(--beige);
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    background: var(--warm-white);
+    outline: none;
+    color: var(--text-dark);
+  }
+
+  .list-input:focus { border-color: var(--accent-green); }
+
+  .btn-add {
+    padding: 12px 18px;
+    background: var(--accent-green);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--beige);
+    transition: opacity 0.2s;
+  }
+
+  .list-item.checked { opacity: 0.4; }
+
+  .list-checkbox {
+    width: 24px; height: 24px;
+    border-radius: 8px;
+    border: 2px solid var(--brown-light);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    font-size: 14px;
+    background: white;
+  }
+
+  .list-item.checked .list-checkbox {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+    color: white;
+  }
+
+  .list-item-text {
+    flex: 1;
+    font-size: 16px;
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+
+  .list-item.checked .list-item-text { text-decoration: line-through; }
+
+  .list-item-cat {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: var(--beige);
+    color: var(--text-light);
+  }
+
+  .list-delete {
+    font-size: 18px;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  /* ── MINDER ── */
+  .memory-input-card {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .memory-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--brown-light);
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    background: white;
+    resize: none;
+    outline: none;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    min-height: 80px;
+  }
+
+  .memory-post-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .emoji-pick {
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    background: white;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--brown-light);
+  }
+
+  .btn-post {
+    flex: 1;
+    padding: 12px;
+    background: var(--accent-orange);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .memory-item {
+    background: white;
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+
+  .memory-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .memory-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .memory-author { font-size: 14px; font-weight: 800; color: var(--text-dark); }
+  .memory-time { font-size: 12px; color: var(--text-light); }
+  .memory-emoji { font-size: 28px; margin-bottom: 8px; display: block; }
+  .memory-text { font-size: 15px; color: var(--text-dark); line-height: 1.5; }
+
+  .memory-reactions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--beige);
+  }
+
+  .reaction-btn {
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--beige);
+    background: var(--warm-white);
+    font-size: 14px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  /* ── KOGEBOG ── */
+  .food-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .food-tab {
+    flex: 1;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 800;
+    border: 2px solid var(--beige);
+    background: white;
+    cursor: pointer;
+    text-align: center;
+    color: var(--text-mid);
+    transition: all 0.15s;
+  }
+
+  .food-tab.active {
+    background: var(--accent-purple);
+    border-color: var(--accent-purple);
+    color: white;
+  }
+
+  .fridge-input-area {
+    background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .fridge-label {
+    font-size: 14px;
+    font-weight: 800;
+    color: #6a1b9a;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .camera-zone {
+    border: 2px dashed #ce93d8;
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    margin-bottom: 12px;
+    background: rgba(255,255,255,0.6);
+    transition: all 0.15s;
+  }
+
+  .camera-zone:active { background: rgba(255,255,255,0.9); transform: scale(0.98); }
+  .camera-icon { font-size: 36px; }
+  .camera-text { font-size: 15px; font-weight: 800; color: #6a1b9a; }
+  .camera-sub  { font-size: 12px; color: #9c4dcc; }
+
+  .camera-zone.has-photo {
+    border-color: #7db87a;
+    background: rgba(232,245,233,0.6);
+  }
+
+  .scan-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #6a1b9a;
+  }
+
+  .fridge-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .fridge-tag {
+    background: white;
+    border: 2px solid #ce93d8;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #6a1b9a;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .fridge-tag:hover { background: #fce4ec; border-color: #e91e63; color: #c2185b; }
+  .fridge-tag.removed { display: none; }
+
+  .fridge-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #ce93d8;
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    background: white;
+    resize: none;
+    outline: none;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    min-height: 80px;
+  }
+
+  .btn-ai {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .ai-result {
+    background: white;
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--accent-purple);
+  }
+
+  .ai-recipe-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+  }
+
+  .ai-recipe-meta {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 10px;
+    display: flex;
+    gap: 12px;
+  }
+
+  .ai-recipe-text {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+
+  .btn-add-to-plan {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: var(--accent-green);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  /* Ugeplan */
+  .week-day-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .week-day-name {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-light);
+    min-width: 36px;
+    text-align: center;
+  }
+
+  .week-day-meal {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+
+  .week-day-empty {
+    font-size: 14px;
+    color: var(--text-light);
+    font-style: italic;
+  }
+
+  .week-day-icon { font-size: 24px; }
+
+  /* Persons slider */
+  .persons-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--beige);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+  }
+
+  .persons-label { font-size: 14px; font-weight: 700; color: var(--text-mid); }
+
+  .persons-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+  }
+
+  .persons-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-orange);
+    background: white;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--accent-orange);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .persons-count {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--text-dark);
+    min-width: 24px;
+    text-align: center;
+  }
+
+  /* ── CHAT ── */
+  .chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .chat-msg {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .chat-msg.mine {
+    flex-direction: row-reverse;
+  }
+
+  .chat-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .chat-bubble {
+    max-width: 72%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 15px;
+    line-height: 1.4;
+    box-shadow: var(--shadow);
+  }
+
+  .chat-msg:not(.mine) .chat-bubble {
+    background: white;
+    color: var(--text-dark);
+    border-bottom-left-radius: 4px;
+  }
+
+  .chat-msg.mine .chat-bubble {
+    background: var(--accent-orange);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+
+  .chat-meta {
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: 4px;
+    text-align: right;
+  }
+
+  .chat-input-row {
+    display: flex;
+    gap: 8px;
+    position: sticky;
+    bottom: 80px;
+    background: var(--cream);
+    padding: 8px 0;
+  }
+
+  .chat-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid var(--beige);
+    border-radius: 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    background: white;
+    outline: none;
+    color: var(--text-dark);
+  }
+
+  .chat-input:focus { border-color: var(--accent-blue); }
+
+  .chat-send {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(61,43,31,0.5);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 28px 28px 0 0;
+    padding: 28px 24px 40px;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal-title {
+    font-family: 'Lora', serif;
+    font-size: 22px;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal input, .modal select, .modal textarea {
+    width: 100%;
+    padding: 13px 16px;
+    border: 2px solid var(--beige);
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    color: var(--text-dark);
+    background: var(--warm-white);
+    margin-bottom: 12px;
+    outline: none;
+  }
+
+  .modal input:focus, .modal select:focus { border-color: var(--accent-orange); }
+
+  .modal-row { display: flex; gap: 10px; }
+  .modal-row > * { flex: 1; }
+
+  .color-picker {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .color-opt {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.15s;
+  }
+
+  .color-opt.selected { border-color: var(--text-dark); transform: scale(1.2); }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+
+  .btn-cancel {
+    flex: 1;
+    padding: 14px;
+    background: var(--beige);
+    color: var(--text-mid);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    display: inline-block;
+    width: 20px; height: 20px;
+    border: 3px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Role badge */
+  .role-badge {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 10px;
+    display: inline-block;
+  }
+
+  .role-admin { background: #fff3e0; color: var(--accent-orange); }
+  .role-family { background: #e8f5e9; color: var(--accent-green); }
+  .role-extended { background: #e3f2fd; color: var(--accent-blue); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text-dark);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .toast.show { opacity: 1; }
+
+  /* ── NEDTÆLLING ── */
+  .countdown-banner {
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .countdown-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%);
+    z-index: 0;
+  }
+
+  /* Stars effect */
+  .countdown-banner::after {
+    content: '✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦';
+    position: absolute;
+    top: 8px; right: 12px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.15);
+    letter-spacing: 4px;
+    z-index: 1;
+  }
+
+  .countdown-inner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .countdown-emoji {
+    font-size: 42px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+  }
+
+  .countdown-text { flex: 1; }
+
+  .countdown-label {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 2px;
+  }
+
+  .countdown-title {
+    font-family: 'Lora', serif;
+    font-size: 20px;
+    color: white;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .countdown-days-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .countdown-days {
+    font-size: 40px;
+    font-weight: 900;
+    color: white;
+    line-height: 1;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+
+  .countdown-days-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.8);
+  }
+
+  .countdown-date-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 4px;
+  }
+
+  .countdown-edit-btn {
+    position: absolute;
+    top: 12px; right: 12px;
+    z-index: 3;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    border-radius: 10px;
+    padding: 5px 9px;
+    font-size: 13px;
+    color: white;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+  }
+
+  .countdown-add-banner {
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+    border: 2px dashed #9fa8da;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .countdown-add-banner:active { transform: scale(0.98); }
+  .countdown-add-icon { font-size: 32px; }
+  .countdown-add-text { font-size: 15px; font-weight: 700; color: #3949ab; }
+  .countdown-add-sub  { font-size: 12px; color: #7986cb; margin-top: 2px; }
+
+  /* Today banner variant */
+  .countdown-banner.today-variant::before {
+    background: linear-gradient(135deg, #e65100, #f57c00, #ff9800);
+  }
+
+  .countdown-banner.soon-variant::before {
+    background: linear-gradient(135deg, #1b5e20, #2e7d32, #388e3c);
+  }
+
+  /* Countdown modal inputs */
+  .emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .emoji-grid-btn {
+    aspect-ratio: 1;
+    border: 2px solid var(--beige);
+    border-radius: 10px;
+    background: white;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .emoji-grid-btn.selected {
+    border-color: var(--accent-orange);
+    background: #fff3e0;
+    transform: scale(1.1);
+  }
+
+  /* ── ADMIN ── */
+  .admin-header-banner {
+    background: linear-gradient(135deg, #212121, #424242);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .admin-user-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--beige);
+  }
+
+  .admin-user-row:last-child { border-bottom: none; }
+
+  .admin-user-avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .admin-user-info { flex: 1; }
+  .admin-user-name { font-size: 15px; font-weight: 800; color: var(--text-dark); }
+  .admin-user-meta { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+  .admin-user-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .admin-edit-btn {
+    padding: 6px 14px;
+    border-radius: 16px;
+    border: 2px solid var(--beige);
+    background: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .admin-edit-btn:hover { border-color: var(--accent-orange); color: var(--accent-orange); }
+
+  .online-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    display: inline-block;
+    margin-right: 4px;
+  }
+
+  /* Log entries */
+  .log-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--beige);
+  }
+
+  .log-entry:last-child { border-bottom: none; }
+
+  .log-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .log-info { flex: 1; }
+  .log-user { font-size: 14px; font-weight: 800; color: var(--text-dark); }
+  .log-detail { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+  .log-time { font-size: 11px; color: var(--text-light); white-space: nowrap; }
+
+  .log-badge-ok   { background: #e8f5e9; color: #2e7d32; font-size:11px; font-weight:800; padding:2px 8px; border-radius:10px; }
+  .log-badge-fail { background: #fde8e8; color: #c62828; font-size:11px; font-weight:800; padding:2px 8px; border-radius:10px; }
+  .log-badge-out  { background: #e3f2fd; color: #1565c0; font-size:11px; font-weight:800; padding:2px 8px; border-radius:10px; }
+
+  .admin-tab {
+    padding: 7px 14px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 800;
+    border: 2px solid var(--beige);
+    background: white;
+    cursor: pointer;
+    color: var(--text-mid);
+    transition: all 0.15s;
+  }
+
+  .admin-tab.active {
+    background: #212121;
+    border-color: #212121;
+    color: white;
+  }
+
+  /* ── ADMIN END ── */
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--brown-light); border-radius: 2px; }
+
+  /* ── FAMILIE FEED ── */
+  .feed-composer {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+
+  .feed-composer-top {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .feed-avatar-sm {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--beige);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .feed-text-input {
+    flex: 1;
+    padding: 11px 16px;
+    border: 2px solid var(--beige);
+    border-radius: 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    color: var(--text-dark);
+    background: var(--warm-white);
+    outline: none;
+  }
+
+  .feed-text-input:focus { border-color: var(--accent-orange); }
+
+  .feed-composer-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .feed-action-btn {
+    flex: 1;
+    padding: 9px 8px;
+    border-radius: 20px;
+    border: 2px solid var(--beige);
+    background: var(--warm-white);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .feed-action-btn.photo:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+  .feed-action-btn.gif:hover   { border-color: var(--accent-yellow); color: #f57f17; }
+
+  .feed-post-btn {
+    padding: 9px 20px;
+    background: var(--accent-orange);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .feed-post-btn:active { transform: scale(0.96); }
+
+  .feed-emoji-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 8px 0;
+  }
+
+  .feed-emoji-opt {
+    font-size: 28px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 10px;
+    transition: all 0.15s;
+    border: 2px solid transparent;
+  }
+
+  .feed-emoji-opt:hover, .feed-emoji-opt.selected {
+    background: var(--beige);
+    border-color: var(--accent-orange);
+    transform: scale(1.15);
+  }
+
+  /* Feed post card */
+  .feed-post {
+    background: white;
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .feed-post-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px 10px;
+  }
+
+  .feed-post-avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .feed-post-author { font-size: 15px; font-weight: 800; color: var(--text-dark); }
+  .feed-post-time   { font-size: 12px; color: var(--text-light); margin-top: 1px; }
+
+  .feed-post-image {
+    width: 100%;
+    max-height: 340px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .feed-post-body {
+    padding: 12px 16px;
+  }
+
+  .feed-post-greeting {
+    font-size: 36px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .feed-post-text {
+    font-size: 16px;
+    color: var(--text-dark);
+    line-height: 1.5;
+  }
+
+  .feed-post-reactions {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px 14px;
+    border-top: 1px solid var(--beige);
+    flex-wrap: wrap;
+  }
+
+  .feed-reaction {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--beige);
+    background: var(--warm-white);
+    font-size: 14px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .feed-reaction:active { transform: scale(0.93); }
+  .feed-reaction.reacted { background: #fff3e0; border-color: var(--accent-orange); }
+
+  .feed-comment-section {
+    padding: 0 16px 14px;
+  }
+
+  .feed-comment {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+  }
+
+  .feed-comment-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--beige);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .feed-comment-bubble {
+    background: var(--beige);
+    border-radius: 14px;
+    padding: 8px 12px;
+    flex: 1;
+  }
+
+  .feed-comment-name { font-size: 12px; font-weight: 800; color: var(--text-mid); }
+  .feed-comment-text { font-size: 14px; color: var(--text-dark); margin-top: 2px; }
+
+  .feed-add-comment {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    align-items: center;
+  }
+
+  .feed-comment-input {
+    flex: 1;
+    padding: 9px 14px;
+    border: 1.5px solid var(--beige);
+    border-radius: 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    background: var(--warm-white);
+    outline: none;
+    color: var(--text-dark);
+  }
+
+  .feed-comment-input:focus { border-color: var(--accent-blue); }
+
+  .feed-comment-send {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Notification dot on feed nav */
+  .nav-item .notif-dot {
+    position: absolute;
+    top: 6px; right: 16px;
+    width: 8px; height: 8px;
+    background: var(--accent-orange);
+    border-radius: 50%;
+    border: 2px solid white;
+  }
+
+  /* ── FAMILIE FEED END ── */
+  .familie-section-title {
+    font-family: 'Lora', serif;
+    font-size: 18px;
+    color: var(--text-dark);
+    margin: 20px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .familie-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .familie-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: transform 0.15s;
+    border-left: 4px solid transparent;
+  }
+
+  .familie-card:active { transform: scale(0.97); }
+
+  .familie-avatar-big {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .familie-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-dark);
+    line-height: 1.2;
+  }
+
+  .familie-role {
+    font-size: 11px;
+    color: var(--text-light);
+    font-weight: 600;
+  }
+
+  .familie-card.full-width {
+    grid-column: 1 / -1;
+  }
+
+  /* Hente-plan */
+  .hente-week {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .hente-row {
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow);
+  }
+
+  .hente-day {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-light);
+    min-width: 36px;
+  }
+
+  .hente-child {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-mid);
+    min-width: 60px;
+  }
+
+  .hente-picker {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid var(--beige);
+    border-radius: 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+    background: var(--warm-white);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .hente-picker:focus { border-color: var(--accent-orange); }
+
+  .hente-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .hente-tab {
+    flex: 1;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 800;
+    border: 2px solid var(--beige);
+    background: white;
+    cursor: pointer;
+    text-align: center;
+    color: var(--text-mid);
+    transition: all 0.15s;
+  }
+
+  .hente-tab.active {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+    color: white;
+  }
+
+  /* Person detail modal */
+  .person-detail {
+    text-align: center;
+    padding: 10px 0 20px;
+  }
+
+  .person-detail-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 12px;
+  }
+
+  .person-detail-name {
+    font-family: 'Lora', serif;
+    font-size: 24px;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+
+  .person-detail-role {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 20px;
+  }
+
+  .person-detail-info {
+    text-align: left;
+    background: var(--beige);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .person-info-row {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--brown-light);
+    align-items: center;
+  }
+
+  .person-info-row:last-child { border-bottom: none; }
+  .person-info-label { font-size: 12px; font-weight: 800; color: var(--text-light); min-width: 80px; }
+  .person-info-value { font-size: 14px; font-weight: 600; color: var(--text-dark); flex: 1; }
+
+  .hente-summary {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    border-left: 4px solid var(--accent-orange);
+    font-size: 14px;
+    color: var(--text-mid);
+    font-weight: 600;
+  }
+
+  /* Hente home cards */
+  .hente-home-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .hente-child-card {
+    flex: 1;
+    border-radius: var(--radius);
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .hente-child-card.august {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    border-left: 4px solid #6baed6;
+  }
+
+  .hente-child-card.oskar {
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    border-left: 4px solid #7db87a;
+  }
+
+  .hente-child-label {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .hente-child-institution {
+    font-size: 11px;
+    color: var(--text-light);
+    font-weight: 600;
+  }
+
+  .hente-time-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .hente-time-badge {
+    background: white;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-dark);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .hente-person-badge {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .hente-not-set {
+    font-size: 13px;
+    color: var(--text-light);
+    font-style: italic;
+    padding: 4px 0;
+  }
+
+  .hente-edit-link {
+    font-size: 11px;
+    color: var(--accent-orange);
+    font-weight: 700;
+    cursor: pointer;
+    text-align: right;
+    margin-top: 4px;
+    text-decoration: underline;
+  }
+
+  /* Time inputs in hente plan */
+  .hente-time-input {
+    width: 90px;
+    padding: 7px 10px;
+    border: 2px solid var(--beige);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+    background: white;
+    outline: none;
+  }
+
+  .hente-time-input:focus { border-color: var(--accent-orange); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-logo">🏡</div>
+  <div class="login-title">FamilieHub</div>
+  <div class="login-sub">Din families private hjørne</div>
+
+  <div class="login-card">
+    <label>Brugernavn</label>
+    <input type="text" id="loginUser" placeholder="Dit brugernavn" autocomplete="off">
+    <label>Adgangskode</label>
+    <input type="password" id="loginPass" placeholder="••••••••">
+    <button class="btn-primary" onclick="doLogin()">Log ind 🚀</button>
+    <div class="login-error" id="loginErr">Forkert brugernavn eller adgangskode</div>
+    <div class="demo-hint">
+      <strong>Demo-konti:</strong><br>
+      👑 simon / familie123 (Admin)<br>
+      🏠 malene / familie123 (Familie)<br>
+      👵 hanne / besok123 (Mormor Hanne)
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- Header -->
+  <div class="app-header">
+    <div class="header-left">
+      <div class="header-logo">🏡</div>
+      <div>
+        <div class="header-title">FamilieHub</div>
+        <div class="header-sub" id="headerSub">Familien Nielsen</div>
+      </div>
+    </div>
+    <div class="header-user" onclick="doLogout()">
+      <div class="header-avatar" id="headerAvatar">👤</div>
+      <div class="header-username" id="headerUsername">-</div>
+    </div>
+  </div>
+
+  <!-- Views -->
+  <div class="view-container">
+
+    <!-- HOME -->
+    <div class="view active" id="view-home">
+      <div class="welcome-banner">
+        <div class="welcome-greeting" id="welcomeGreeting">God morgen! ☀️</div>
+        <div class="welcome-date" id="welcomeDate"></div>
+      </div>
+
+      <!-- NEDTÆLLING BANNER -->
+      <div id="countdownBanner"></div>
+
+      <!-- HENTE OVERSIGT -->
+      <div class="card" id="henteOversigt">
+        <div class="card-title">🚗 Hvem henter i dag?</div>
+        <div id="henteOversigтContent"></div>
+      </div>
+
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="switchView('kalender'); openEventModal()">
+          <span class="quick-btn-icon">📅</span>
+          <span class="quick-btn-label">Tilføj aftale</span>
+        </button>
+        <button class="quick-btn" onclick="switchView('lister')">
+          <span class="quick-btn-icon">🛒</span>
+          <span class="quick-btn-label">Indkøbsliste</span>
+        </button>
+        <button class="quick-btn" onclick="switchView('minder')">
+          <span class="quick-btn-icon">📸</span>
+          <span class="quick-btn-label">Del et minde</span>
+        </button>
+        <button class="quick-btn" onclick="switchView('mad')">
+          <span class="quick-btn-icon">🍽️</span>
+          <span class="quick-btn-label">Hvad skal vi spise?</span>
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📅 I dag</div>
+        <div id="todayEvents">
+          <div class="today-event">
+            <div class="event-dot" style="background:#7db87a"></div>
+            <div class="event-time">08:00</div>
+            <div>
+              <div class="event-name">Skole — August</div>
+              <div class="event-who">Malene kører</div>
+            </div>
+          </div>
+          <div class="today-event">
+            <div class="event-dot" style="background:#6baed6"></div>
+            <div class="event-time">08:30</div>
+            <div>
+              <div class="event-name">Børnehave — Oskar</div>
+              <div class="event-who">Simon afleverer</div>
+            </div>
+          </div>
+          <div class="today-event">
+            <div class="event-dot" style="background:#f4845f"></div>
+            <div class="event-time">18:00</div>
+            <div>
+              <div class="event-name">Aftensmad med Bedstemor Lene</div>
+              <div class="event-who">Hele familien</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="homeShoppingCard">
+        <div class="card-title">🛒 Indkøb mangler</div>
+        <div id="homeShoppingList">Ingen varer mangler ✅</div>
+      </div>
+    </div>
+
+    <!-- KALENDER -->
+    <div class="view" id="view-kalender">
+      <div class="card">
+        <div class="cal-header">
+          <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+          <div class="cal-month" id="calMonthLabel"></div>
+          <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 Kommende aftaler</div>
+        <div id="eventList"></div>
+      </div>
+
+      <button class="add-event-btn" onclick="openEventModal()">+</button>
+    </div>
+
+    <!-- LISTER -->
+    <div class="view" id="view-lister">
+      <div class="list-tabs">
+        <div class="list-tab active" onclick="switchList('shopping', this)">🛒 Indkøb</div>
+        <div class="list-tab" onclick="switchList('todo', this)">✅ Huskeliste</div>
+        <div class="list-tab" onclick="switchList('packing', this)">🧳 Pakkeliste</div>
+      </div>
+
+      <div class="list-input-row">
+        <input class="list-input" id="listInput" placeholder="Tilføj vare..." onkeydown="if(event.key==='Enter')addListItem()">
+        <button class="btn-add" onclick="addListItem()">+</button>
+      </div>
+
+      <div class="card" id="listCard">
+        <div id="listItems"></div>
+        <div id="listEmpty" style="text-align:center;color:var(--text-light);padding:20px;font-size:15px;">Listen er tom 🎉</div>
+      </div>
+    </div>
+
+    <!-- MINDER -->
+    <div class="view" id="view-minder">
+      <div class="memory-input-card">
+        <div class="card-title">✨ Del et minde</div>
+        <textarea class="memory-textarea" id="memoryText" placeholder="Skriv noget hyggeligt til familien..."></textarea>
+        <div class="memory-post-row">
+          <div class="emoji-pick" id="selectedEmoji" onclick="cycleEmoji()">😊</div>
+          <button class="btn-post" onclick="postMemory()">Del med familien 💛</button>
+        </div>
+      </div>
+
+      <div id="memoriesList"></div>
+    </div>
+
+    <!-- MAD -->
+    <div class="view" id="view-mad">
+      <div class="food-tabs">
+        <div class="food-tab active" onclick="switchFood('ai', this)">🤖 AI Opskrifter</div>
+        <div class="food-tab" onclick="switchFood('plan', this)">📅 Ugeplan</div>
+        <div class="food-tab" onclick="switchFood('shop', this)">🛒 Indkøb</div>
+      </div>
+
+      <!-- AI -->
+      <div id="foodAI">
+        <div class="persons-row">
+          <span class="persons-label">👨‍👩‍👧‍👦 Antal personer</span>
+          <div class="persons-control">
+            <button class="persons-btn" onclick="changePersons(-1)">−</button>
+            <span class="persons-count" id="personsCount">4</span>
+            <button class="persons-btn" onclick="changePersons(1)">+</button>
+          </div>
+        </div>
+
+        <div class="fridge-input-area">
+          <div class="fridge-label">🧊 Hvad er der i køleskabet?</div>
+
+          <!-- Kamera knap -->
+          <div class="camera-zone" id="cameraZone" onclick="document.getElementById('fridgeCamera').click()">
+            <div class="camera-icon">📷</div>
+            <div class="camera-text">Tag et billede af køleskabet</div>
+            <div class="camera-sub">AI finder selv ingredienserne</div>
+          </div>
+          <input type="file" id="fridgeCamera" accept="image/*" capture="environment" style="display:none" onchange="handleFridgePhoto(event)">
+
+          <!-- Preview af foto -->
+          <div id="fridgePhotoPreview" style="display:none;margin-bottom:10px;position:relative">
+            <img id="fridgePhotoImg" style="width:100%;border-radius:12px;max-height:200px;object-fit:cover">
+            <button onclick="clearFridgePhoto()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.5);color:white;border:none;border-radius:20px;padding:4px 10px;font-size:13px;cursor:pointer;font-family:Nunito,sans-serif;font-weight:700">✕ Fjern</button>
+          </div>
+
+          <!-- Scanning status -->
+          <div id="fridgeScanStatus" style="display:none" class="scan-status">
+            <div class="spinner" style="border-color:rgba(106,26,162,0.3);border-top-color:#6a1b9a"></div>
+            <span>AI scanner køleskabet...</span>
+          </div>
+
+          <!-- Fundet ingredienser -->
+          <div id="fridgeFoundItems" style="display:none;margin-bottom:10px">
+            <div style="font-size:12px;font-weight:800;color:#6a1b9a;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.6px">✅ AI fandt disse ingredienser:</div>
+            <div id="fridgeTagsContainer" class="fridge-tags"></div>
+            <div style="font-size:12px;color:var(--text-light);margin-top:6px">Tryk på en ingrediens for at fjerne den</div>
+          </div>
+
+          <!-- Manuel tekst (altid tilgængelig) -->
+          <textarea class="fridge-textarea" id="fridgeText" placeholder="Eller skriv ingredienser selv: kylling, porre, fløde..."></textarea>
+
+          <button class="btn-ai" onclick="getAIRecipes()" id="aiBtn">
+            <span>✨ Find opskrifter</span>
+          </button>
+        </div>
+
+        <div id="aiResults"></div>
+      </div>
+
+      <!-- UGEPLAN -->
+      <div id="foodPlan" style="display:none">
+        <div class="card">
+          <div class="card-title">📅 Denne uge</div>
+          <div id="weekPlan"></div>
+        </div>
+      </div>
+
+      <!-- INDKØB FRA PLAN -->
+      <div id="foodShop" style="display:none">
+        <div class="card">
+          <div class="card-title">🛒 Indkøbsliste fra ugeplan</div>
+          <div id="mealShopList">
+            <div style="text-align:center;color:var(--text-light);padding:20px;font-size:15px;">
+              Tilføj opskrifter til ugeplanen først 🍽️
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="view" id="view-chat">
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" placeholder="Skriv en besked..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chat-send" onclick="sendChat()">➤</button>
+      </div>
+    </div>
+
+    <!-- FAMILIE FEED -->
+    <div class="view" id="view-feed">
+
+      <!-- Post opret -->
+      <div class="feed-composer">
+        <div class="feed-composer-top">
+          <div class="feed-avatar-sm" id="feedComposerAvatar">👑</div>
+          <input class="feed-text-input" id="feedTextInput" placeholder="Del noget med hele familien...">
+        </div>
+        <div class="feed-composer-actions">
+          <button class="feed-action-btn photo" onclick="document.getElementById('feedPhotoInput').click()">
+            📷 Billede
+          </button>
+          <input type="file" id="feedPhotoInput" accept="image/*" style="display:none" onchange="handleFeedPhoto(event)">
+          <button class="feed-action-btn gif" onclick="pickFeedEmoji()">
+            😊 Hilsen
+          </button>
+          <button class="feed-post-btn" onclick="postFeedItem()">Del</button>
+        </div>
+        <!-- Photo preview -->
+        <div id="feedPhotoPreviewBox" style="display:none;margin-top:10px;position:relative">
+          <img id="feedPhotoPreviewImg" style="width:100%;border-radius:14px;max-height:220px;object-fit:cover">
+          <button onclick="clearFeedPhoto()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);color:white;border:none;border-radius:20px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:Nunito,sans-serif;font-weight:700">✕</button>
+        </div>
+      </div>
+
+      <!-- Emoji picker til hilsen -->
+      <div id="feedEmojiPicker" style="display:none" class="card" style="margin-bottom:12px">
+        <div class="card-title">Vælg en hilsen</div>
+        <div class="feed-emoji-row" id="feedEmojiRow"></div>
+      </div>
+
+      <!-- Feed items -->
+      <div id="feedList"></div>
+
+    </div>
+
+    <!-- FAMILIE -->
+    <div class="view" id="view-familie">
+
+      <!-- Hente-plan -->
+      <div class="card">
+        <div class="card-title">🚗 Hvem henter denne uge?</div>
+        <div class="hente-tabs">
+          <div class="hente-tab active" onclick="switchHenteChild('august', this)">August 🎒</div>
+          <div class="hente-tab" onclick="switchHenteChild('oskar', this)">Oskar 🧸</div>
+        </div>
+        <div class="hente-summary" id="henteSummary">Vælg hvem henter August hver dag 👇</div>
+        <div class="hente-week" id="henteWeek"></div>
+      </div>
+
+      <!-- Kernefamilie -->
+      <div class="familie-section-title">🏠 Kernefamilien</div>
+      <div class="familie-grid" id="kerneFamilie"></div>
+
+      <!-- Fars side -->
+      <div class="familie-section-title">👴 Fars side</div>
+      <div class="familie-grid" id="farsSide"></div>
+
+      <!-- Mors side -->
+      <div class="familie-section-title">👵 Mors side</div>
+      <div class="familie-grid" id="morsSide"></div>
+
+    </div>
+
+    <!-- ADMIN -->
+    <div class="view" id="view-admin">
+
+      <div class="admin-header-banner">
+        <div style="font-size:28px">⚙️</div>
+        <div>
+          <div style="font-family:'Lora',serif;font-size:20px;color:white;font-weight:600">Admin Panel</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.75)">Kun synlig for Simon 👑</div>
+        </div>
+      </div>
+
+      <!-- BRUGEROVERSIGT -->
+      <div class="card">
+        <div class="card-title">👥 Brugere på appen</div>
+        <div id="adminUserList"></div>
+        <button class="btn-primary" style="margin-top:14px" onclick="openAddUserModal()">+ Tilføj ny bruger</button>
+      </div>
+
+      <!-- LOGIN LOG -->
+      <div class="card">
+        <div class="card-title">🔐 Login-aktivitet</div>
+        <div class="admin-log-tabs" style="display:flex;gap:8px;margin-bottom:12px">
+          <div class="admin-tab active" onclick="showLog('all',this)">Alle</div>
+          <div class="admin-tab" onclick="showLog('fail',this)">❌ Mislykkede</div>
+          <div class="admin-tab" onclick="showLog('ok',this)">✅ Vellykkede</div>
+        </div>
+        <div id="adminLogList"></div>
+      </div>
+
+    </div>
+
+  <nav class="bottom-nav">
+    <div class="nav-item active" onclick="switchView('home')" id="nav-home">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">Hjem</div>
+    </div>
+    <div class="nav-item" onclick="switchView('kalender')" id="nav-kalender">
+      <div class="nav-icon">📅</div>
+      <div class="nav-label">Kalender</div>
+    </div>
+    <div class="nav-item" onclick="switchView('lister')" id="nav-lister">
+      <div class="nav-icon">🛒</div>
+      <div class="nav-label">Lister</div>
+    </div>
+    <div class="nav-item" onclick="switchView('feed')" id="nav-feed">
+      <div class="nav-icon">🌟</div>
+      <div class="nav-label">Familiefeed</div>
+    </div>
+    <div class="nav-item" onclick="switchView('mad')" id="nav-mad">
+      <div class="nav-icon">🍽️</div>
+      <div class="nav-label">Mad</div>
+    </div>
+    <div class="nav-item" onclick="switchView('familie')" id="nav-familie">
+      <div class="nav-icon">👨‍👩‍👧‍👦</div>
+      <div class="nav-label">Familie</div>
+    </div>
+    <div class="nav-item" onclick="switchView('chat')" id="nav-chat">
+      <div class="nav-icon">💬</div>
+      <div class="nav-label">Chat</div>
+    </div>
+    <div class="nav-item" onclick="switchView('admin')" id="nav-admin" style="display:none">
+      <div class="nav-icon">⚙️</div>
+      <div class="nav-label">Admin</div>
+    </div>
+  </nav>
+</div>
+
+<!-- ADD USER MODAL -->
+<div class="modal-overlay" id="addUserModal">
+  <div class="modal">
+    <div class="modal-title">👤 Tilføj bruger</div>
+    <input type="text" id="nuUsername" placeholder="Brugernavn (f.eks. torben)">
+    <input type="text" id="nuName" placeholder="Fuldt navn (f.eks. Morfar Torben)">
+    <input type="password" id="nuPass" placeholder="Midlertidig adgangskode">
+    <select id="nuRole" style="width:100%;padding:13px 16px;border:2px solid var(--beige);border-radius:var(--radius-sm);font-family:Nunito,sans-serif;font-size:15px;margin-bottom:12px;background:var(--warm-white);color:var(--text-dark);outline:none">
+      <option value="family">🏠 Familie — fuld adgang</option>
+      <option value="extended">👴 Udvidet familie — feed + chat</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('addUserModal')">Annuller</button>
+      <button class="btn-primary" style="flex:1" onclick="addUser()">Opret bruger</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div class="modal-overlay" id="editUserModal">
+  <div class="modal">
+    <div class="modal-title" id="editUserTitle">✏️ Rediger bruger</div>
+    <input type="hidden" id="editUsername">
+    <div style="background:var(--beige);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:14px;font-size:14px;color:var(--text-mid);font-weight:600" id="editUserInfo"></div>
+    <label style="font-size:12px;font-weight:800;color:var(--text-light);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:6px">Ny adgangskode</label>
+    <input type="password" id="editPass" placeholder="Skriv ny adgangskode...">
+    <select id="editRole" style="width:100%;padding:13px 16px;border:2px solid var(--beige);border-radius:var(--radius-sm);font-family:Nunito,sans-serif;font-size:15px;margin-bottom:12px;background:var(--warm-white);color:var(--text-dark);outline:none">
+      <option value="family">🏠 Familie — fuld adgang</option>
+      <option value="extended">👴 Udvidet familie — feed + chat</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('editUserModal')">Annuller</button>
+      <button class="btn-primary" style="flex:1" onclick="saveUserEdit()">Gem ændringer</button>
+    </div>
+    <button id="deleteUserBtn" class="btn-cancel" style="width:100%;margin-top:10px;background:#fde8e8;color:#c62828" onclick="deleteUser()">🗑️ Slet bruger</button>
+  </div>
+</div>
+
+<!-- COUNTDOWN MODAL -->
+<div class="modal-overlay" id="countdownModal">
+  <div class="modal">
+    <div class="modal-title">⏳ Nedtælling</div>
+    <input type="text" id="cdTitle" placeholder="Hvad tæller vi ned til? (f.eks. Sommerferie)">
+    <input type="date" id="cdDate">
+    <div class="card-title" style="margin-bottom:10px">Vælg ikon</div>
+    <div class="emoji-grid" id="cdEmojiGrid"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('countdownModal')">Annuller</button>
+      <button class="btn-primary" style="flex:1" onclick="saveCountdown()">Gem nedtælling</button>
+    </div>
+    <button class="btn-cancel" style="width:100%;margin-top:10px;background:#fde8e8;color:#c62828" onclick="deleteCountdown()">🗑️ Slet nedtælling</button>
+  </div>
+</div>
+
+<!-- PERSON MODAL -->
+<div class="modal-overlay" id="personModal">
+  <div class="modal">
+    <div class="person-detail" id="personDetail"></div>
+    <button class="btn-cancel" style="width:100%" onclick="closeModal('personModal')">Luk</button>
+  </div>
+</div>
+
+<!-- EVENT MODAL -->
+<div class="modal-overlay" id="eventModal">
+  <div class="modal">
+    <div class="modal-title">📅 Ny aftale</div>
+    <input type="text" id="evtTitle" placeholder="Hvad sker der?">
+    <div class="modal-row">
+      <input type="date" id="evtDate">
+      <input type="time" id="evtTime" placeholder="Tidspunkt">
+    </div>
+    <input type="text" id="evtWho" placeholder="Hvem er med? (f.eks. Maja, Noah)">
+    <div class="card-title" style="margin-bottom:10px">Farve</div>
+    <div class="color-picker" id="colorPicker"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('eventModal')">Annuller</button>
+      <button class="btn-primary" style="flex:1" onclick="saveEvent()">Gem aftale</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──
+const USERS = {
+  simon:  { pass: 'familie123', role: 'admin',    name: 'Simon',         avatar: '👑', color: '#f4845f' },
+  malene: { pass: 'familie123', role: 'family',   name: 'Malene',        avatar: '🌸', color: '#f48fb1' },
+  hanne:  { pass: 'besok123',   role: 'extended', name: 'Mormor Hanne',  avatar: '👵', color: '#7db87a' },
+  lene:   { pass: 'besok123',   role: 'extended', name: 'Bedstemor Lene',avatar: '👵', color: '#b39ddb' },
+  martin: { pass: 'besok123',   role: 'extended', name: 'Martin',        avatar: '👨', color: '#6baed6' },
+};
+
+let currentUser = null;
+let currentView = 'home';
+let currentList = 'shopping';
+let currentFood = 'ai';
+let calDate = new Date();
+let selectedColor = '#f4845f';
+let persons = 4;
+
+const COLORS = ['#f4845f','#7db87a','#6baed6','#b39ddb','#f48fb1','#ffd54f','#ff7043'];
+
+const EMOJIS = ['😊','❤️','🌟','🎉','😂','🥰','🙏','🌸'];
+let emojiIdx = 0;
+
+let events = [
+  { id: 1, title: "Børnehave — Oskar", date: today(), time: "08:30", who: "Simon & Malene", color: "#7db87a" },
+  { id: 2, title: "Skole — August",    date: today(), time: "08:00", who: "Malene kører",   color: "#6baed6" },
+  { id: 3, title: "Aftensmad med Bedstemor Lene", date: today(), time: "18:00", who: "Alle", color: "#f4845f" },
+];
+
+let lists = {
+  shopping: [
+    { id: 1, text: 'Mælk', checked: false, cat: '🥛 Mejeri' },
+    { id: 2, text: 'Æbler', checked: false, cat: '🍎 Frugt' },
+    { id: 3, text: 'Kyllingefilet', checked: true, cat: '🥩 Kød' },
+  ],
+  todo: [
+    { id: 1, text: 'Bestil ferie',  checked: false, cat: '' },
+    { id: 2, text: 'Ring til læge', checked: false, cat: '' },
+  ],
+  packing: []
+};
+
+let memories = [
+  {
+    id: 1,
+    author: 'Malene',
+    avatar: '🌸',
+    color: '#fce4ec',
+    emoji: '❤️',
+    text: 'Oskar sagde sit første sætning i dag: "Jeg elsker dig, mor!" — mit hjerte eksploderede! 🥰',
+    time: 'I dag kl. 09:14',
+    reactions: { '❤️': 3, '😊': 2 }
+  },
+  {
+    id: 2,
+    author: 'Mormor Hanne',
+    avatar: '👵',
+    color: '#e8f5e9',
+    emoji: '🌸',
+    text: 'Glæder mig så meget til at se August og Oskar i weekenden! Har bagt æblekage 🍎🎂',
+    time: 'I dag kl. 11:30',
+    reactions: { '🎉': 4, '😊': 1 }
+  }
+];
+
+let chatMessages = [
+  { author: 'Malene', avatar: '🌸', color: '#fce4ec', text: 'Hvem henter August i dag?', time: '14:22', mine: false },
+  { author: 'Simon',  avatar: '👑', color: '#fff3e0', text: 'Det gør jeg! Jeg er fri kl. 15 🙌', time: '14:25', mine: true },
+  { author: 'Mormor Hanne', avatar: '👵', color: '#e8f5e9', text: 'Vi glæder os til at se drengene i weekenden! 🎉', time: '14:31', mine: false },
+];
+
+let weekPlan = {
+  man: null, tir: null, ons: null, tor: null, fre: null, lør: null, søn: null
+};
+
+let aiRecipes = [];
+
+// ── FAMILIE FEED ──
+const FEED_HILSNER = ['❤️','😊','🎉','🥰','😂','🙏','🌸','👏','💪','🤗','😘','🌟','🎂','☀️','🌈','🦋'];
+
+let feedPhotoBase64 = null;
+let feedSelectedEmoji = null;
+
+let feedItems = [
+  {
+    id: 1,
+    author: 'Malene', avatar: '🌸', avatarBg: '#fce4ec',
+    time: 'I dag kl. 08:45',
+    text: 'God morgen alle sammen! August og Oskar er afleveret med smil 😊',
+    image: null, greeting: null,
+    reactions: { '❤️': 5, '😊': 3 },
+    reacted: {},
+    comments: [
+      { author: 'Mormor Hanne', avatar: '👵', avatarBg: '#e8f5e9', text: 'De to sødeste drenge! ❤️' },
+      { author: 'Bedstemor Lene', avatar: '👵', avatarBg: '#f3e5f5', text: 'Knus til dem begge! 🤗' }
+    ]
+  },
+  {
+    id: 2,
+    author: 'Bedstefar Erik', avatar: '👴', avatarBg: '#e3f2fd',
+    time: 'I går kl. 16:30',
+    text: 'Havde en fantastisk tur med August i skoven i går! Han fandt en flot sten 🌲',
+    image: null, greeting: '🌲',
+    reactions: { '❤️': 7, '😊': 2, '🎉': 1 },
+    reacted: {},
+    comments: []
+  }
+];
+
+function renderFeed() {
+  // Update composer avatar
+  if (currentUser) {
+    document.getElementById('feedComposerAvatar').textContent = currentUser.avatar;
+  }
+
+  const el = document.getElementById('feedList');
+  if (!feedItems.length) {
+    el.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-light)">
+      <div style="font-size:48px;margin-bottom:12px">🌟</div>
+      <div style="font-size:16px;font-weight:700">Ingen opslag endnu</div>
+      <div style="font-size:14px;margin-top:6px">Vær den første til at dele noget!</div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = feedItems.map(item => `
+    <div class="feed-post" id="fpost-${item.id}">
+      <div class="feed-post-header">
+        <div class="feed-post-avatar" style="background:${item.avatarBg}">${item.avatar}</div>
+        <div>
+          <div class="feed-post-author">${item.author}</div>
+          <div class="feed-post-time">${item.time}</div>
+        </div>
+      </div>
+
+      ${item.image ? `<img class="feed-post-image" src="${item.image}" alt="billede">` : ''}
+
+      <div class="feed-post-body">
+        ${item.greeting ? `<span class="feed-post-greeting">${item.greeting}</span>` : ''}
+        ${item.text ? `<div class="feed-post-text">${item.text}</div>` : ''}
+      </div>
+
+      <div class="feed-post-reactions">
+        ${['❤️','😊','🎉','😂','🥰'].map(e => `
+          <button class="feed-reaction ${item.reacted[e] ? 'reacted' : ''}"
+            onclick="reactFeed(${item.id}, '${e}')">
+            ${e} ${item.reactions[e] || ''}
+          </button>
+        `).join('')}
+      </div>
+
+      <div class="feed-comment-section">
+        ${item.comments.map(c => `
+          <div class="feed-comment">
+            <div class="feed-comment-avatar" style="background:${c.avatarBg||'var(--beige)'}">${c.avatar}</div>
+            <div class="feed-comment-bubble">
+              <div class="feed-comment-name">${c.author}</div>
+              <div class="feed-comment-text">${c.text}</div>
+            </div>
+          </div>
+        `).join('')}
+        <div class="feed-add-comment">
+          <div class="feed-comment-avatar" style="background:${currentUser?.color||'var(--beige)'}22">${currentUser?.avatar||'👤'}</div>
+          <input class="feed-comment-input" id="fcomment-${item.id}" placeholder="Skriv en kommentar..."
+            onkeydown="if(event.key==='Enter')addFeedComment(${item.id})">
+          <button class="feed-comment-send" onclick="addFeedComment(${item.id})">➤</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function reactFeed(id, emoji) {
+  const item = feedItems.find(f => f.id === id);
+  if (!item) return;
+  if (item.reacted[emoji]) {
+    item.reactions[emoji] = Math.max(0, (item.reactions[emoji] || 1) - 1);
+    delete item.reacted[emoji];
+  } else {
+    item.reactions[emoji] = (item.reactions[emoji] || 0) + 1;
+    item.reacted[emoji] = true;
+  }
+  renderFeed();
+}
+
+function addFeedComment(id) {
+  const input = document.getElementById('fcomment-' + id);
+  const text = input?.value.trim();
+  if (!text) return;
+  const item = feedItems.find(f => f.id === id);
+  if (!item) return;
+  item.comments.push({
+    author: currentUser.name,
+    avatar: currentUser.avatar,
+    avatarBg: currentUser.color + '33',
+    text
+  });
+  input.value = '';
+  renderFeed();
+}
+
+function handleFeedPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    feedPhotoBase64 = e.target.result;
+    document.getElementById('feedPhotoPreviewImg').src = feedPhotoBase64;
+    document.getElementById('feedPhotoPreviewBox').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function clearFeedPhoto() {
+  feedPhotoBase64 = null;
+  document.getElementById('feedPhotoPreviewBox').style.display = 'none';
+}
+
+function pickFeedEmoji() {
+  const picker = document.getElementById('feedEmojiPicker');
+  const row = document.getElementById('feedEmojiRow');
+  const isOpen = picker.style.display !== 'none';
+  if (isOpen) { picker.style.display = 'none'; return; }
+
+  row.innerHTML = FEED_HILSNER.map(e => `
+    <div class="feed-emoji-opt ${feedSelectedEmoji===e?'selected':''}" onclick="selectFeedEmoji('${e}')">${e}</div>
+  `).join('');
+  picker.style.display = 'block';
+}
+
+function selectFeedEmoji(emoji) {
+  feedSelectedEmoji = feedSelectedEmoji === emoji ? null : emoji;
+  document.getElementById('feedEmojiPicker').style.display = 'none';
+  // Visual feedback on button
+  const btn = document.querySelector('.feed-action-btn.gif');
+  btn.textContent = feedSelectedEmoji ? `${feedSelectedEmoji} Hilsen` : '😊 Hilsen';
+}
+
+function postFeedItem() {
+  const text = document.getElementById('feedTextInput').value.trim();
+  if (!text && !feedPhotoBase64 && !feedSelectedEmoji) {
+    showToast('Skriv noget eller vælg et billede 😊'); return;
+  }
+
+  const now = new Date();
+  const timeStr = `Netop nu kl. ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  feedItems.unshift({
+    id: Date.now(),
+    author: currentUser.name,
+    avatar: currentUser.avatar,
+    avatarBg: currentUser.color + '33',
+    time: timeStr,
+    text: text || null,
+    image: feedPhotoBase64 || null,
+    greeting: feedSelectedEmoji || null,
+    reactions: {},
+    reacted: {},
+    comments: []
+  });
+
+  // Reset
+  document.getElementById('feedTextInput').value = '';
+  clearFeedPhoto();
+  feedSelectedEmoji = null;
+  document.querySelector('.feed-action-btn.gif').textContent = '😊 Hilsen';
+
+  renderFeed();
+  showToast('🌟 Delt med hele familien!');
+}
+
+// ── NEDTÆLLING ──
+const CD_EMOJIS = ['🏖️','✈️','🎄','🎅','🎃','🐣','🎆','🏕️','⛷️','🚢','🎡','🌍','🎠','🎉','🎂','🏔️','🌅','🏄','🎸','⚽'];
+let cdSelectedEmoji = '🏖️';
+let countdown = JSON.parse(localStorage.getItem('fh_countdown') || 'null');
+
+function renderCountdownBanner() {
+  const el = document.getElementById('countdownBanner');
+  if (!el) return;
+
+  if (!countdown) {
+    el.innerHTML = `
+      <div class="countdown-add-banner" onclick="openCountdownModal()">
+        <div class="countdown-add-icon">⏳</div>
+        <div>
+          <div class="countdown-add-text">Tilføj en nedtælling</div>
+          <div class="countdown-add-sub">Ferie, højtid, udflugter...</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const now = new Date(); now.setHours(0,0,0,0);
+  const target = new Date(countdown.date); target.setHours(0,0,0,0);
+  const diff = Math.round((target - now) / (1000*60*60*24));
+
+  let variant = '';
+  let daysText = '';
+  let daysLabel = 'dage tilbage';
+
+  if (diff < 0) {
+    daysText = Math.abs(diff);
+    daysLabel = 'dage siden';
+    variant = '';
+  } else if (diff === 0) {
+    daysText = '🎉';
+    daysLabel = 'Det er I DAG!';
+    variant = 'today-variant';
+    daysLabel = '';
+  } else if (diff === 1) {
+    daysText = '1';
+    daysLabel = 'dag tilbage — i morgen!';
+    variant = 'soon-variant';
+  } else if (diff <= 7) {
+    daysText = diff;
+    daysLabel = 'dage tilbage';
+    variant = 'soon-variant';
+  } else {
+    daysText = diff;
+    daysLabel = 'dage tilbage';
+  }
+
+  const dateStr = new Date(countdown.date).toLocaleDateString('da-DK', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  el.innerHTML = `
+    <div class="countdown-banner ${variant}" onclick="openCountdownModal()">
+      <button class="countdown-edit-btn" onclick="event.stopPropagation();openCountdownModal()">✏️ Rediger</button>
+      <div class="countdown-inner">
+        <div class="countdown-emoji">${countdown.emoji}</div>
+        <div class="countdown-text">
+          <div class="countdown-label">Nedtælling</div>
+          <div class="countdown-title">${countdown.title}</div>
+          <div class="countdown-days-row">
+            <div class="countdown-days">${daysText}</div>
+            ${daysLabel ? `<div class="countdown-days-label">${daysLabel}</div>` : ''}
+          </div>
+          <div class="countdown-date-sub">${dateStr}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function openCountdownModal() {
+  // Init emoji grid
+  const grid = document.getElementById('cdEmojiGrid');
+  grid.innerHTML = CD_EMOJIS.map(e => `
+    <div class="emoji-grid-btn ${(countdown?.emoji||cdSelectedEmoji)===e?'selected':''}"
+      onclick="selectCdEmoji('${e}', this)">${e}</div>
+  `).join('');
+
+  if (countdown) {
+    document.getElementById('cdTitle').value = countdown.title;
+    document.getElementById('cdDate').value = countdown.date;
+    cdSelectedEmoji = countdown.emoji;
+  } else {
+    document.getElementById('cdTitle').value = '';
+    document.getElementById('cdDate').value = '';
+    cdSelectedEmoji = '🏖️';
+  }
+  document.getElementById('countdownModal').classList.add('open');
+}
+
+function selectCdEmoji(emoji, el) {
+  cdSelectedEmoji = emoji;
+  document.querySelectorAll('.emoji-grid-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function saveCountdown() {
+  const title = document.getElementById('cdTitle').value.trim();
+  const date  = document.getElementById('cdDate').value;
+  if (!title || !date) { showToast('Udfyld navn og dato 😊'); return; }
+  countdown = { title, date, emoji: cdSelectedEmoji };
+  localStorage.setItem('fh_countdown', JSON.stringify(countdown));
+  closeModal('countdownModal');
+  renderCountdownBanner();
+  showToast('✅ Nedtælling gemt!');
+}
+
+function deleteCountdown() {
+  if (!confirm('Slet nedtællingen?')) return;
+  countdown = null;
+  localStorage.removeItem('fh_countdown');
+  closeModal('countdownModal');
+  renderCountdownBanner();
+}
+
+// ── FAMILIE DATA ──
+const FAMILIE = {
+  kerne: [
+    { id: 'simon',  name: 'Simon',  role: 'Far 👑',        avatar: '👨', color: '#fff3e0', border: '#f4845f', info: { Rolle: 'Far & admin', Tlf: '–', Note: 'Kører til arbejde kl. 7' } },
+    { id: 'malene', name: 'Malene', role: 'Mor',            avatar: '👩', color: '#fce4ec', border: '#f48fb1', info: { Rolle: 'Mor', Tlf: '–', Note: '' } },
+    { id: 'august', name: 'August', role: 'Storebror 🎒',   avatar: '👦', color: '#e3f2fd', border: '#6baed6', info: { Rolle: 'Storebror', Skole: 'Husmandsskolen', Klasse: '3. klasse', Allergi: 'Ingen' } },
+    { id: 'oskar',  name: 'Oskar',  role: 'Lillebror 🧸',  avatar: '👶', color: '#e8f5e9', border: '#7db87a', info: { Rolle: 'Lillebror', Institution: 'Børnehave', Allergi: 'Ingen' } },
+  ],
+  fars: [
+    { id: 'lene',  name: 'Bedstemor Lene', role: 'Farmor',          avatar: '👵', color: '#fce4ec', border: '#f48fb1', info: { Kaldet: 'Bedstemor Lene', Side: 'Fars side', Tlf: '–' } },
+    { id: 'erik',  name: 'Bedstefar Erik', role: 'Farfar',           avatar: '👴', color: '#e8f5e9', border: '#7db87a', info: { Kaldet: 'Bedstefar Erik', Side: 'Fars side', Tlf: '–' } },
+    { id: 'martin', name: 'Martin',         role: 'Simons bror',      avatar: '👨', color: '#e3f2fd', border: '#6baed6', info: { Relation: 'Onkel', Kone: 'Sanne', Børn: 'Svend & Viggo' } },
+    { id: 'sanne',  name: 'Sanne',          role: 'Martins kone',     avatar: '👩', color: '#f3e5f5', border: '#b39ddb', info: { Relation: 'Faster', Mand: 'Martin', Børn: 'Svend & Viggo' } },
+    { id: 'svend',  name: 'Svend',          role: 'Fætter',           avatar: '👦', color: '#fff3e0', border: '#f4845f', info: { Forældre: 'Martin & Sanne' } },
+    { id: 'viggo',  name: 'Viggo',          role: 'Fætter',           avatar: '👦', color: '#e8f5e9', border: '#7db87a', info: { Forældre: 'Martin & Sanne' } },
+  ],
+  mors: [
+    { id: 'hanne',   name: 'Mormor Hanne',  role: 'Mormor',           avatar: '👵', color: '#fff9c4', border: '#ffd54f', info: { Kaldet: 'Mormor Hanne', Side: 'Mors side', Tlf: '–' } },
+    { id: 'torben',  name: 'Morfar Torben', role: 'Morfar',            avatar: '👴', color: '#e0f7fa', border: '#80deea', info: { Kaldet: 'Morfar Torben', Side: 'Mors side', Tlf: '–' } },
+    { id: 'nikolaj', name: 'Nikolaj',        role: 'Malenes bror',     avatar: '👨', color: '#e8f5e9', border: '#7db87a', info: { Relation: 'Onkel', Kone: 'Helena', Børn: 'Malthe & Johan' } },
+    { id: 'helena',  name: 'Helena',         role: 'Nikolajs kone',    avatar: '👩', color: '#fce4ec', border: '#f48fb1', info: { Relation: 'Moster', Mand: 'Nikolaj', Børn: 'Malthe & Johan' } },
+    { id: 'malthe',  name: 'Malthe',         role: 'Fætter',           avatar: '👦', color: '#e3f2fd', border: '#6baed6', info: { Forældre: 'Nikolaj & Helena' } },
+    { id: 'johan',   name: 'Johan',          role: 'Fætter',           avatar: '👦', color: '#f3e5f5', border: '#b39ddb', info: { Forældre: 'Nikolaj & Helena' } },
+    { id: 'karina',  name: 'Karina',         role: 'Malenes søster',   avatar: '👩', color: '#fff3e0', border: '#f4845f', info: { Relation: 'Moster', Børn: 'Oliver & Sander' } },
+    { id: 'oliver',  name: 'Oliver',         role: 'Fætter',           avatar: '👦', color: '#e8f5e9', border: '#7db87a', info: { Forældre: 'Karina' } },
+    { id: 'sander',  name: 'Sander',         role: 'Fætter',           avatar: '👦', color: '#e0f7fa', border: '#80deea', info: { Forældre: 'Karina' } },
+  ]
+};
+
+const HENTE_PERSONS = ['Simon', 'Malene', 'Bedstemor Lene', 'Bedstefar Erik', 'Mormor Hanne', 'Morfar Torben', 'Anden'];
+const DAYS = ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag'];
+
+let hentePlan = {
+  august: { Mandag: {person:'', time:'14:00'}, Tirsdag: {person:'', time:'14:00'}, Onsdag: {person:'', time:'14:00'}, Torsdag: {person:'', time:'14:00'}, Fredag: {person:'', time:'14:00'} },
+  oskar:  { Mandag: {person:'', time:'15:00'}, Tirsdag: {person:'', time:'15:00'}, Onsdag: {person:'', time:'15:00'}, Torsdag: {person:'', time:'15:00'}, Fredag: {person:'', time:'15:00'} }
+};
+
+// Aflevering (fast hver dag)
+const AFLEVERING = {
+  august: { tid: '08:00', institution: 'Skole', person: 'Simon/Malene' },
+  oskar:  { tid: '08:30', institution: 'Børnehave', person: 'Simon/Malene' }
+};
+
+let currentHenteChild = 'august';
+
+function getDanishDay() {
+  const map = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+  return map[new Date().getDay()];
+}
+
+function renderHenteOversigt() {
+  const el = document.getElementById('henteOversigтContent');
+  if (!el) return;
+  const dayName = getDanishDay();
+  const isWeekend = dayName === 'Lørdag' || dayName === 'Søndag';
+
+  if (isWeekend) {
+    el.innerHTML = `<div style="text-align:center;padding:16px;color:var(--text-light);font-size:15px;">🎉 Det er weekend — ingen hentning i dag!</div>`;
+    return;
+  }
+
+  const aug = hentePlan.august[dayName] || {person:'', time:'14:00'};
+  const osk = hentePlan.oskar[dayName]  || {person:'', time:'15:00'};
+
+  el.innerHTML = `
+    <div class="hente-home-row">
+      <!-- August -->
+      <div class="hente-child-card august">
+        <div class="hente-child-label">🎒 August</div>
+        <div class="hente-child-institution">Skole</div>
+        <div style="margin-top:4px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-light);margin-bottom:4px">AFLEVERING</div>
+          <div class="hente-person-badge">🕗 ${AFLEVERING.august.tid} &nbsp;·&nbsp; ${AFLEVERING.august.person}</div>
+        </div>
+        <div style="margin-top:6px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-light);margin-bottom:4px">HENTNING</div>
+          ${aug.person
+            ? `<div class="hente-person-badge">🕑 ${aug.time} &nbsp;·&nbsp; 🚗 ${aug.person}</div>`
+            : `<div class="hente-not-set">Ikke sat endnu</div>`
+          }
+        </div>
+      </div>
+
+      <!-- Oskar -->
+      <div class="hente-child-card oskar">
+        <div class="hente-child-label">🧸 Oskar</div>
+        <div class="hente-child-institution">Børnehave</div>
+        <div style="margin-top:4px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-light);margin-bottom:4px">AFLEVERING</div>
+          <div class="hente-person-badge">🕗 ${AFLEVERING.oskar.tid} &nbsp;·&nbsp; ${AFLEVERING.oskar.person}</div>
+        </div>
+        <div style="margin-top:6px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-light);margin-bottom:4px">HENTNING</div>
+          ${osk.person
+            ? `<div class="hente-person-badge">🕑 ${osk.time} &nbsp;·&nbsp; 🚗 ${osk.person}</div>`
+            : `<div class="hente-not-set">Ikke sat endnu</div>`
+          }
+        </div>
+      </div>
+    </div>
+    <div class="hente-edit-link" onclick="switchView('familie')">✏️ Rediger ugeplanen</div>
+  `;
+}
+
+function renderFamilie() {
+  renderFamilieGroup('kerneFamilie', FAMILIE.kerne);
+  renderFamilieGroup('farsSide', FAMILIE.fars);
+  renderFamilieGroup('morsSide', FAMILIE.mors);
+  renderHentePlan();
+}
+
+function renderFamilieGroup(elId, members) {
+  const el = document.getElementById(elId);
+  el.innerHTML = members.map(m => `
+    <div class="familie-card" style="border-left-color:${m.border}" onclick="showPerson('${m.id}')">
+      <div class="familie-avatar-big" style="background:${m.color}">${m.avatar}</div>
+      <div>
+        <div class="familie-name">${m.name}</div>
+        <div class="familie-role">${m.role}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showPerson(id) {
+  const all = [...FAMILIE.kerne, ...FAMILIE.fars, ...FAMILIE.mors];
+  const p = all.find(x => x.id === id);
+  if (!p) return;
+  const infoRows = Object.entries(p.info).map(([k,v]) => v ? `
+    <div class="person-info-row">
+      <div class="person-info-label">${k}</div>
+      <div class="person-info-value">${v}</div>
+    </div>` : '').join('');
+  document.getElementById('personDetail').innerHTML = `
+    <div class="person-detail-avatar" style="background:${p.color}">${p.avatar}</div>
+    <div class="person-detail-name">${p.name}</div>
+    <div class="person-detail-role">${p.role}</div>
+    ${infoRows ? `<div class="person-detail-info">${infoRows}</div>` : ''}
+  `;
+  document.getElementById('personModal').classList.add('open');
+}
+
+function switchHenteChild(child, el) {
+  currentHenteChild = child;
+  document.querySelectorAll('.hente-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderHentePlan();
+}
+
+function renderHentePlan() {
+  const el = document.getElementById('henteWeek');
+  const childName = currentHenteChild === 'august' ? 'August 🎒' : 'Oskar 🧸';
+  const inst = currentHenteChild === 'august' ? 'Skole' : 'Børnehave';
+  el.innerHTML = DAYS.map(day => {
+    const entry = hentePlan[currentHenteChild][day] || {person:'', time: currentHenteChild==='august'?'14:00':'15:00'};
+    return `
+    <div class="hente-row">
+      <div class="hente-day">${day.slice(0,3)}</div>
+      <div class="hente-child" style="font-size:11px">${inst}</div>
+      <input type="time" class="hente-time-input" value="${entry.time}" onchange="saveHenteTime('${day}', this.value)">
+      <select class="hente-picker" style="flex:1" onchange="saveHente('${day}', this.value)">
+        <option value="">Hvem henter?</option>
+        ${HENTE_PERSONS.map(p => `<option value="${p}" ${entry.person===p?'selected':''}>${p}</option>`).join('')}
+      </select>
+    </div>
+  `}).join('');
+  updateHenteSummary();
+}
+
+function saveHente(day, person) {
+  if (!hentePlan[currentHenteChild][day]) hentePlan[currentHenteChild][day] = {person:'', time:'14:00'};
+  hentePlan[currentHenteChild][day].person = person;
+  updateHenteSummary();
+  renderHenteOversigt();
+}
+
+function saveHenteTime(day, time) {
+  if (!hentePlan[currentHenteChild][day]) hentePlan[currentHenteChild][day] = {person:'', time};
+  hentePlan[currentHenteChild][day].time = time;
+  renderHenteOversigt();
+}
+
+function updateHenteSummary() {
+  const plan = hentePlan[currentHenteChild];
+  const childName = currentHenteChild === 'august' ? 'August' : 'Oskar';
+  const filled = DAYS.filter(d => plan[d] && plan[d].person);
+  if (!filled.length) {
+    document.getElementById('henteSummary').textContent = `Vælg hvem henter ${childName} hver dag 👇`;
+    return;
+  }
+  const next = DAYS.find(d => plan[d] && plan[d].person);
+  const entry = plan[next];
+  document.getElementById('henteSummary').textContent = `Næste: ${next} kl. ${entry.time} henter ${entry.person} ${childName} 🚗`;
+}
+
+
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function hashPass(p) {
+  // Simple demo hash (in production use SHA-256 + salt)
+  return btoa(p + '_salt_familiehub_2024');
+}
+
+// ── LOGIN ──
+// ── LOGIN LOG ──
+let loginLog = [
+  { type: 'ok',   username: 'simon',  name: 'Simon',         time: 'I dag kl. 07:42', detail: 'Logget ind' },
+  { type: 'ok',   username: 'malene', name: 'Malene',        time: 'I dag kl. 08:15', detail: 'Logget ind' },
+  { type: 'fail', username: '???',    name: 'Ukendt',        time: 'I dag kl. 09:03', detail: 'Forkert adgangskode (forsøgt: "hanne")' },
+  { type: 'ok',   username: 'hanne',  name: 'Mormor Hanne',  time: 'I dag kl. 10:22', detail: 'Logget ind' },
+];
+
+let failedAttempts = {}; // track rate limiting per username
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim().toLowerCase();
+  const p = document.getElementById('loginPass').value;
+  const now = new Date();
+  const timeStr = `I dag kl. ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  // Rate limiting
+  if (failedAttempts[u] && failedAttempts[u].count >= 5) {
+    const elapsed = (Date.now() - failedAttempts[u].lastTime) / 1000 / 60;
+    if (elapsed < 15) {
+      document.getElementById('loginErr').textContent = `For mange forsøg. Prøv igen om ${Math.ceil(15 - elapsed)} min.`;
+      document.getElementById('loginErr').style.display = 'block';
+      return;
+    } else {
+      failedAttempts[u] = null; // reset after 15 min
+    }
+  }
+
+  const user = USERS[u];
+  if (user && !user.deleted && user.pass === p) {
+    // Success
+    loginLog.unshift({ type: 'ok', username: u, name: user.name, time: timeStr, detail: 'Logget ind' });
+    failedAttempts[u] = null;
+    currentUser = { ...user, username: u };
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('app').style.flexDirection = 'column';
+    document.getElementById('loginErr').style.display = 'none';
+    initApp();
+  } else {
+    // Failure — log it
+    const displayName = user ? user.name : `"${u}"`;
+    loginLog.unshift({ type: 'fail', username: u, name: displayName, time: timeStr, detail: user ? 'Forkert adgangskode' : 'Bruger findes ikke' });
+    if (!failedAttempts[u]) failedAttempts[u] = { count: 0, lastTime: Date.now() };
+    failedAttempts[u].count++;
+    failedAttempts[u].lastTime = Date.now();
+    const remaining = 5 - failedAttempts[u].count;
+    document.getElementById('loginErr').textContent = remaining > 0
+      ? `Forkert brugernavn eller adgangskode (${remaining} forsøg tilbage)`
+      : 'Kontoen er låst i 15 minutter';
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  if (confirm('Log ud?')) {
+    const now = new Date();
+    const timeStr = `I dag kl. ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    loginLog.unshift({ type: 'out', username: currentUser.username, name: currentUser.name, time: timeStr, detail: 'Logget ud' });
+    currentUser = null;
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginErr').style.display = 'none';
+  }
+}
+
+// ── ADMIN ──
+const ROLE_LABELS = {
+  admin:    '👑 Admin',
+  family:   '🏠 Familie',
+  extended: '👴 Udvidet familie'
+};
+
+const ROLE_COLORS = {
+  admin: '#fff3e0', family: '#e8f5e9', extended: '#e3f2fd'
+};
+
+let currentLogFilter = 'all';
+
+function renderAdminUserList() {
+  const el = document.getElementById('adminUserList');
+  if (!el) return;
+  const entries = Object.entries(USERS).filter(([,u]) => !u.deleted);
+  el.innerHTML = entries.map(([username, user]) => `
+    <div class="admin-user-row">
+      <div class="admin-user-avatar" style="background:${user.color}33">${user.avatar}</div>
+      <div class="admin-user-info">
+        <div class="admin-user-name">${user.name}</div>
+        <div class="admin-user-meta">
+          <span style="background:${ROLE_COLORS[user.role]};padding:2px 8px;border-radius:10px;font-weight:800;font-size:11px">${ROLE_LABELS[user.role]}</span>
+          &nbsp; @${username}
+        </div>
+      </div>
+      <div class="admin-user-status">
+        ${username !== 'simon' ? `<button class="admin-edit-btn" onclick="openEditUser('${username}')">✏️ Rediger</button>` : '<span style="font-size:11px;color:var(--text-light)">Dig selv</span>'}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAdminLog() {
+  const el = document.getElementById('adminLogList');
+  if (!el) return;
+  const filtered = currentLogFilter === 'all' ? loginLog
+    : currentLogFilter === 'fail' ? loginLog.filter(l => l.type === 'fail')
+    : loginLog.filter(l => l.type === 'ok');
+
+  if (!filtered.length) {
+    el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-light);font-size:14px">Ingen aktivitet at vise</div>`;
+    return;
+  }
+
+  el.innerHTML = filtered.map(entry => `
+    <div class="log-entry">
+      <div class="log-icon">${entry.type==='ok' ? '✅' : entry.type==='fail' ? '❌' : '🚪'}</div>
+      <div class="log-info">
+        <div class="log-user">${entry.name} <span class="log-badge-${entry.type}">${entry.type==='ok'?'Logget ind':entry.type==='fail'?'Mislykket':'Logget ud'}</span></div>
+        <div class="log-detail">${entry.detail}</div>
+      </div>
+      <div class="log-time">${entry.time}</div>
+    </div>
+  `).join('');
+}
+
+function showLog(filter, el) {
+  currentLogFilter = filter;
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderAdminLog();
+}
+
+function openAddUserModal() {
+  document.getElementById('nuUsername').value = '';
+  document.getElementById('nuName').value = '';
+  document.getElementById('nuPass').value = '';
+  document.getElementById('nuRole').value = 'extended';
+  document.getElementById('addUserModal').classList.add('open');
+}
+
+function addUser() {
+  const username = document.getElementById('nuUsername').value.trim().toLowerCase();
+  const name     = document.getElementById('nuName').value.trim();
+  const pass     = document.getElementById('nuPass').value;
+  const role     = document.getElementById('nuRole').value;
+
+  if (!username || !name || !pass) { showToast('Udfyld alle felter'); return; }
+  if (USERS[username]) { showToast('Brugernavnet er allerede taget'); return; }
+  if (pass.length < 6) { showToast('Adgangskoden skal være mindst 6 tegn'); return; }
+
+  USERS[username] = { pass, role, name, avatar: role==='family'?'👤':'👥', color: '#b39ddb' };
+  closeModal('addUserModal');
+  renderAdminUserList();
+  showToast(`✅ ${name} er oprettet som bruger!`);
+
+  loginLog.unshift({
+    type: 'ok', username, name,
+    time: `Netop nu`,
+    detail: `Bruger oprettet af admin (${ROLE_LABELS[role]})`
+  });
+  renderAdminLog();
+}
+
+function openEditUser(username) {
+  const user = USERS[username];
+  if (!user) return;
+  document.getElementById('editUsername').value = username;
+  document.getElementById('editUserTitle').textContent = `✏️ ${user.name}`;
+  document.getElementById('editUserInfo').textContent = `@${username} · ${ROLE_LABELS[user.role]}`;
+  document.getElementById('editPass').value = '';
+  document.getElementById('editRole').value = user.role === 'admin' ? 'family' : user.role;
+  // Hide delete for family role users if needed
+  document.getElementById('deleteUserBtn').style.display = user.role === 'admin' ? 'none' : 'block';
+  document.getElementById('editUserModal').classList.add('open');
+}
+
+function saveUserEdit() {
+  const username = document.getElementById('editUsername').value;
+  const newPass  = document.getElementById('editPass').value;
+  const newRole  = document.getElementById('editRole').value;
+  const user = USERS[username];
+  if (!user) return;
+
+  if (newPass && newPass.length < 6) { showToast('Adgangskoden skal være mindst 6 tegn'); return; }
+  if (newPass) user.pass = newPass;
+  if (user.role !== 'admin') user.role = newRole;
+
+  closeModal('editUserModal');
+  renderAdminUserList();
+  showToast(`✅ ${user.name} er opdateret`);
+
+  loginLog.unshift({
+    type: 'ok', username, name: user.name,
+    time: 'Netop nu',
+    detail: `Bruger redigeret af admin${newPass ? ' (ny adgangskode sat)' : ''}`
+  });
+  renderAdminLog();
+}
+
+function deleteUser() {
+  const username = document.getElementById('editUsername').value;
+  const user = USERS[username];
+  if (!user || user.role === 'admin') return;
+  if (!confirm(`Slet ${user.name}? De kan ikke længere logge ind.`)) return;
+
+  loginLog.unshift({
+    type: 'fail', username, name: user.name,
+    time: 'Netop nu',
+    detail: `Bruger slettet af admin`
+  });
+
+  user.deleted = true; // soft delete
+  closeModal('editUserModal');
+  renderAdminUserList();
+  renderAdminLog();
+  showToast(`🗑️ ${user.name} er slettet`);
+}
+
+
+
+// ── INIT ──
+function initApp() {
+  document.getElementById('headerAvatar').textContent = currentUser.avatar;
+  document.getElementById('headerUsername').textContent = currentUser.name;
+
+  // Show admin nav only for admin
+  if (currentUser.role === 'admin') {
+    document.getElementById('nav-admin').style.display = 'flex';
+  }
+
+  // Role access: extended sees feed + chat only
+  if (currentUser.role === 'extended') {
+    document.getElementById('nav-kalender').style.display = 'none';
+    document.getElementById('nav-lister').style.display = 'none';
+    document.getElementById('nav-mad').style.display = 'none';
+    document.getElementById('nav-familie').style.display = 'none';
+    switchView('feed');
+  }
+
+  setWelcome();
+  renderCalendar();
+  renderList();
+  renderMemories();
+  renderChat();
+  renderFeed();
+  renderWeekPlan();
+  renderFamilie();
+  renderHenteOversigt();
+  renderCountdownBanner();
+  renderAdminUserList();
+  renderAdminLog();
+  initColorPicker();
+  updateHomeShoppingCard();
+}
+
+function setWelcome() {
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'God morgen' : h < 18 ? 'God eftermiddag' : 'God aften';
+  document.getElementById('welcomeGreeting').textContent = `${greet}, ${currentUser.name}! ${h < 12 ? '☀️' : h < 18 ? '🌤️' : '🌙'}`;
+  document.getElementById('welcomeDate').textContent = new Date().toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+// ── NAVIGATION ──
+function switchView(view) {
+  // Extended users can only see feed and chat
+  if (currentUser && currentUser.role === 'extended' && !['feed','chat','minder'].includes(view)) return;
+  // Admin panel only for admin
+  if (view === 'admin' && currentUser && currentUser.role !== 'admin') return;
+
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  document.getElementById('view-' + view).classList.add('active');
+  const navEl = document.getElementById('nav-' + view);
+  if (navEl) navEl.classList.add('active');
+  currentView = view;
+
+  // Hide/show fab
+  const fab = document.querySelector('.add-event-btn');
+  if (fab) fab.style.display = view === 'kalender' ? 'flex' : 'none';
+}
+
+// ── CALENDAR ──
+function renderCalendar() {
+  const year = calDate.getFullYear();
+  const month = calDate.getMonth();
+  const label = calDate.toLocaleDateString('da-DK', { month: 'long', year: 'numeric' });
+  document.getElementById('calMonthLabel').textContent = label.charAt(0).toUpperCase() + label.slice(1);
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  ['Ma','Ti','On','To','Fr','Lø','Sø'].forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-day-name';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const first = new Date(year, month, 1);
+  let startDay = first.getDay() - 1;
+  if (startDay < 0) startDay = 6;
+
+  for (let i = 0; i < startDay; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day empty';
+    grid.appendChild(el);
+  }
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayStr = today();
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    el.textContent = d;
+    if (dateStr === todayStr) el.classList.add('today');
+    if (events.some(e => e.date === dateStr)) el.classList.add('has-event');
+    grid.appendChild(el);
+  }
+
+  renderEventList();
+}
+
+function renderEventList() {
+  const el = document.getElementById('eventList');
+  const sorted = [...events].sort((a,b) => a.date.localeCompare(b.date));
+  el.innerHTML = sorted.map(e => `
+    <div class="event-list-item">
+      <div class="event-color-bar" style="background:${e.color}"></div>
+      <div class="event-list-info">
+        <div class="event-list-name">${e.title}</div>
+        <div class="event-list-meta">${formatDate(e.date)} ${e.time ? '· ' + e.time : ''} ${e.who ? '· ' + e.who : ''}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function formatDate(d) {
+  return new Date(d + 'T12:00:00').toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+function changeMonth(dir) {
+  calDate.setMonth(calDate.getMonth() + dir);
+  renderCalendar();
+}
+
+// ── EVENT MODAL ──
+function initColorPicker() {
+  const cp = document.getElementById('colorPicker');
+  cp.innerHTML = COLORS.map((c,i) => `
+    <div class="color-opt ${i===0?'selected':''}" style="background:${c}" onclick="selectColor('${c}', this)"></div>
+  `).join('');
+}
+
+function selectColor(c, el) {
+  selectedColor = c;
+  document.querySelectorAll('.color-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function openEventModal() {
+  document.getElementById('evtDate').value = today();
+  document.getElementById('evtTitle').value = '';
+  document.getElementById('evtTime').value = '';
+  document.getElementById('evtWho').value = '';
+  document.getElementById('eventModal').classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function saveEvent() {
+  const title = document.getElementById('evtTitle').value.trim();
+  const date = document.getElementById('evtDate').value;
+  if (!title || !date) { showToast('Udfyld titel og dato'); return; }
+  events.push({
+    id: Date.now(),
+    title,
+    date,
+    time: document.getElementById('evtTime').value,
+    who: document.getElementById('evtWho').value,
+    color: selectedColor
+  });
+  renderCalendar();
+  closeModal('eventModal');
+  showToast('✅ Aftale gemt!');
+}
+
+// ── LISTS ──
+function switchList(list, el) {
+  currentList = list;
+  document.querySelectorAll('.list-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+function renderList() {
+  const items = lists[currentList];
+  const container = document.getElementById('listItems');
+  const empty = document.getElementById('listEmpty');
+
+  if (!items.length) {
+    container.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  container.innerHTML = items.map(item => `
+    <div class="list-item ${item.checked ? 'checked' : ''}" id="li-${item.id}">
+      <div class="list-checkbox" onclick="toggleItem(${item.id})">${item.checked ? '✓' : ''}</div>
+      <div class="list-item-text">${item.text}</div>
+      ${item.cat ? `<div class="list-item-cat">${item.cat}</div>` : ''}
+      <div class="list-delete" onclick="deleteItem(${item.id})">✕</div>
+    </div>
+  `).join('');
+
+  updateHomeShoppingCard();
+}
+
+function addListItem() {
+  const input = document.getElementById('listInput');
+  const text = input.value.trim();
+  if (!text) return;
+  lists[currentList].push({ id: Date.now(), text, checked: false, cat: '' });
+  input.value = '';
+  renderList();
+}
+
+function toggleItem(id) {
+  const item = lists[currentList].find(i => i.id === id);
+  if (item) { item.checked = !item.checked; renderList(); }
+}
+
+function deleteItem(id) {
+  lists[currentList] = lists[currentList].filter(i => i.id !== id);
+  renderList();
+}
+
+function updateHomeShoppingCard() {
+  const unchecked = lists.shopping.filter(i => !i.checked);
+  const el = document.getElementById('homeShoppingList');
+  if (!unchecked.length) {
+    el.textContent = 'Ingen varer mangler ✅';
+  } else {
+    el.innerHTML = unchecked.slice(0,5).map(i => `<div style="padding:6px 0;border-bottom:1px solid var(--beige);font-size:15px;font-weight:600;">• ${i.text}</div>`).join('');
+    if (unchecked.length > 5) el.innerHTML += `<div style="padding:6px 0;color:var(--text-light);font-size:13px;">+${unchecked.length-5} mere...</div>`;
+  }
+}
+
+// ── MEMORIES ──
+function cycleEmoji() {
+  emojiIdx = (emojiIdx + 1) % EMOJIS.length;
+  document.getElementById('selectedEmoji').textContent = EMOJIS[emojiIdx];
+}
+
+function postMemory() {
+  const text = document.getElementById('memoryText').value.trim();
+  if (!text) { showToast('Skriv noget først 😊'); return; }
+  memories.unshift({
+    id: Date.now(),
+    author: currentUser.name,
+    avatar: currentUser.avatar,
+    color: currentUser.color + '22',
+    emoji: EMOJIS[emojiIdx],
+    text,
+    time: 'Netop nu',
+    reactions: {}
+  });
+  document.getElementById('memoryText').value = '';
+  renderMemories();
+  showToast('💛 Delt med familien!');
+}
+
+function addReaction(id, emoji) {
+  const mem = memories.find(m => m.id === id);
+  if (mem) {
+    mem.reactions[emoji] = (mem.reactions[emoji] || 0) + 1;
+    renderMemories();
+  }
+}
+
+function renderMemories() {
+  const list = document.getElementById('memoriesList');
+  list.innerHTML = memories.map(m => `
+    <div class="memory-item">
+      <div class="memory-header">
+        <div class="memory-avatar" style="background:${m.color}">${m.avatar}</div>
+        <div>
+          <div class="memory-author">${m.author}</div>
+          <div class="memory-time">${m.time}</div>
+        </div>
+      </div>
+      <span class="memory-emoji">${m.emoji}</span>
+      <div class="memory-text">${m.text}</div>
+      <div class="memory-reactions">
+        ${['❤️','😊','🎉','😂'].map(e => `
+          <button class="reaction-btn" onclick="addReaction(${m.id},'${e}')">
+            ${e} ${m.reactions[e] || ''}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── CHAT ──
+function renderChat() {
+  const el = document.getElementById('chatMessages');
+  el.innerHTML = chatMessages.map(m => `
+    <div class="chat-msg ${m.mine ? 'mine' : ''}">
+      <div class="chat-avatar" style="background:${m.color}">${m.avatar}</div>
+      <div>
+        <div class="chat-bubble">${m.text}</div>
+        <div class="chat-meta">${m.author} · ${m.time}</div>
+      </div>
+    </div>
+  `).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const now = new Date();
+  chatMessages.push({
+    author: currentUser.name,
+    avatar: currentUser.avatar,
+    color: currentUser.color + '33',
+    text,
+    time: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
+    mine: true
+  });
+  input.value = '';
+  renderChat();
+}
+
+// ── FOOD / AI ──
+function switchFood(tab, el) {
+  currentFood = tab;
+  document.querySelectorAll('.food-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('foodAI').style.display   = tab === 'ai'   ? 'block' : 'none';
+  document.getElementById('foodPlan').style.display  = tab === 'plan' ? 'block' : 'none';
+  document.getElementById('foodShop').style.display  = tab === 'shop' ? 'block' : 'none';
+}
+
+function changePersons(dir) {
+  persons = Math.max(1, Math.min(12, persons + dir));
+  document.getElementById('personsCount').textContent = persons;
+}
+
+let fridgePhotoBase64 = null;
+let fridgeFoundIngredients = [];
+
+async function handleFridgePhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Show preview
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result;
+    fridgePhotoBase64 = base64.split(',')[1]; // strip data URL prefix
+
+    document.getElementById('fridgePhotoImg').src = base64;
+    document.getElementById('fridgePhotoPreview').style.display = 'block';
+    document.getElementById('cameraZone').classList.add('has-photo');
+
+    // Scan with AI
+    await scanFridgePhoto();
+  };
+  reader.readAsDataURL(file);
+  event.target.value = ''; // reset so same file can be re-selected
+}
+
+async function scanFridgePhoto() {
+  const status = document.getElementById('fridgeScanStatus');
+  const found  = document.getElementById('fridgeFoundItems');
+  const tags   = document.getElementById('fridgeTagsContainer');
+
+  status.style.display = 'flex';
+  found.style.display = 'none';
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: 'image/jpeg', data: fridgePhotoBase64 }
+            },
+            {
+              type: 'text',
+              text: 'Se på dette billede af et køleskab. List alle ingredienser og madvarer du kan se. Svar KUN med JSON uden markdown backticks: {"ingredients": ["ingrediens1", "ingrediens2", "ingrediens3"]}'
+            }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content.map(c => c.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    fridgeFoundIngredients = parsed.ingredients || [];
+
+    // Render tags
+    tags.innerHTML = fridgeFoundIngredients.map((ing, i) => `
+      <div class="fridge-tag" id="ftag-${i}" onclick="removeFridgeTag(${i})">
+        ${ing} ✕
+      </div>
+    `).join('');
+
+    // Also populate textarea
+    document.getElementById('fridgeText').value = fridgeFoundIngredients.join(', ');
+
+    found.style.display = 'block';
+    showToast(`🧊 Fandt ${fridgeFoundIngredients.length} ingredienser!`);
+
+  } catch(e) {
+    showToast('Kunne ikke scanne billedet. Prøv at skrive ingredienserne selv.');
+  }
+
+  status.style.display = 'none';
+}
+
+function removeFridgeTag(i) {
+  document.getElementById('ftag-' + i).classList.add('removed');
+  fridgeFoundIngredients[i] = null;
+  // Update textarea
+  const remaining = fridgeFoundIngredients.filter(Boolean);
+  document.getElementById('fridgeText').value = remaining.join(', ');
+}
+
+function clearFridgePhoto() {
+  fridgePhotoBase64 = null;
+  fridgeFoundIngredients = [];
+  document.getElementById('fridgePhotoPreview').style.display = 'none';
+  document.getElementById('fridgeFoundItems').style.display = 'none';
+  document.getElementById('fridgeScanStatus').style.display = 'none';
+  document.getElementById('cameraZone').classList.remove('has-photo');
+  document.getElementById('fridgeText').value = '';
+}
+
+async function getAIRecipes() {
+  const fridge = document.getElementById('fridgeText').value.trim();
+  if (!fridge) { showToast('Tag et billede eller skriv ingredienser 🧊'); return; }
+
+  const btn = document.getElementById('aiBtn');
+  btn.innerHTML = '<div class="spinner"></div><span>Finder opskrifter...</span>';
+  btn.disabled = true;
+
+  const resultsEl = document.getElementById('aiResults');
+  resultsEl.innerHTML = '';
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `Jeg har følgende ingredienser i køleskabet: ${fridge}. Opskriften skal passe til ${persons} personer.
+
+Foreslå 3 lækre, nemme middagsopskrifter jeg kan lave. Svar KUN med JSON og ingenting andet (ingen markdown backticks):
+{
+  "recipes": [
+    {
+      "title": "Opskrift navn",
+      "time": "30 min",
+      "difficulty": "Let",
+      "ingredients": ["ingrediens 1 med mængde", "ingrediens 2 med mængde"],
+      "steps": ["Trin 1", "Trin 2", "Trin 3"]
+    }
+  ]
+}`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content.map(c => c.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    aiRecipes = parsed.recipes;
+
+    resultsEl.innerHTML = aiRecipes.map((r, i) => `
+      <div class="ai-result">
+        <div class="ai-recipe-title">🍳 ${r.title}</div>
+        <div class="ai-recipe-meta">
+          <span>⏱ ${r.time}</span>
+          <span>📊 ${r.difficulty}</span>
+          <span>👥 ${persons} pers.</span>
+        </div>
+        <div class="ai-recipe-text">
+          <strong>Ingredienser:</strong><br>
+          ${r.ingredients.join(', ')}<br><br>
+          <strong>Fremgangsmåde:</strong><br>
+          ${r.steps.map((s,j) => `${j+1}. ${s}`).join('<br>')}
+        </div>
+        <button class="btn-add-to-plan" onclick="addToPlan('${r.title}', ${i})">+ Tilføj til ugeplan</button>
+      </div>
+    `).join('');
+
+  } catch(e) {
+    resultsEl.innerHTML = '<div class="ai-result">Kunne ikke hente opskrifter. Prøv igen. 😕</div>';
+  }
+
+  btn.innerHTML = '<span>✨ Find opskrifter</span>';
+  btn.disabled = false;
+}
+
+function addToPlan(title, recipeIdx) {
+  const days = ['man','tir','ons','tor','fre','lør','søn'];
+  const freeDay = days.find(d => !weekPlan[d]);
+  if (freeDay) {
+    weekPlan[freeDay] = { title, ingredients: aiRecipes[recipeIdx]?.ingredients || [] };
+    renderWeekPlan();
+    updateMealShopList();
+    showToast(`✅ ${title} tilføjet til ${freeDay}`);
+  } else {
+    showToast('Ugeplanen er fuld! Fjern en dag først.');
+  }
+}
+
+function renderWeekPlan() {
+  const el = document.getElementById('weekPlan');
+  const days = [
+    { key: 'man', label: 'Man' }, { key: 'tir', label: 'Tir' },
+    { key: 'ons', label: 'Ons' }, { key: 'tor', label: 'Tor' },
+    { key: 'fre', label: 'Fre' }, { key: 'lør', label: 'Lør' },
+    { key: 'søn', label: 'Søn' }
+  ];
+  el.innerHTML = days.map(d => `
+    <div class="week-day-card">
+      <div class="week-day-name">${d.label}</div>
+      <div class="week-day-meal">
+        ${weekPlan[d.key]
+          ? `<span>${weekPlan[d.key].title}</span>`
+          : '<span class="week-day-empty">Ingen ret planlagt</span>'}
+      </div>
+      <div class="week-day-icon">
+        ${weekPlan[d.key]
+          ? `<span onclick="removePlan('${d.key}')" style="cursor:pointer;font-size:16px;color:var(--text-light)">✕</span>`
+          : '🍽️'}
+      </div>
+    </div>
+  `).join('');
+}
+
+function removePlan(day) {
+  weekPlan[day] = null;
+  renderWeekPlan();
+  updateMealShopList();
+}
+
+function updateMealShopList() {
+  const el = document.getElementById('mealShopList');
+  const allIngredients = Object.values(weekPlan)
+    .filter(Boolean)
+    .flatMap(r => r.ingredients);
+
+  if (!allIngredients.length) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:20px;font-size:15px;">Tilføj opskrifter til ugeplanen først 🍽️</div>';
+    return;
+  }
+
+  el.innerHTML = allIngredients.map(ing => `
+    <div class="list-item">
+      <div class="list-checkbox" onclick="this.textContent=this.textContent?'':'✓';this.parentElement.classList.toggle('checked')"></div>
+      <div class="list-item-text">${ing}</div>
+    </div>
+  `).join('');
+}
+
+// Enter på login
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginScreen').style.display !== 'none') {
+    doLogin();
+  }
+});
+
+// Init
+document.getElementById('welcomeDate').textContent = new Date().toLocaleDateString('da-DK', {
+  weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+});
+
+// ── PERSISTENCE: gem data ved ændringer ──
+function saveAllData() {
+  LOCAL.save('events',       events);
+  LOCAL.save('lists',        lists);
+  LOCAL.save('memories',     memories);
+  LOCAL.save('chatMessages', chatMessages);
+  LOCAL.save('feedItems',    feedItems);
+  LOCAL.save('hentePlan',    hentePlan);
+  LOCAL.save('weekPlan',     weekPlan);
+  LOCAL.save('users_extra',  USERS);
+  if (countdown) LOCAL.save('countdown', countdown);
+}
+
+// Gem data automatisk ved ændringer
+function patchSave(fn) {
+  return function(...args) {
+    const result = fn.apply(this, args);
+    saveAllData();
+    return result;
+  };
+}
+
+// Indlæs data fra localStorage ved opstart
+function loadAllData() {
+  const saved = LOCAL.loadAll ? LOCAL.loadAll() : null;
+  if (!saved) return;
+
+  if (saved.events?.length)       events       = saved.events;
+  if (saved.lists?.shopping)      lists        = saved.lists;
+  if (saved.memories?.length)     memories     = saved.memories;
+  if (saved.chatMessages?.length) chatMessages = saved.chatMessages;
+  if (saved.feedItems?.length)    feedItems    = saved.feedItems;
+  if (saved.hentePlan)            Object.assign(hentePlan, saved.hentePlan);
+  if (saved.weekPlan)             Object.assign(weekPlan, saved.weekPlan);
+  if (saved.countdown)            countdown    = saved.countdown;
+}
+
+// Gem ved siden-lukning
+window.addEventListener('beforeunload', saveAllData);
+window.addEventListener('pagehide',     saveAllData); // iOS
+
+// Gem hvert 30 sekunder som ekstra sikkerhed
+setInterval(saveAllData, 30000);
+
+// Indlæs gemt data
+loadAllData();
+
+</script>
+
+<!-- External modules — indlæses efter inline script -->
+<script src="firebase.js"></script>
+<script src="notifications.js"></script>
+
+<script>
+// ── STARTUP ──
+(async function startup() {
+  // Registrer service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('[SW] Registreret ✅', reg.scope))
+      .catch(err => console.warn('[SW] Fejlede:', err));
+  }
+
+  // Vis iOS installationsguide efter kort pause
+  setTimeout(() => {
+    if (typeof NOTIF !== 'undefined') NOTIF.showIOSInstallGuide();
+  }, 3000);
+
+  // Tjek online status
+  if (typeof DATA !== 'undefined') {
+    await DATA.checkOnline();
+    console.log('[FamilieHub] Online:', DATA.online);
+  }
+})();
+
+// Badge-hooks: opdater badges når data ændres
+function updateBadge(tab, count = 1) {
+  if (typeof NOTIF !== 'undefined') NOTIF.updateBadge(tab, count);
+}
+
+// Tilslut badge-opdateringer til eksisterende funktioner
+const _origPostFeedItem = postFeedItem;
+window.postFeedItem = function() {
+  _origPostFeedItem.apply(this, arguments);
+  if (currentView !== 'feed') updateBadge('feed', (NOTIF?.badges?.feed || 0) + 1);
+  saveAllData();
+};
+
+const _origSendChat = sendChat;
+window.sendChat = function() {
+  _origSendChat.apply(this, arguments);
+  saveAllData();
+};
+
+const _origSaveEvent = saveEvent;
+window.saveEvent = function() {
+  _origSaveEvent.apply(this, arguments);
+  if (currentView !== 'kalender') updateBadge('kalender', (NOTIF?.badges?.kalender || 0) + 1);
+  saveAllData();
+};
+
+// Ryd badge når man åbner fanen
+const _origSwitchView = switchView;
+window.switchView = function(view) {
+  _origSwitchView.apply(this, arguments);
+  if (typeof NOTIF !== 'undefined') NOTIF.clearBadge(view);
+};
+</script>
+</body>
+</html>
