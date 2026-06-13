@@ -2050,17 +2050,18 @@
 
   /* Time inputs in hente plan */
   .hente-time-input {
-    width: 110px;
-    padding: 10px 12px;
+    width: 120px;
+    padding: 12px 10px;
     border: 2px solid var(--beige);
     border-radius: 10px;
     font-family: 'Nunito', sans-serif;
-    font-size: 15px;
-    font-weight: 800;
+    font-size: 18px;
+    font-weight: 900;
     color: var(--text-dark);
     background: white;
     outline: none;
     text-align: center;
+    -webkit-appearance: none;
   }
 
   .hente-time-input:focus { border-color: var(--accent-orange); }
@@ -2084,7 +2085,7 @@
     <div class="demo-hint">
       <strong>Demo-konti:</strong><br>
       👑 simon / familie123 (Admin)<br>
-      🏠 malene / familie123 (Familie)<br>
+      🏠 marlene / familie123 (Marlene)<br>
       👵 hanne / besok123 (Mormor Hanne)
     </div>
   </div>
@@ -2153,7 +2154,7 @@
             <div class="event-time">08:00</div>
             <div>
               <div class="event-name">Skole — August</div>
-              <div class="event-who">Malene kører</div>
+              <div class="event-who">Marlene kører</div>
             </div>
           </div>
           <div class="today-event">
@@ -2543,7 +2544,7 @@
 // ── DATA ──
 const USERS = {
   simon:  { pass: 'familie123', role: 'admin',    name: 'Simon',         avatar: '👑', color: '#f4845f' },
-  malene: { pass: 'familie123', role: 'family',   name: 'Malene',        avatar: '🌸', color: '#f48fb1' },
+  malene: { pass: 'familie123', role: 'family',   name: 'Marlene',        avatar: '🌸', color: '#f48fb1' },
   hanne:  { pass: 'besok123',   role: 'extended', name: 'Mormor Hanne',  avatar: '👵', color: '#7db87a' },
   lene:   { pass: 'besok123',   role: 'extended', name: 'Bedstemor Lene',avatar: '👵', color: '#b39ddb' },
   martin: { pass: 'besok123',   role: 'extended', name: 'Martin',        avatar: '👨', color: '#6baed6' },
@@ -2563,8 +2564,8 @@ const EMOJIS = ['😊','❤️','🌟','🎉','😂','🥰','🙏','🌸'];
 let emojiIdx = 0;
 
 let events = [
-  { id: 1, title: "Børnehave — Oskar", date: today(), time: "08:30", who: "Simon & Malene", color: "#7db87a" },
-  { id: 2, title: "Skole — August",    date: today(), time: "08:00", who: "Malene kører",   color: "#6baed6" },
+  { id: 1, title: "Børnehave — Oskar", date: today(), time: "08:30", who: "Simon & Marlene", color: "#7db87a" },
+  { id: 2, title: "Skole — August",    date: today(), time: "08:00", who: "Marlene kører",   color: "#6baed6" },
   { id: 3, title: "Aftensmad med Bedstemor Lene", date: today(), time: "18:00", who: "Alle", color: "#f4845f" },
 ];
 
@@ -2584,7 +2585,7 @@ let lists = {
 let memories = [
   {
     id: 1,
-    author: 'Malene',
+    author: 'Marlene',
     avatar: '🌸',
     color: '#fce4ec',
     emoji: '❤️',
@@ -2605,7 +2606,7 @@ let memories = [
 ];
 
 let chatMessages = [
-  { author: 'Malene', avatar: '🌸', color: '#fce4ec', text: 'Hvem henter August i dag?', time: '14:22', mine: false },
+  { author: 'Marlene', avatar: '🌸', color: '#fce4ec', text: 'Hvem henter August i dag?', time: '14:22', mine: false },
   { author: 'Simon',  avatar: '👑', color: '#fff3e0', text: 'Det gør jeg! Jeg er fri kl. 15 🙌', time: '14:25', mine: true },
   { author: 'Mormor Hanne', avatar: '👵', color: '#e8f5e9', text: 'Vi glæder os til at se drengene i weekenden! 🎉', time: '14:31', mine: false },
 ];
@@ -2625,7 +2626,7 @@ let feedSelectedEmoji = null;
 let feedItems = [
   {
     id: 1,
-    author: 'Malene', avatar: '🌸', avatarBg: '#fce4ec',
+    author: 'Marlene', avatar: '🌸', avatarBg: '#fce4ec',
     time: 'I dag kl. 08:45',
     text: 'God morgen alle sammen! August og Oskar er afleveret med smil 😊',
     image: null, greeting: null,
@@ -2931,7 +2932,7 @@ function deleteCountdown() {
 const FAMILIE = {
   kerne: [
     { id: 'simon',  name: 'Simon',  role: 'Far 👑',        avatar: '👨', color: '#fff3e0', border: '#f4845f', info: { Rolle: 'Far & admin', Tlf: '–', Note: 'Kører til arbejde kl. 7' } },
-    { id: 'malene', name: 'Malene', role: 'Mor 🌸',          avatar: '👩', color: '#fce4ec', border: '#f48fb1', info: { Rolle: 'Mor', Tlf: '–', Note: '' } },
+    { id: 'malene', name: 'Marlene', role: 'Mor 🌸',          avatar: '👩', color: '#fce4ec', border: '#f48fb1', info: { Rolle: 'Mor', Tlf: '–', Note: '' } },
     { id: 'august', name: 'August', role: 'Storebror 🎒',   avatar: '👦', color: '#e3f2fd', border: '#6baed6', info: { Rolle: 'Storebror', Skole: 'Husmandsskolen', Klasse: '3. klasse', Allergi: 'Ingen' } },
     { id: 'oskar',  name: 'Oskar',  role: 'Lillebror 🧸',  avatar: '👶', color: '#e8f5e9', border: '#7db87a', info: { Rolle: 'Lillebror', Institution: 'Børnehave', Allergi: 'Ingen' } },
   ],
@@ -2946,17 +2947,17 @@ const FAMILIE = {
   mors: [
     { id: 'hanne',   name: 'Mormor Hanne',  role: 'Mormor',           avatar: '👵', color: '#fff9c4', border: '#ffd54f', info: { Kaldet: 'Mormor Hanne', Side: 'Mors side', Tlf: '–' } },
     { id: 'torben',  name: 'Morfar Torben', role: 'Morfar',            avatar: '👴', color: '#e0f7fa', border: '#80deea', info: { Kaldet: 'Morfar Torben', Side: 'Mors side', Tlf: '–' } },
-    { id: 'nikolaj', name: 'Nikolaj',        role: 'Malenes bror',     avatar: '👨', color: '#e8f5e9', border: '#7db87a', info: { Relation: 'Onkel', Kone: 'Helena', Børn: 'Malthe & Johan' } },
+    { id: 'nikolaj', name: 'Nikolaj',        role: 'Marlenes bror',     avatar: '👨', color: '#e8f5e9', border: '#7db87a', info: { Relation: 'Onkel', Kone: 'Helena', Børn: 'Malthe & Johan' } },
     { id: 'helena',  name: 'Helena',         role: 'Nikolajs kone',    avatar: '👩', color: '#fce4ec', border: '#f48fb1', info: { Relation: 'Moster', Mand: 'Nikolaj', Børn: 'Malthe & Johan' } },
     { id: 'malthe',  name: 'Malthe',         role: 'Fætter',           avatar: '👦', color: '#e3f2fd', border: '#6baed6', info: { Forældre: 'Nikolaj & Helena' } },
     { id: 'johan',   name: 'Johan',          role: 'Fætter',           avatar: '👦', color: '#f3e5f5', border: '#b39ddb', info: { Forældre: 'Nikolaj & Helena' } },
-    { id: 'karina',  name: 'Karina',         role: 'Malenes søster',   avatar: '👩', color: '#fff3e0', border: '#f4845f', info: { Relation: 'Moster', Børn: 'Oliver & Sander' } },
+    { id: 'karina',  name: 'Karina',         role: 'Marlenes søster',   avatar: '👩', color: '#fff3e0', border: '#f4845f', info: { Relation: 'Moster', Børn: 'Oliver & Sander' } },
     { id: 'oliver',  name: 'Oliver',         role: 'Fætter',           avatar: '👦', color: '#e8f5e9', border: '#7db87a', info: { Forældre: 'Karina' } },
     { id: 'sander',  name: 'Sander',         role: 'Fætter',           avatar: '👦', color: '#e0f7fa', border: '#80deea', info: { Forældre: 'Karina' } },
   ]
 };
 
-const HENTE_PERSONS = ['Simon', 'Malene', 'Bedstemor Lene', 'Bedstefar Erik', 'Mormor Hanne', 'Morfar Torben', 'Anden'];
+const HENTE_PERSONS = ['Simon', 'Marlene', 'Bedstemor Lene', 'Bedstefar Erik', 'Mormor Hanne', 'Morfar Torben', 'Anden'];
 const DAYS = ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag'];
 
 let hentePlan = {
@@ -2966,8 +2967,8 @@ let hentePlan = {
 
 // Aflevering (fast hver dag)
 const AFLEVERING = {
-  august: { tid: '08:00', institution: 'Skole', person: 'Simon/Malene' },
-  oskar:  { tid: '08:30', institution: 'Børnehave', person: 'Simon/Malene' }
+  august: { tid: '08:00', institution: 'Skole', person: 'Simon/Marlene' },
+  oskar:  { tid: '08:30', institution: 'Børnehave', person: 'Simon/Marlene' }
 };
 
 let currentHenteChild = 'august';
@@ -3143,7 +3144,7 @@ function hashPass(p) {
 // ── LOGIN LOG ──
 let loginLog = [
   { type: 'ok',   username: 'simon',  name: 'Simon',         time: 'I dag kl. 07:42', detail: 'Logget ind' },
-  { type: 'ok',   username: 'malene', name: 'Malene',        time: 'I dag kl. 08:15', detail: 'Logget ind' },
+  { type: 'ok',   username: 'malene', name: 'Marlene',        time: 'I dag kl. 08:15', detail: 'Logget ind' },
   { type: 'fail', username: '???',    name: 'Ukendt',        time: 'I dag kl. 09:03', detail: 'Forkert adgangskode (forsøgt: "hanne")' },
   { type: 'ok',   username: 'hanne',  name: 'Mormor Hanne',  time: 'I dag kl. 10:22', detail: 'Logget ind' },
 ];
