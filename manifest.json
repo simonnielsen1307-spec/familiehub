@@ -2,7 +2,8 @@
   "name": "FamilieHub",
   "short_name": "FamilieHub",
   "description": "Din families private hjørne",
-  "start_url": "/",
+  "start_url": "/familiehub/",
+  "scope": "/familiehub/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#fdf6ee",
@@ -10,24 +11,22 @@
   "lang": "da",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "/familiehub/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/familiehub/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "/familiehub/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icons/icon-180.png",
-      "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
     }
-  ],
-  "categories": ["lifestyle", "utilities"],
-  "screenshots": []
+  ]
 }
