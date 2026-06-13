@@ -3571,13 +3571,12 @@ let feedItems = [
 ];
 
 function renderFeed() {
-  // Update composer avatar
   if (currentUser) {
     document.getElementById('feedComposerAvatar').textContent = currentUser.avatar;
   }
 
   const el = document.getElementById('feedList');
-  if (!feedItems.length) {
+  if (!feedItems?.length) {
     el.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-light)">
       <div style="font-size:48px;margin-bottom:12px">🌟</div>
       <div style="font-size:16px;font-weight:700">Ingen opslag endnu</div>
@@ -3586,7 +3585,22 @@ function renderFeed() {
     return;
   }
 
-  el.innerHTML = feedItems.map(item => `
+  // Normaliser hvert item — sikrer alle felter eksisterer selvom Firebase mangler dem
+  const safeItems = feedItems.map(item => ({
+    id:        item.id || Date.now(),
+    author:    item.author || 'Ukendt',
+    avatar:    item.avatar || '👤',
+    avatarBg:  item.avatarBg || 'var(--beige)',
+    time:      item.time || '',
+    text:      item.text || null,
+    image:     item.image || null,
+    greeting:  item.greeting || null,
+    reactions: item.reactions || {},
+    reacted:   item.reacted || {},
+    comments:  Array.isArray(item.comments) ? item.comments : [],
+  }));
+
+  el.innerHTML = safeItems.map(item => `
     <div class="feed-post" id="fpost-${item.id}">
       <div class="feed-post-header">
         <div class="feed-post-avatar" style="background:${item.avatarBg}">${item.avatar}</div>
@@ -3615,10 +3629,10 @@ function renderFeed() {
       <div class="feed-comment-section">
         ${item.comments.map(c => `
           <div class="feed-comment">
-            <div class="feed-comment-avatar" style="background:${c.avatarBg||'var(--beige)'}">${c.avatar}</div>
+            <div class="feed-comment-avatar" style="background:${c.avatarBg||'var(--beige)'}">${c.avatar||'👤'}</div>
             <div class="feed-comment-bubble">
-              <div class="feed-comment-name">${c.author}</div>
-              <div class="feed-comment-text">${c.text}</div>
+              <div class="feed-comment-name">${c.author||''}</div>
+              <div class="feed-comment-text">${c.text||''}</div>
             </div>
           </div>
         `).join('')}
@@ -5862,30 +5876,49 @@ async function syncWithFirebase() {
 
   console.log('[DB] Online — synkroniserer med Firebase...');
 
-  // Hent delt data fra Firebase
-  const [fbLists, fbEvents, fbFeed, fbChat, fbHente, fbWeek, fbMemories] = await Promise.all([
-    DB.load('lists', null),
-    DB.load('events', null),
-    DB.load('feedItems', null),
-    DB.load('chatMessages', null),
-    DB.load('hentePlan', null),
-    DB.load('weekPlan', null),
-    DB.load('memories', null),
-  ]);
+  try {
+    const [fbLists, fbEvents, fbFeed, fbChat, fbHente, fbWeek, fbMemories] = await Promise.all([
+      DB.load('lists', null),
+      DB.load('events', null),
+      DB.load('feedItems', null),
+      DB.load('chatMessages', null),
+      DB.load('hentePlan', null),
+      DB.load('weekPlan', null),
+      DB.load('memories', null),
+    ]);
 
-  // Opdater app med Firebase data
-  if (fbLists?.shopping)     { lists = fbLists; renderList(); updateHomeShoppingCard(); }
-  if (fbEvents?.length)      { events = fbEvents; renderCalendar(); }
-  if (fbFeed?.length)        { feedItems = fbFeed; renderFeed(); }
-  if (fbChat?.length)        { chatMessages = fbChat; renderChat(); }
-  if (fbHente)               { Object.assign(hentePlan, fbHente); renderHenteOversigt(); renderCountdownBanner(); }
-  if (fbWeek)                { Object.assign(weekPlan, fbWeek); renderWeekPlan(); }
-  if (fbMemories?.length)    { memories = fbMemories; renderMemories(); }
+    // Firebase kan returnere objekter i stedet for arrays — konverter
+    const toArray = (data) => {
+      if (!data) return null;
+      if (Array.isArray(data)) return data.filter(Boolean);
+      if (typeof data === 'object') return Object.values(data).filter(Boolean);
+      return null;
+    };
 
-  console.log('[DB] Synkronisering færdig ✅');
+    if (fbLists?.shopping)  { lists = fbLists; renderList(); updateHomeShoppingCard(); }
 
-  // Start realtids-polling
-  DB.startSync();
+    const evArr = toArray(fbEvents);
+    if (evArr?.length)      { events = evArr; renderCalendar(); }
+
+    const feedArr = toArray(fbFeed);
+    if (feedArr?.length)    { feedItems = feedArr; renderFeed(); }
+
+    const chatArr = toArray(fbChat);
+    if (chatArr?.length)    { chatMessages = chatArr; renderChat(); }
+
+    if (fbHente)            { Object.assign(hentePlan, fbHente); renderHenteOversigt(); }
+
+    if (fbWeek)             { Object.assign(weekPlan, fbWeek); renderWeekPlan(); }
+
+    const memArr = toArray(fbMemories);
+    if (memArr?.length)     { memories = memArr; renderMemories(); }
+
+    console.log('[DB] Synkronisering færdig ✅');
+    DB.startSync();
+
+  } catch(e) {
+    console.warn('[DB] Synkronisering fejlede:', e);
+  }
 }
 
 // Gem ved siden-lukning
