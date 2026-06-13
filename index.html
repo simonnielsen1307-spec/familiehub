@@ -2539,9 +2539,25 @@
         <div class="header-sub" id="headerSub">Familien Nielsen</div>
       </div>
     </div>
-    <div class="header-user" onclick="doLogout()">
-      <div class="header-avatar" id="headerAvatar">👤</div>
-      <div class="header-username" id="headerUsername">-</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button id="gemKnap" onclick="manuelGem()" style="
+        background:rgba(255,255,255,0.2);
+        border:2px solid rgba(255,255,255,0.4);
+        border-radius:20px;
+        padding:6px 14px;
+        color:white;
+        font-family:'Nunito',sans-serif;
+        font-size:13px;
+        font-weight:800;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        gap:5px;
+      ">💾 Gem</button>
+      <div class="header-user" onclick="doLogout()">
+        <div class="header-avatar" id="headerAvatar">👤</div>
+        <div class="header-username" id="headerUsername">-</div>
+      </div>
     </div>
   </div>
 
@@ -3415,12 +3431,12 @@ const DB = {
     return this.online;
   },
 
-  // Lyt på ændringer i realtid (long polling)
+  // Lyt på ændringer fra andre brugere (polling)
   listeners: {},
   async startSync() {
     if (!this.online) return;
-    const paths = ['lists','events','feedItems','chatMessages','hentePlan','weekPlan'];
-    paths.forEach(path => this.listenTo(path));
+    // Kun disse paths synkroniseres mellem brugere
+    ['lists','feedItems','chatMessages','memories'].forEach(path => this.listenTo(path));
   },
 
   listenTo(path) {
@@ -3429,32 +3445,44 @@ const DB = {
       if (!this.online) return;
       try {
         const res = await fetch(`${this.baseURL}/${path}.json`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data !== null) {
-            const localKey = path.replace(/\//g,'_');
-            const cached = LOCAL.load(localKey, null);
-            // Opdater kun hvis data har ændret sig
-            if (JSON.stringify(data) !== JSON.stringify(cached)) {
-              LOCAL.save(localKey, data);
-              this.applyUpdate(path, data);
-            }
-          }
+        if (!res.ok) return;
+        const raw = await res.json();
+        if (raw === null) return;
+
+        // Konverter Firebase objekt til array hvis nødvendigt
+        const data = Array.isArray(raw) ? raw.filter(Boolean)
+                   : (typeof raw === 'object' && raw.shopping === undefined)
+                     ? Object.values(raw).filter(Boolean)
+                     : raw;
+
+        // Sammenlign med hvad vi har — opdater kun ved reel ændring
+        const current = path === 'lists' ? lists
+                      : path === 'feedItems' ? feedItems
+                      : path === 'chatMessages' ? chatMessages
+                      : memories;
+
+        if (JSON.stringify(data) !== JSON.stringify(current)) {
+          this.applyUpdate(path, data);
         }
       } catch(e) {}
     };
-    this.listeners[path] = setInterval(poll, 3000); // tjek hvert 3 sek
-    poll(); // kør med det samme
+    this.listeners[path] = setInterval(poll, 5000); // tjek hvert 5 sek
   },
 
   applyUpdate(path, data) {
     switch(path) {
-      case 'lists':        lists = data; renderList(); updateHomeShoppingCard(); break;
-      case 'events':       events = data; renderCalendar(); break;
-      case 'feedItems':    feedItems = data; renderFeed(); break;
-      case 'chatMessages': chatMessages = data; renderChat(); break;
-      case 'hentePlan':    Object.assign(hentePlan, data); renderHenteOversigt(); break;
-      case 'weekPlan':     Object.assign(weekPlan, data); renderWeekPlan(); break;
+      case 'lists':
+        if (data?.shopping) { lists = data; renderList(); updateHomeShoppingCard(); }
+        break;
+      case 'feedItems':
+        if (Array.isArray(data) && data.length) { feedItems = data; renderFeed(); }
+        break;
+      case 'chatMessages':
+        if (Array.isArray(data) && data.length) { chatMessages = data; renderChat(); }
+        break;
+      case 'memories':
+        if (Array.isArray(data) && data.length) { memories = data; renderMemories(); }
+        break;
     }
   }
 };
@@ -3747,7 +3775,29 @@ function postFeedItem() {
   showToast('🌟 Delt med hele familien!');
 }
 
-// ── MERE VIEW ──
+// ── MANUEL GEM ──
+function manuelGem() {
+  const knap = document.getElementById('gemKnap');
+
+  // Gem lokalt
+  saveAllData();
+
+  // Gem til Firebase
+  syncToFirebase();
+
+  // Visuel bekræftelse
+  knap.textContent = '✅ Gemt!';
+  knap.style.background = 'rgba(255,255,255,0.4)';
+  knap.style.borderColor = 'white';
+
+  setTimeout(() => {
+    knap.innerHTML = '💾 Gem';
+    knap.style.background = 'rgba(255,255,255,0.2)';
+    knap.style.borderColor = 'rgba(255,255,255,0.4)';
+  }, 2000);
+
+  console.log('[FamilieHub] Gemt manuelt ✅');
+}
 // Gem KUN adgangskoder — aldrig hele USERS objektet
 // Dette sikrer at Marlene aldrig forsvinder
 function savePasswords() {
@@ -5251,18 +5301,18 @@ function addListItem() {
   lists[currentList].push({ id: Date.now(), text, checked: false, cat: '' });
   input.value = '';
   renderList();
-  DB.save('lists', lists);
+  saveAllData(); syncToFirebase();
 }
 
 function toggleItem(id) {
   const item = lists[currentList].find(i => i.id === id);
-  if (item) { item.checked = !item.checked; renderList(); DB.save('lists', lists); }
+  if (item) { item.checked = !item.checked; renderList(); saveAllData(); syncToFirebase(); }
 }
 
 function deleteItem(id) {
   lists[currentList] = lists[currentList].filter(i => i.id !== id);
   renderList();
-  DB.save('lists', lists);
+  saveAllData(); syncToFirebase();
 }
 
 function updateHomeShoppingCard() {
@@ -5298,7 +5348,7 @@ function postMemory() {
   });
   document.getElementById('memoryText').value = '';
   renderMemories();
-  DB.save('memories', memories);
+  saveAllData(); syncToFirebase();
   showToast('💛 Delt med familien!');
 }
 
@@ -5307,7 +5357,7 @@ function addReaction(id, emoji) {
   if (mem) {
     mem.reactions[emoji] = (mem.reactions[emoji] || 0) + 1;
     renderMemories();
-    DB.save('memories', memories);
+    saveAllData(); syncToFirebase();
   }
 }
 
@@ -5365,7 +5415,7 @@ function sendChat() {
   });
   input.value = '';
   renderChat();
-  DB.save('chatMessages', chatMessages);
+  saveAllData(); syncToFirebase();
 }
 
 // ── FOOD / AI ──
@@ -5778,7 +5828,7 @@ document.getElementById('welcomeDate').textContent = new Date().toLocaleDateStri
 // ══════════════════════════════════════════
 
 function saveAllData() {
-  // App data
+  // Gem kun til localStorage — Firebase opdateres kun ved brugerhandlinger
   LOCAL.save('events',       events);
   LOCAL.save('lists',        lists);
   LOCAL.save('memories',     memories);
@@ -5797,15 +5847,16 @@ function saveAllData() {
   LOCAL.save('point',        point);
   LOCAL.save('beloenninger', beloenninger);
   if (countdown) LOCAL.save('countdown', countdown);
-
-  // Gem KUN adgangskoder — aldrig hele USERS
+  // Kun adgangskoder — aldrig hele USERS
   const pw = {};
   Object.keys(USERS).forEach(u => { pw[u] = USERS[u].pass; });
   LOCAL.save('pw', pw);
+}
 
-  // Firebase
+// Gem delt data til Firebase — kun kaldet ved brugerhandlinger
+function syncToFirebase() {
+  if (!DB.online) return;
   DB.save('lists',        lists);
-  DB.save('events',       events);
   DB.save('feedItems',    feedItems);
   DB.save('chatMessages', chatMessages);
   DB.save('memories',     memories);
@@ -5922,11 +5973,26 @@ async function syncWithFirebase() {
 }
 
 // Gem ved siden-lukning
-window.addEventListener('beforeunload', saveAllData);
-window.addEventListener('pagehide',     saveAllData); // iOS
+// Data gemmes KUN når brugeren trykker Gem-knappen
+// Ingen automatisk gem — ingen konflikter
 
-// Gem hvert 5 sekunder som ekstra sikkerhed
-setInterval(saveAllData, 5000);
+// ── VERSION CHECK — ryd gammel data ved ny version ──
+const APP_VERSION = '2.1';
+const storedVersion = localStorage.getItem('fh_version');
+if (storedVersion !== APP_VERSION) {
+  console.log('[FamilieHub] Ny version — rydder gammel cache...');
+  // Bevar kun adgangskoder
+  const oldPw = localStorage.getItem('fh_pw');
+  // Ryd alt
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('fh_'))
+    .forEach(k => localStorage.removeItem(k));
+  // Gendan adgangskoder
+  if (oldPw) localStorage.setItem('fh_pw', oldPw);
+  // Sæt ny version
+  localStorage.setItem('fh_version', APP_VERSION);
+  console.log('[FamilieHub] Cache ryddet ✅');
+}
 
 // Indlæs lokal data øjeblikkeligt
 loadAllData();
