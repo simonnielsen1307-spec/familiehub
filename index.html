@@ -3459,14 +3459,17 @@ const DB = {
   }
 };
 
-// ── DATA ──
-const USERS = {
+// ── KERNE BRUGERE — disse eksisterer ALTID uanset localStorage ──
+const CORE_USERS = {
   simon:   { pass: 'familie123', role: 'admin',    name: 'Simon',         avatar: '👑', color: '#f4845f' },
   marlene: { pass: 'familie123', role: 'family',   name: 'Marlene',       avatar: '🌸', color: '#f48fb1' },
   hanne:   { pass: 'besok123',   role: 'extended', name: 'Mormor Hanne',  avatar: '👵', color: '#7db87a' },
   lene:    { pass: 'besok123',   role: 'extended', name: 'Bedstemor Lene',avatar: '👵', color: '#b39ddb' },
   martin:  { pass: 'besok123',   role: 'extended', name: 'Martin',        avatar: '👨', color: '#6baed6' },
 };
+
+// USERS starter altid som kopi af CORE_USERS — Marlene er GARANTERET her
+const USERS = JSON.parse(JSON.stringify(CORE_USERS));
 
 let currentUser = null;
 let currentView = 'home';
@@ -3731,6 +3734,31 @@ function postFeedItem() {
 }
 
 // ── MERE VIEW ──
+// Gem KUN adgangskoder — aldrig hele USERS objektet
+// Dette sikrer at Marlene aldrig forsvinder
+function savePasswords() {
+  const passwords = {};
+  Object.keys(USERS).forEach(u => {
+    passwords[u] = { pass: USERS[u].pass };
+  });
+  LOCAL.save('passwords', passwords);
+}
+
+function loadPasswords() {
+  // Ryd gammel users_extra data der kan forårsage problemer
+  localStorage.removeItem('fh_users_extra');
+
+  // Indlæs kun gemte adgangskoder
+  const saved = LOCAL.load('passwords', null);
+  if (saved) {
+    Object.keys(saved).forEach(username => {
+      if (USERS[username] && saved[username].pass) {
+        USERS[username].pass = saved[username].pass;
+      }
+    });
+  }
+}
+
 function initMereView() {
   const adminSec = document.getElementById('mereAdminSection');
   if (adminSec) adminSec.style.display = currentUser?.role === 'admin' ? 'block' : 'none';
@@ -4843,7 +4871,7 @@ function addUser() {
   USERS[username] = { pass, role, name, avatar: role==='family'?'👤':'👥', color: '#b39ddb' };
 
   // ── GEM STRAKS så brugeren kan logge ind med det samme ──
-  LOCAL.save('users_extra', USERS);
+  savePasswords();
 
   closeModal('addUserModal');
   renderAdminUserList();
@@ -4889,7 +4917,7 @@ function saveUserEdit() {
   if (user.role !== 'admin') user.role = newRole;
 
   // Gem STRAKS
-  LOCAL.save('users_extra', USERS);
+  savePasswords();
 
   closeModal('editUserModal');
   renderAdminUserList();
@@ -5742,7 +5770,7 @@ function saveAllData() {
   DB.save('memories',     memories);
 
   // Bruger-specifikke data → kun localStorage
-  LOCAL.save('users_extra',  USERS);
+  savePasswords();
   LOCAL.save('boernekort',   boernekort);
   LOCAL.save('foedseldage',  foedseldage);
   LOCAL.save('stemninger',   stemninger);
@@ -5809,32 +5837,8 @@ function loadAllData() {
   const savedCountdown = LOCAL.load('countdown', null);
   if (savedCountdown) countdown = savedCountdown;
 
-  // Brugere og adgangskoder
-  const savedUsers = LOCAL.load('users_extra', null);
-  if (savedUsers) {
-    // Migrer gammel 'malene' til 'marlene'
-    if (savedUsers['malene'] && !savedUsers['marlene']) {
-      savedUsers['marlene'] = { ...savedUsers['malene'] };
-      delete savedUsers['malene'];
-    }
-    // Opdater kun adgangskoder og roller — bevar altid kernebugerne
-    Object.keys(savedUsers).forEach(username => {
-      if (username === 'malene') return; // spring gammel alias over
-      if (USERS[username]) {
-        // Kun opdater pass og role — ikke name, avatar, color
-        if (savedUsers[username].pass) USERS[username].pass = savedUsers[username].pass;
-        if (savedUsers[username].role && USERS[username].role !== 'admin') {
-          USERS[username].role = savedUsers[username].role;
-        }
-        if (savedUsers[username].deleted) USERS[username].deleted = true;
-      } else if (!['malene'].includes(username)) {
-        // Tilføj nye brugere oprettet via admin
-        USERS[username] = savedUsers[username];
-      }
-    });
-    // Gem den migrerede version
-    LOCAL.save('users_extra', USERS);
-  }
+  // Indlæs kun adgangskoder — USERS er allerede sat fra CORE_USERS
+  loadPasswords();
 }
 
 // Synk med Firebase i baggrunden efter opstart
