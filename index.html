@@ -4871,7 +4871,7 @@ function addUser() {
   USERS[username] = { pass, role, name, avatar: role==='family'?'👤':'👥', color: '#b39ddb' };
 
   // ── GEM STRAKS så brugeren kan logge ind med det samme ──
-  savePasswords();
+  saveAllData();
 
   closeModal('addUserModal');
   renderAdminUserList();
@@ -4917,7 +4917,7 @@ function saveUserEdit() {
   if (user.role !== 'admin') user.role = newRole;
 
   // Gem STRAKS
-  savePasswords();
+  saveAllData();
 
   closeModal('editUserModal');
   renderAdminUserList();
@@ -5759,18 +5759,19 @@ document.getElementById('welcomeDate').textContent = new Date().toLocaleDateStri
 });
 
 // ── PERSISTENCE ──
-function saveAllData() {
-  // Delt familie-data → Firebase + localStorage
-  DB.save('lists',        lists);
-  DB.save('events',       events);
-  DB.save('feedItems',    feedItems);
-  DB.save('chatMessages', chatMessages);
-  DB.save('hentePlan',    hentePlan);
-  DB.save('weekPlan',     weekPlan);
-  DB.save('memories',     memories);
+// ══════════════════════════════════════════
+// PERSISTENCE — SIMPEL OG PÅLIDELIG
+// ══════════════════════════════════════════
 
-  // Bruger-specifikke data → kun localStorage
-  savePasswords();
+function saveAllData() {
+  // App data
+  LOCAL.save('events',       events);
+  LOCAL.save('lists',        lists);
+  LOCAL.save('memories',     memories);
+  LOCAL.save('chatMessages', chatMessages);
+  LOCAL.save('feedItems',    feedItems);
+  LOCAL.save('hentePlan',    hentePlan);
+  LOCAL.save('weekPlan',     weekPlan);
   LOCAL.save('boernekort',   boernekort);
   LOCAL.save('foedseldage',  foedseldage);
   LOCAL.save('stemninger',   stemninger);
@@ -5782,63 +5783,73 @@ function saveAllData() {
   LOCAL.save('point',        point);
   LOCAL.save('beloenninger', beloenninger);
   if (countdown) LOCAL.save('countdown', countdown);
+
+  // Gem KUN adgangskoder — aldrig hele USERS
+  const pw = {};
+  Object.keys(USERS).forEach(u => { pw[u] = USERS[u].pass; });
+  LOCAL.save('pw', pw);
+
+  // Firebase
+  DB.save('lists',        lists);
+  DB.save('events',       events);
+  DB.save('feedItems',    feedItems);
+  DB.save('chatMessages', chatMessages);
+  DB.save('memories',     memories);
+}
+
+function loadAllData() {
+  // Ryd gammel fejldata der forårsager problemer
+  localStorage.removeItem('fh_users_extra');
+
+  // BRUGERE: start altid fra CORE_USERS (Marlene er garanteret her)
+  // Indlæs kun gemte adgangskoder ovenpå
+  const savedPw = LOCAL.load('pw', null);
+  if (savedPw) {
+    Object.keys(savedPw).forEach(u => {
+      if (USERS[u] && savedPw[u]) {
+        USERS[u].pass = savedPw[u];
+      }
+    });
+  }
+
+  // App data
+  const ev = LOCAL.load('events', null);
+  if (ev?.length) events = ev;
+
+  const li = LOCAL.load('lists', null);
+  if (li?.shopping) lists = li;
+
+  const mem = LOCAL.load('memories', null);
+  if (mem?.length) memories = mem;
+
+  const ch = LOCAL.load('chatMessages', null);
+  if (ch?.length) chatMessages = ch;
+
+  const fe = LOCAL.load('feedItems', null);
+  if (fe?.length) feedItems = fe;
+
+  const hp = LOCAL.load('hentePlan', null);
+  if (hp) Object.assign(hentePlan, hp);
+
+  const wp = LOCAL.load('weekPlan', null);
+  if (wp) Object.assign(weekPlan, wp);
+
+  const cd = LOCAL.load('countdown', null);
+  if (cd) countdown = cd;
 }
 
 // Auto-nulstil ugeplan mandag morgen
 function checkWeekReset() {
-  const lastReset = LOCAL.load('lastWeekReset', null);
   const now = new Date();
   const thisMonday = new Date(now);
   thisMonday.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay() - 1));
   thisMonday.setHours(0,0,0,0);
-  const thisMondayStr = thisMonday.toISOString().split('T')[0];
-
-  if (lastReset !== thisMondayStr) {
+  const key = thisMonday.toISOString().split('T')[0];
+  if (LOCAL.load('lastWeekReset', null) !== key) {
     weekPlan = { man:null, tir:null, ons:null, tor:null, fre:null, lør:null, søn:null };
-    LOCAL.save('lastWeekReset', thisMondayStr);
     LOCAL.save('weekPlan', weekPlan);
-    console.log('[FamilieHub] Ugeplan nulstillet for ny uge');
+    LOCAL.save('lastWeekReset', key);
   }
-}
-
-// Gem data automatisk ved ændringer
-function patchSave(fn) {
-  return function(...args) {
-    const result = fn.apply(this, args);
-    saveAllData();
-    return result;
-  };
-}
-
-// Indlæs data fra localStorage (øjeblikkelig ved opstart)
-function loadAllData() {
-  // Indlæs fra localStorage cache (øjeblikkelig — Firebase synker bagefter)
-  const savedEvents = LOCAL.load('events', null);
-  if (savedEvents?.length) events = savedEvents;
-
-  const savedLists = LOCAL.load('lists', null);
-  if (savedLists?.shopping) lists = savedLists;
-
-  const savedMemories = LOCAL.load('memories', null);
-  if (savedMemories?.length) memories = savedMemories;
-
-  const savedChat = LOCAL.load('chatMessages', null);
-  if (savedChat?.length) chatMessages = savedChat;
-
-  const savedFeed = LOCAL.load('feedItems', null);
-  if (savedFeed?.length) feedItems = savedFeed;
-
-  const savedHente = LOCAL.load('hentePlan', null);
-  if (savedHente) Object.assign(hentePlan, savedHente);
-
-  const savedWeek = LOCAL.load('weekPlan', null);
-  if (savedWeek) Object.assign(weekPlan, savedWeek);
-
-  const savedCountdown = LOCAL.load('countdown', null);
-  if (savedCountdown) countdown = savedCountdown;
-
-  // Indlæs kun adgangskoder — USERS er allerede sat fra CORE_USERS
-  loadPasswords();
 }
 
 // Synk med Firebase i baggrunden efter opstart
