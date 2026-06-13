@@ -3329,12 +3329,23 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ── LOCAL STORAGE (defineret her så den altid virker) ──
+// ── FIREBASE KONFIGURATION ──
+const FB_CONFIG = {
+  apiKey:            "AIzaSyAq8oS6gWmx5O2cuA-sTsCTp7jBSng6VvI",
+  authDomain:        "familiehub-88a59.firebaseapp.com",
+  databaseURL:       "https://familiehub-88a59-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "familiehub-88a59",
+  storageBucket:     "familiehub-88a59.firebasestorage.app",
+  messagingSenderId: "399957886754",
+  appId:             "1:399957886754:web:c37544823d1b1818e6477b"
+};
+
+// ── LOCAL STORAGE (altid tilgængelig — bruges som cache og fallback) ──
 const LOCAL = {
   prefix: 'fh_',
   save(key, data) {
     try { localStorage.setItem(this.prefix + key, JSON.stringify(data)); }
-    catch(e) { console.warn('[FamilieHub] localStorage fejl:', e); }
+    catch(e) { console.warn('[LOCAL] Fejl:', e); }
   },
   load(key, fallback = null) {
     try {
@@ -3346,14 +3357,106 @@ const LOCAL = {
   loadAll() { return {}; }
 };
 
-// Test at localStorage virker
-try {
-  localStorage.setItem('fh_test', '1');
-  localStorage.removeItem('fh_test');
-  console.log('[FamilieHub] localStorage OK ✅');
-} catch(e) {
-  console.warn('[FamilieHub] localStorage virker IKKE:', e);
-}
+// ── FIREBASE DATABASE (delt data mellem alle familiemedlemmer) ──
+const DB = {
+  baseURL: FB_CONFIG.databaseURL,
+  online: false,
+
+  // Gem til Firebase OG localStorage
+  async save(path, data) {
+    // Gem altid lokalt først (øjeblikkelig)
+    LOCAL.save(path.replace(/\//g,'_'), data);
+    // Prøv Firebase i baggrunden
+    if (this.online) {
+      try {
+        await fetch(`${this.baseURL}/${path}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+      } catch(e) {
+        console.warn('[DB] Firebase save fejlede, data er gemt lokalt:', e);
+      }
+    }
+  },
+
+  // Indlæs fra Firebase (med localStorage fallback)
+  async load(path, fallback = null) {
+    const localKey = path.replace(/\//g,'_');
+    if (this.online) {
+      try {
+        const res = await fetch(`${this.baseURL}/${path}.json`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data !== null) {
+            LOCAL.save(localKey, data); // opdater lokal cache
+            return data;
+          }
+        }
+      } catch(e) {
+        console.warn('[DB] Firebase load fejlede, bruger lokal cache:', e);
+      }
+    }
+    return LOCAL.load(localKey, fallback);
+  },
+
+  // Tjek om Firebase er tilgængeligt
+  async checkOnline() {
+    try {
+      const res = await fetch(`${this.baseURL}/.json?shallow=true`, {
+        signal: AbortSignal.timeout(3000)
+      });
+      this.online = res.ok || res.status === 401;
+    } catch(e) {
+      this.online = false;
+    }
+    console.log('[DB] Firebase online:', this.online);
+    return this.online;
+  },
+
+  // Lyt på ændringer i realtid (long polling)
+  listeners: {},
+  async startSync() {
+    if (!this.online) return;
+    const paths = ['lists','events','feedItems','chatMessages','hentePlan','weekPlan'];
+    paths.forEach(path => this.listenTo(path));
+  },
+
+  listenTo(path) {
+    if (this.listeners[path]) return;
+    const poll = async () => {
+      if (!this.online) return;
+      try {
+        const res = await fetch(`${this.baseURL}/${path}.json`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data !== null) {
+            const localKey = path.replace(/\//g,'_');
+            const cached = LOCAL.load(localKey, null);
+            // Opdater kun hvis data har ændret sig
+            if (JSON.stringify(data) !== JSON.stringify(cached)) {
+              LOCAL.save(localKey, data);
+              this.applyUpdate(path, data);
+            }
+          }
+        }
+      } catch(e) {}
+    };
+    this.listeners[path] = setInterval(poll, 3000); // tjek hvert 3 sek
+    poll(); // kør med det samme
+  },
+
+  applyUpdate(path, data) {
+    switch(path) {
+      case 'lists':        lists = data; renderList(); updateHomeShoppingCard(); break;
+      case 'events':       events = data; renderCalendar(); break;
+      case 'feedItems':    feedItems = data; renderFeed(); break;
+      case 'chatMessages': chatMessages = data; renderChat(); break;
+      case 'hentePlan':    Object.assign(hentePlan, data); renderHenteOversigt(); break;
+      case 'weekPlan':     Object.assign(weekPlan, data); renderWeekPlan(); break;
+    }
+  }
+};
 
 // ── DATA ──
 const USERS = {
@@ -5083,18 +5186,18 @@ function addListItem() {
   lists[currentList].push({ id: Date.now(), text, checked: false, cat: '' });
   input.value = '';
   renderList();
-  LOCAL.save('lists', lists);
+  DB.save('lists', lists);
 }
 
 function toggleItem(id) {
   const item = lists[currentList].find(i => i.id === id);
-  if (item) { item.checked = !item.checked; renderList(); LOCAL.save('lists', lists); }
+  if (item) { item.checked = !item.checked; renderList(); DB.save('lists', lists); }
 }
 
 function deleteItem(id) {
   lists[currentList] = lists[currentList].filter(i => i.id !== id);
   renderList();
-  LOCAL.save('lists', lists);
+  DB.save('lists', lists);
 }
 
 function updateHomeShoppingCard() {
@@ -5130,7 +5233,7 @@ function postMemory() {
   });
   document.getElementById('memoryText').value = '';
   renderMemories();
-  LOCAL.save('memories', memories);
+  DB.save('memories', memories);
   showToast('💛 Delt med familien!');
 }
 
@@ -5139,7 +5242,7 @@ function addReaction(id, emoji) {
   if (mem) {
     mem.reactions[emoji] = (mem.reactions[emoji] || 0) + 1;
     renderMemories();
-    LOCAL.save('memories', memories);
+    DB.save('memories', memories);
   }
 }
 
@@ -5197,7 +5300,7 @@ function sendChat() {
   });
   input.value = '';
   renderChat();
-  LOCAL.save('chatMessages', chatMessages);
+  DB.save('chatMessages', chatMessages);
 }
 
 // ── FOOD / AI ──
@@ -5604,15 +5707,18 @@ document.getElementById('welcomeDate').textContent = new Date().toLocaleDateStri
   weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
 });
 
-// ── PERSISTENCE: gem data ved ændringer ──
+// ── PERSISTENCE ──
 function saveAllData() {
-  LOCAL.save('events',       events);
-  LOCAL.save('lists',        lists);
-  LOCAL.save('memories',     memories);
-  LOCAL.save('chatMessages', chatMessages);
-  LOCAL.save('feedItems',    feedItems);
-  LOCAL.save('hentePlan',    hentePlan);
-  LOCAL.save('weekPlan',     weekPlan);
+  // Delt familie-data → Firebase + localStorage
+  DB.save('lists',        lists);
+  DB.save('events',       events);
+  DB.save('feedItems',    feedItems);
+  DB.save('chatMessages', chatMessages);
+  DB.save('hentePlan',    hentePlan);
+  DB.save('weekPlan',     weekPlan);
+  DB.save('memories',     memories);
+
+  // Bruger-specifikke data → kun localStorage
   LOCAL.save('users_extra',  USERS);
   LOCAL.save('boernekort',   boernekort);
   LOCAL.save('foedseldage',  foedseldage);
@@ -5653,61 +5759,95 @@ function patchSave(fn) {
   };
 }
 
-// Indlæs data fra localStorage ved opstart
+// Indlæs data fra localStorage (øjeblikkelig ved opstart)
 function loadAllData() {
-  // Indlæs alle gemte data fra localStorage
-  const load = (key, fallback) => LOCAL.load(key, fallback);
-
-  const savedEvents = load('events', null);
+  // Indlæs fra localStorage cache (øjeblikkelig — Firebase synker bagefter)
+  const savedEvents = LOCAL.load('events', null);
   if (savedEvents?.length) events = savedEvents;
 
-  const savedLists = load('lists', null);
+  const savedLists = LOCAL.load('lists', null);
   if (savedLists?.shopping) lists = savedLists;
 
-  const savedMemories = load('memories', null);
+  const savedMemories = LOCAL.load('memories', null);
   if (savedMemories?.length) memories = savedMemories;
 
-  const savedChat = load('chatMessages', null);
+  const savedChat = LOCAL.load('chatMessages', null);
   if (savedChat?.length) chatMessages = savedChat;
 
-  const savedFeed = load('feedItems', null);
+  const savedFeed = LOCAL.load('feedItems', null);
   if (savedFeed?.length) feedItems = savedFeed;
 
-  const savedHente = load('hentePlan', null);
+  const savedHente = LOCAL.load('hentePlan', null);
   if (savedHente) Object.assign(hentePlan, savedHente);
 
-  const savedWeek = load('weekPlan', null);
+  const savedWeek = LOCAL.load('weekPlan', null);
   if (savedWeek) Object.assign(weekPlan, savedWeek);
 
-  const savedCountdown = load('countdown', null);
+  const savedCountdown = LOCAL.load('countdown', null);
   if (savedCountdown) countdown = savedCountdown;
 
-  // ── VIGTIGT: Indlæs gemte brugere og adgangskoder ──
-  // Dette sikrer at ændringer fra admin-panel overlever genstart
-  const savedUsers = load('users_extra', null);
+  // Brugere og adgangskoder
+  const savedUsers = LOCAL.load('users_extra', null);
   if (savedUsers) {
     Object.keys(savedUsers).forEach(username => {
       if (USERS[username]) {
-        // Opdater eksisterende bruger (bevar alt undtagen det der er slettet)
         USERS[username] = { ...USERS[username], ...savedUsers[username] };
       } else {
-        // Tilføj nye brugere oprettet via admin
         USERS[username] = savedUsers[username];
       }
     });
   }
 }
 
+// Synk med Firebase i baggrunden efter opstart
+async function syncWithFirebase() {
+  const online = await DB.checkOnline();
+  if (!online) {
+    console.log('[DB] Offline — bruger lokal data');
+    return;
+  }
+
+  console.log('[DB] Online — synkroniserer med Firebase...');
+
+  // Hent delt data fra Firebase
+  const [fbLists, fbEvents, fbFeed, fbChat, fbHente, fbWeek, fbMemories] = await Promise.all([
+    DB.load('lists', null),
+    DB.load('events', null),
+    DB.load('feedItems', null),
+    DB.load('chatMessages', null),
+    DB.load('hentePlan', null),
+    DB.load('weekPlan', null),
+    DB.load('memories', null),
+  ]);
+
+  // Opdater app med Firebase data
+  if (fbLists?.shopping)     { lists = fbLists; renderList(); updateHomeShoppingCard(); }
+  if (fbEvents?.length)      { events = fbEvents; renderCalendar(); }
+  if (fbFeed?.length)        { feedItems = fbFeed; renderFeed(); }
+  if (fbChat?.length)        { chatMessages = fbChat; renderChat(); }
+  if (fbHente)               { Object.assign(hentePlan, fbHente); renderHenteOversigt(); renderCountdownBanner(); }
+  if (fbWeek)                { Object.assign(weekPlan, fbWeek); renderWeekPlan(); }
+  if (fbMemories?.length)    { memories = fbMemories; renderMemories(); }
+
+  console.log('[DB] Synkronisering færdig ✅');
+
+  // Start realtids-polling
+  DB.startSync();
+}
+
 // Gem ved siden-lukning
 window.addEventListener('beforeunload', saveAllData);
 window.addEventListener('pagehide',     saveAllData); // iOS
 
-// Gem hvert 30 sekunder som ekstra sikkerhed
-setInterval(saveAllData, 30000);
+// Gem hvert 5 sekunder som ekstra sikkerhed
+setInterval(saveAllData, 5000);
 
-// Indlæs gemt data
+// Indlæs lokal data øjeblikkeligt
 loadAllData();
 checkWeekReset();
+
+// Synk med Firebase i baggrunden (efter at UI er klar)
+setTimeout(() => syncWithFirebase(), 1500);
 
 </script>
 
