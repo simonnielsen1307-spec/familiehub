@@ -3461,7 +3461,6 @@ const DB = {
 // ── DATA ──
 const USERS = {
   simon:   { pass: 'familie123', role: 'admin',    name: 'Simon',         avatar: '👑', color: '#f4845f' },
-  malene:  { pass: 'familie123', role: 'family',   name: 'Marlene',       avatar: '🌸', color: '#f48fb1' },
   marlene: { pass: 'familie123', role: 'family',   name: 'Marlene',       avatar: '🌸', color: '#f48fb1' },
   hanne:   { pass: 'besok123',   role: 'extended', name: 'Mormor Hanne',  avatar: '👵', color: '#7db87a' },
   lene:    { pass: 'besok123',   role: 'extended', name: 'Bedstemor Lene',avatar: '👵', color: '#b39ddb' },
@@ -4433,7 +4432,7 @@ function deleteCountdown() {
 const FAMILIE = {
   kerne: [
     { id: 'simon',  name: 'Simon',  role: 'Far 👑',        avatar: '👨', color: '#fff3e0', border: '#f4845f', info: { Rolle: 'Far & admin', Tlf: '–', Note: 'Kører til arbejde kl. 7' } },
-    { id: 'malene', name: 'Marlene', role: 'Mor 🌸',          avatar: '👩', color: '#fce4ec', border: '#f48fb1', info: { Rolle: 'Mor', Tlf: '–', Note: '' } },
+    { id: 'marlene', name: 'Marlene', role: 'Mor 🌸',          avatar: '👩', color: '#fce4ec', border: '#f48fb1', info: { Rolle: 'Mor', Tlf: '–', Note: '' } },
     { id: 'august', name: 'August', role: 'Storebror 🎒',   avatar: '👦', color: '#e3f2fd', border: '#6baed6', info: { Rolle: 'Storebror', Skole: 'Husmandsskolen', Klasse: '3. klasse', Allergi: 'Ingen' } },
     { id: 'oskar',  name: 'Oskar',  role: 'Lillebror 🧸',  avatar: '👶', color: '#e8f5e9', border: '#7db87a', info: { Rolle: 'Lillebror', Institution: 'Børnehave', Allergi: 'Ingen' } },
   ],
@@ -4654,7 +4653,7 @@ function hashPass(p) {
 // ── LOGIN LOG ──
 let loginLog = [
   { type: 'ok',   username: 'simon',  name: 'Simon',         time: 'I dag kl. 07:42', detail: 'Logget ind' },
-  { type: 'ok',   username: 'malene', name: 'Marlene',        time: 'I dag kl. 08:15', detail: 'Logget ind' },
+  { type: 'ok',   username: 'marlene', name: 'Marlene',        time: 'I dag kl. 08:15', detail: 'Logget ind' },
   { type: 'fail', username: '???',    name: 'Ukendt',        time: 'I dag kl. 09:03', detail: 'Forkert adgangskode (forsøgt: "hanne")' },
   { type: 'ok',   username: 'hanne',  name: 'Mormor Hanne',  time: 'I dag kl. 10:22', detail: 'Logget ind' },
 ];
@@ -4876,9 +4875,6 @@ function saveUserEdit() {
 
   if (newPass) {
     user.pass = newPass;
-    // Synk marlene/malene alias
-    if (username === 'malene' && USERS['marlene']) USERS['marlene'].pass = newPass;
-    if (username === 'marlene' && USERS['malene']) USERS['malene'].pass = newPass;
   }
 
   if (user.role !== 'admin') user.role = newRole;
@@ -5807,13 +5803,21 @@ function loadAllData() {
   // Brugere og adgangskoder
   const savedUsers = LOCAL.load('users_extra', null);
   if (savedUsers) {
+    // Migrer gammel 'malene' til 'marlene'
+    if (savedUsers['malene'] && !savedUsers['marlene']) {
+      savedUsers['marlene'] = savedUsers['malene'];
+      delete savedUsers['malene'];
+    }
     Object.keys(savedUsers).forEach(username => {
+      if (username === 'malene') return; // spring gammel alias over
       if (USERS[username]) {
         USERS[username] = { ...USERS[username], ...savedUsers[username] };
       } else {
         USERS[username] = savedUsers[username];
       }
     });
+    // Gem den migrerede version
+    LOCAL.save('users_extra', USERS);
   }
 }
 
