@@ -1006,6 +1006,8 @@
     z-index: 200;
     align-items: flex-end;
     justify-content: center;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
   }
 
   .modal-overlay.open { display: flex; }
@@ -1016,7 +1018,21 @@
     padding: 28px 24px 40px;
     width: 100%;
     max-width: 480px;
-    animation: slideUp 0.3s ease;
+    animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+
+  /* Drag handle på modals */
+  .modal::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    background: var(--beige);
+    border-radius: 2px;
   }
 
   @keyframes slideUp {
@@ -1284,6 +1300,405 @@
     background: #fff3e0;
     transform: scale(1.1);
   }
+
+  /* ── UTILITY KLASSER ── */
+  .back-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .back-btn {
+    background: var(--beige);
+    border: none;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-mid);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .back-btn:active { opacity: 0.7; }
+
+  .section-title-lora {
+    font-family: 'Lora', serif;
+    font-size: 20px;
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+
+  .text-light-sm {
+    font-size: 12px;
+    color: var(--text-light);
+  }
+
+  .text-light-xs {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-light);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+  }
+
+  .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state-text { font-size: 15px; font-weight: 600; }
+  .empty-state-sub  { font-size: 13px; margin-top: 6px; }
+
+  /* Forbedret touch targets — mindst 44px høje */
+  .nav-item { min-height: 56px; }
+
+  /* Smooth scroll på alle view containers */
+  .view {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Bedre fokus styling for tilgængelighed */
+  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 3px solid var(--accent-orange);
+    outline-offset: 2px;
+  }
+
+  /* Active state feedback på alle knapper */
+  button:active { opacity: 0.85; }
+
+  /* ── UTILITY END ── */
+
+  /* ── NYE FEATURES CSS ── */
+  .stemning-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 10px;
+    border-radius: var(--radius-sm);
+    background: white;
+    border: 2px solid var(--beige);
+    cursor: pointer;
+    font-size: 28px;
+    min-width: 64px;
+    transition: all 0.15s;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .stemning-btn div { font-size: 11px; font-weight: 700; color: var(--text-light); }
+  .stemning-btn:active, .stemning-btn.valgt { border-color: var(--accent-orange); background: #fff3e0; transform: scale(1.08); }
+
+  .stemning-familie-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--beige);
+  }
+
+  .stemning-familie-row:last-child { border-bottom: none; }
+
+  .opgave-tab {
+    flex: 1;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 800;
+    border: 2px solid var(--beige);
+    background: white;
+    cursor: pointer;
+    text-align: center;
+    color: var(--text-mid);
+    transition: all 0.15s;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .opgave-tab.active {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+    color: white;
+  }
+
+  .point-card {
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    box-shadow: var(--shadow);
+  }
+
+  .point-score {
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--text-dark);
+    line-height: 1;
+    margin: 4px 0;
+  }
+
+  .point-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: none;
+    font-size: 22px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .point-btn.plus  { background: var(--accent-green); color: white; }
+  .point-btn.minus { background: var(--beige); color: var(--text-mid); }
+
+  .onske-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--beige);
+  }
+
+  .onske-item:last-child { border-bottom: none; }
+  .onske-person { font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 10px; background: var(--beige); color: var(--text-mid); white-space: nowrap; }
+  .onske-navn { font-size: 15px; font-weight: 700; color: var(--text-dark); flex: 1; }
+  .onske-link { font-size: 12px; color: var(--accent-blue); cursor: pointer; }
+
+  .vagt-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--beige);
+  }
+
+  .vagt-row:last-child { border-bottom: none; }
+  .vagt-dag { font-size: 13px; font-weight: 800; color: var(--text-light); min-width: 40px; }
+
+  .vagt-select {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid var(--beige);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+    background: white;
+    outline: none;
+  }
+
+  .hojdepunkt-item {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid #00bcd4;
+  }
+
+  .ferie-banner {
+    background: linear-gradient(135deg, #1a237e, #283593, #3949ab);
+    border-radius: var(--radius);
+    padding: 30px 24px;
+    text-align: center;
+    color: white;
+    margin-bottom: 16px;
+  }
+
+  .fotobog-maaned {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+
+  .fotobog-billeder {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin-top: 10px;
+  }
+
+  .fotobog-billede {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--beige);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+
+  /* Stemningsvejr på forsiden */
+  .home-stemning-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 0 8px;
+  }
+
+  .home-stemning-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: white;
+    border-radius: 20px;
+    padding: 6px 12px;
+    white-space: nowrap;
+    box-shadow: var(--shadow);
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* ── NYE FEATURES END ── */
+
+  /* ── MERE VIEW ── */
+  .mere-header {
+    font-family: 'Lora', serif;
+    font-size: 26px;
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .mere-section-title {
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-light);
+    margin: 16px 0 10px;
+  }
+
+  .mere-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .mere-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform 0.15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .mere-card:active { transform: scale(0.96); }
+
+  .mere-card-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+  }
+
+  .mere-card-label { font-size: 13px; font-weight: 800; color: var(--text-dark); }
+  .mere-card-sub   { font-size: 11px; color: var(--text-light); }
+
+  /* Børnekort info rows */
+  .boern-info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.5);
+  }
+
+  .boern-info-row:last-child { border-bottom: none; }
+  .boern-info-label { font-size: 12px; font-weight: 800; color: var(--text-light); min-width: 90px; }
+  .boern-info-value { font-size: 14px; font-weight: 600; color: var(--text-dark); flex: 1; }
+
+  /* Fødselsdag liste */
+  .foedsdag-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--beige);
+  }
+
+  .foedsdag-item:last-child { border-bottom: none; }
+
+  .foedsdag-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    background: var(--beige);
+  }
+
+  .foedsdag-name { font-size: 15px; font-weight: 800; color: var(--text-dark); }
+  .foedsdag-date { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+  .foedsdag-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 800;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .foedsdag-today  { background: #fff3e0; color: var(--accent-orange); }
+  .foedsdag-soon   { background: #e8f5e9; color: var(--accent-green); }
+  .foedsdag-normal { background: var(--beige); color: var(--text-light); }
+
+  /* Compact recipe list view toggle */
+  .recipe-view-toggle {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .recipe-view-btn {
+    padding: 6px 14px;
+    border-radius: 16px;
+    border: 2px solid var(--beige);
+    background: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-mid);
+    cursor: pointer;
+  }
+
+  .recipe-view-btn.active {
+    background: var(--accent-purple);
+    border-color: var(--accent-purple);
+    color: white;
+  }
+
+  /* Compact recipe row */
+  .recipe-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--beige);
+    cursor: pointer;
+  }
+
+  .recipe-row:last-child { border-bottom: none; }
+  .recipe-row-emoji { font-size: 28px; flex-shrink: 0; }
+  .recipe-row-name { font-size: 15px; font-weight: 700; color: var(--text-dark); flex: 1; }
+  .recipe-row-meta { font-size: 11px; color: var(--text-light); }
+  .recipe-row-add  { font-size: 20px; color: var(--accent-green); padding: 4px; }
+
+  /* ── MERE END ── */
 
   /* ── ADMIN ── */
   .admin-header-banner {
@@ -1836,11 +2251,12 @@
   .hente-row {
     background: white;
     border-radius: var(--radius-sm);
-    padding: 14px 16px;
+    padding: 12px 14px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     box-shadow: var(--shadow);
+    overflow: visible;
   }
 
   .hente-day {
@@ -2050,8 +2466,8 @@
 
   /* Time inputs in hente plan */
   .hente-time-input {
-    width: 130px;
-    padding: 14px 10px;
+    width: 90px;
+    padding: 12px 8px;
     border: 2px solid var(--beige);
     border-radius: 10px;
     font-family: 'Nunito', sans-serif;
@@ -2062,10 +2478,29 @@
     outline: none;
     text-align: center;
     -webkit-appearance: none;
-    min-height: 52px;
+    min-height: 48px;
+    flex-shrink: 0;
   }
 
-  .hente-time-input:focus { border-color: var(--accent-orange); }
+  .hente-time-select {
+    width: 85px;
+    padding: 10px 6px;
+    border: 2px solid var(--beige);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-dark);
+    background: white;
+    outline: none;
+    text-align: center;
+    flex-shrink: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .hente-time-select:focus { border-color: var(--accent-orange); }
 </style>
 </head>
 <body>
@@ -2119,6 +2554,12 @@
         <div class="welcome-date" id="welcomeDate"></div>
       </div>
 
+      <!-- FØDSELSDAG BANNER -->
+      <div id="birthdayBanner" style="display:none"></div>
+
+      <!-- STEMNING OVERSIGT -->
+      <div id="homeStemning" style="display:none"></div>
+
       <!-- NEDTÆLLING BANNER -->
       <div id="countdownBanner"></div>
 
@@ -2131,19 +2572,19 @@
       <div class="quick-actions">
         <button class="quick-btn" onclick="switchView('kalender'); openEventModal()">
           <span class="quick-btn-icon">📅</span>
-          <span class="quick-btn-label">Tilføj aftale</span>
+          <span class="quick-btn-label">Ny aftale</span>
         </button>
         <button class="quick-btn" onclick="switchView('lister')">
           <span class="quick-btn-icon">🛒</span>
-          <span class="quick-btn-label">Indkøbsliste</span>
+          <span class="quick-btn-label">Indkøb</span>
         </button>
-        <button class="quick-btn" onclick="switchView('minder')">
-          <span class="quick-btn-icon">📸</span>
-          <span class="quick-btn-label">Del et minde</span>
+        <button class="quick-btn" onclick="switchView('feed')">
+          <span class="quick-btn-icon">🌟</span>
+          <span class="quick-btn-label">Familie feed</span>
         </button>
-        <button class="quick-btn" onclick="switchView('mad')">
-          <span class="quick-btn-icon">🍽️</span>
-          <span class="quick-btn-label">Hvad skal vi spise?</span>
+        <button class="quick-btn" onclick="switchView('stemning')">
+          <span class="quick-btn-icon">🌤️</span>
+          <span class="quick-btn-label">Stemning</span>
         </button>
       </div>
 
@@ -2223,6 +2664,10 @@
 
     <!-- MINDER -->
     <div class="view" id="view-minder">
+      <div class="back-row">
+        <button class="back-btn" onclick="switchView('mere')">← Mere</button>
+        <div class="section-title-lora">📸 Minder</div>
+      </div>
       <div class="memory-input-card">
         <div class="card-title">✨ Del et minde</div>
         <textarea class="memory-textarea" id="memoryText" placeholder="Skriv noget hyggeligt til familien..."></textarea>
@@ -2231,7 +2676,6 @@
           <button class="btn-post" onclick="postMemory()">Del med familien 💛</button>
         </div>
       </div>
-
       <div id="memoriesList"></div>
     </div>
 
@@ -2257,6 +2701,12 @@
         <!-- Søg og filtrer -->
         <div style="display:flex;gap:8px;margin-bottom:12px">
           <input id="recipeSearch" class="list-input" placeholder="🔍 Søg opskrift..." oninput="filterRecipes()">
+        </div>
+
+        <!-- Visningstype -->
+        <div class="recipe-view-toggle">
+          <button class="recipe-view-btn active" onclick="toggleRecipeView('cards',this)">🖼️ Billeder</button>
+          <button class="recipe-view-btn" onclick="toggleRecipeView('list',this)">📋 Liste</button>
         </div>
 
         <!-- Kategorier -->
@@ -2318,6 +2768,10 @@
 
     <!-- CHAT -->
     <div class="view" id="view-chat">
+      <div class="back-row">
+        <button class="back-btn" onclick="switchView('mere')">← Mere</button>
+        <div class="section-title-lora">💬 Chat</div>
+      </div>
       <div class="chat-messages" id="chatMessages"></div>
       <div class="chat-input-row">
         <input class="chat-input" id="chatInput" placeholder="Skriv en besked..." onkeydown="if(event.key==='Enter')sendChat()">
@@ -2364,8 +2818,10 @@
 
     <!-- FAMILIE -->
     <div class="view" id="view-familie">
-
-      <!-- Hente-plan -->
+      <div class="back-row">
+        <button class="back-btn" onclick="switchView('mere')">← Mere</button>
+        <div class="section-title-lora">👨‍👩‍👧‍👦 Familie</div>
+      </div>
       <div class="card">
         <div class="card-title">🚗 Hvem henter denne uge?</div>
         <div class="hente-tabs">
@@ -2421,6 +2877,312 @@
 
     </div>
 
+    <!-- MERE -->
+    <div class="view" id="view-mere">
+      <div class="mere-header">Mere</div>
+
+      <!-- Børnene -->
+      <div class="mere-section-title">👶 Børnene</div>
+      <div class="mere-grid">
+        <div class="mere-card" onclick="switchView('boernekort')">
+          <div class="mere-card-icon" style="background:#e3f2fd">🎒</div>
+          <div class="mere-card-label">Børnekort</div>
+          <div class="mere-card-sub">August & Oskar</div>
+        </div>
+        <div class="mere-card" onclick="switchView('opgaver')">
+          <div class="mere-card-icon" style="background:#e8f5e9">✅</div>
+          <div class="mere-card-label">Dagens opgaver</div>
+          <div class="mere-card-sub">Tjekliste til børn</div>
+        </div>
+        <div class="mere-card" onclick="switchView('point')">
+          <div class="mere-card-icon" style="background:#fff9c4">⭐</div>
+          <div class="mere-card-label">Familiepunkter</div>
+          <div class="mere-card-sub">Point & belønninger</div>
+        </div>
+        <div class="mere-card" onclick="switchView('onsker')">
+          <div class="mere-card-icon" style="background:#fce4ec">🎁</div>
+          <div class="mere-card-label">Ønskeseddel</div>
+          <div class="mere-card-sub">Alle ønsker</div>
+        </div>
+      </div>
+
+      <!-- Familie & Stemning -->
+      <div class="mere-section-title">💛 Familie & Stemning</div>
+      <div class="mere-grid">
+        <div class="mere-card" onclick="switchView('foedsler')">
+          <div class="mere-card-icon" style="background:#fff3e0">🎂</div>
+          <div class="mere-card-label">Fødselsdage</div>
+          <div class="mere-card-sub">Hele familien</div>
+        </div>
+        <div class="mere-card" onclick="switchView('stemning')">
+          <div class="mere-card-icon" style="background:#f3e5f5">🌤️</div>
+          <div class="mere-card-label">Stemningsvejr</div>
+          <div class="mere-card-sub">Hvordan har vi det?</div>
+        </div>
+        <div class="mere-card" onclick="switchView('ugens-hojdepunkt')">
+          <div class="mere-card-icon" style="background:#e0f7fa">🏆</div>
+          <div class="mere-card-label">Ugens højdepunkt</div>
+          <div class="mere-card-sub">Bedste øjeblik</div>
+        </div>
+        <div class="mere-card" onclick="switchView('fotobog')">
+          <div class="mere-card-icon" style="background:#fce4ec">📖</div>
+          <div class="mere-card-label">Fotobog</div>
+          <div class="mere-card-sub">Månedsoversigt</div>
+        </div>
+      </div>
+
+      <!-- Praktisk -->
+      <div class="mere-section-title">⚡ Praktisk</div>
+      <div class="mere-grid">
+        <div class="mere-card" onclick="switchView('vagt')">
+          <div class="mere-card-icon" style="background:#e8eaf6">📋</div>
+          <div class="mere-card-label">Vagt & friplan</div>
+          <div class="mere-card-sub">Hvem arbejder hvornår</div>
+        </div>
+        <div class="mere-card" onclick="switchView('ferie')">
+          <div class="mere-card-icon" style="background:#e0f7fa">🏖️</div>
+          <div class="mere-card-label">Feriemode</div>
+          <div class="mere-card-sub">Slap af!</div>
+        </div>
+        <div class="mere-card" onclick="ringTilFamilien()">
+          <div class="mere-card-icon" style="background:#e8f5e9">📞</div>
+          <div class="mere-card-label">Ring til familien</div>
+          <div class="mere-card-sub">Hurtig opkald</div>
+        </div>
+        <div class="mere-card" onclick="switchView('familie')">
+          <div class="mere-card-icon" style="background:#e8f5e9">👨‍👩‍👧‍👦</div>
+          <div class="mere-card-label">Familiemedlemmer</div>
+          <div class="mere-card-sub">Overblik</div>
+        </div>
+      </div>
+
+      <!-- Admin -->
+      <div id="mereAdminSection" style="display:none">
+        <div class="mere-section-title">⚙️ Administration</div>
+        <div class="mere-grid">
+          <div class="mere-card" onclick="switchView('admin')">
+            <div class="mere-card-icon" style="background:#212121">⚙️</div>
+            <div class="mere-card-label" style="color:white">Admin Panel</div>
+            <div class="mere-card-sub" style="color:rgba(255,255,255,0.7)">Brugere & log</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Log ud -->
+      <button onclick="doLogout()" style="width:100%;margin-top:20px;padding:14px;background:var(--beige);border:none;border-radius:var(--radius-sm);font-family:Nunito,sans-serif;font-size:15px;font-weight:700;color:var(--text-mid);cursor:pointer">
+        🚪 Log ud
+      </button>
+    </div>
+
+    <!-- BØRNEKORT -->
+    <div class="view" id="view-boernekort">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button onclick="switchView('mere')" style="background:var(--beige);border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer">← Tilbage</button>
+          <div style="font-family:'Lora',serif;font-size:20px">Børnekort</div>
+        </div>
+
+        <!-- August -->
+        <div style="background:linear-gradient(135deg,#e3f2fd,#bbdefb);border-radius:var(--radius);padding:20px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+            <div style="font-size:36px">🎒</div>
+            <div>
+              <div style="font-family:'Lora',serif;font-size:20px;color:var(--text-dark)">August</div>
+              <div style="font-size:12px;color:var(--text-light)">Storebror</div>
+            </div>
+          </div>
+          <div id="augustKort"></div>
+          <button onclick="editBoernekort('august')" class="btn-recipe-expand" style="margin-top:12px;width:100%">✏️ Rediger</button>
+        </div>
+
+        <!-- Oskar -->
+        <div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-radius:var(--radius);padding:20px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+            <div style="font-size:36px">🧸</div>
+            <div>
+              <div style="font-family:'Lora',serif;font-size:20px;color:var(--text-dark)">Oskar</div>
+              <div style="font-size:12px;color:var(--text-light)">Lillebror</div>
+            </div>
+          </div>
+          <div id="oskarKort"></div>
+          <button onclick="editBoernekort('oskar')" class="btn-recipe-expand" style="margin-top:12px;width:100%">✏️ Rediger</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FØDSELSDAGE -->
+    <div class="view" id="view-foedsler">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button onclick="switchView('mere')" style="background:var(--beige);border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer">← Tilbage</button>
+          <div style="font-family:'Lora',serif;font-size:20px">🎂 Fødselsdage</div>
+        </div>
+        <div id="foedslerListe"></div>
+        <button class="btn-primary" style="margin-top:14px;width:100%" onclick="openFoedseldagModal()">+ Tilføj fødselsdag</button>
+      </div>
+    </div>
+
+    <!-- STEMNINGSVEJR -->
+    <div class="view" id="view-stemning">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <button onclick="switchView('mere')" style="background:var(--beige);border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer">← Tilbage</button>
+        <div style="font-family:'Lora',serif;font-size:20px">🌤️ Stemningsvejr</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Hvordan har du det i dag?</div>
+        <div id="stemningVaelger" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+          <div class="stemning-btn" onclick="saetStemning('😊','Glad')">😊<div>Glad</div></div>
+          <div class="stemning-btn" onclick="saetStemning('😴','Træt')">😴<div>Træt</div></div>
+          <div class="stemning-btn" onclick="saetStemning('😰','Stresset')">😰<div>Stresset</div></div>
+          <div class="stemning-btn" onclick="saetStemning('❤️','Kærlig')">❤️<div>Kærlig</div></div>
+          <div class="stemning-btn" onclick="saetStemning('🤒','Syg')">🤒<div>Syg</div></div>
+          <div class="stemning-btn" onclick="saetStemning('🎉','Glad')">🎉<div>Festlig</div></div>
+          <div class="stemning-btn" onclick="saetStemning('😤','Frustreret')">😤<div>Frustreret</div></div>
+          <div class="stemning-btn" onclick="saetStemning('🥰','Taknemmelig')">🥰<div>Taknemmelig</div></div>
+        </div>
+        <div class="card-title" style="margin-top:8px">Familiens vejr i dag</div>
+        <div id="stemningOversigt"></div>
+      </div>
+    </div>
+
+    <!-- DAGLIGE OPGAVER -->
+    <div class="view" id="view-opgaver">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <button onclick="switchView('mere')" style="background:var(--beige);border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer">← Tilbage</button>
+        <div style="font-family:'Lora',serif;font-size:20px">✅ Dagens opgaver</div>
+      </div>
+
+      <div class="opgave-tabs" style="display:flex;gap:8px;margin-bottom:14px">
+        <div class="opgave-tab active" onclick="switchOpgave('august',this)">🎒 August</div>
+        <div class="opgave-tab" onclick="switchOpgave('oskar',this)">🧸 Oskar</div>
+      </div>
+
+      <div class="card">
+        <div id="opgaveListe"></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <input class="list-input" id="opgaveInput" placeholder="Tilføj opgave...">
+          <button class="btn-add" style="background:var(--accent-green)" onclick="addOpgave()">+</button>
+        </div>
+        <button class="btn-cancel" style="width:100%;margin-top:10px" onclick="nulstilOpgaver()">🔄 Nulstil alle</button>
+      </div>
+
+      <div class="card" style="background:linear-gradient(135deg,#fff9c4,#fff59d);border:none">
+        <div class="card-title">⭐ Dagens score</div>
+        <div id="opgaveScore" style="font-size:32px;font-weight:900;color:var(--text-dark);text-align:center;padding:10px"></div>
+      </div>
+    </div>
+
+    <!-- FAMILIEPUNKTER -->
+    <div class="view" id="view-point">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <button onclick="switchView('mere')" style="background:var(--beige);border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer">← Tilbage</button>
+        <div style="font-family:'Lora',serif;font-size:20px">⭐ Familiepunkter</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div class="point-card" style="background:linear-gradient(135deg,#e3f2fd,#bbdefb)">
+          <div style="font-size:36px">🎒</div>
+          <div style="font-family:'Lora',serif;font-size:18px;color:var(--text-dark)">August</div>
+          <div class="point-score" id="pointAugust">0</div>
+          <div style="font-size:12px;color:var(--text-light)">point</div>
+          <div style="display:flex;gap:6px;margin-top:10px">
+            <button class="point-btn minus" onclick="justerPoint('august',-1)">−</button>
+            <button class="point-btn plus" onclick="justerPoint('august',1)">+</button>
+          </div>
+        </div>
+        <div class="point-card" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9)">
+          <div style="font-size:36px">🧸</div>
+          <div style="font-family:'Lora',serif;font-size:18px;color:var(--text-dark)">Oskar</div>
+          <div class="point-score" id="pointOskar">0</div>
+          <div style="font-size:12px;color:var(--text-light)">point</div>
+          <div style="display:flex;gap:6px;margin-top:10px">
+            <button class="point-btn minus" onclick="justerPoint('oskar',-1)">−</button>
+            <button class="point-btn plus" onclick="justerPoint('oskar',1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎁 Belønninger</div>
+        <div id="beloenningListe"></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <input class="list-input" id="beloenningInput" placeholder="Ny belønning (f.eks. Vælge aftensmad = 10 point)">
+          <button class="btn-add" style="background:var(--accent-yellow);color:var(--text-dark)" onclick="addBeloenning()">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ØNSKESEDDEL -->
+    <div class="view" id="view-onsker">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <button onclick="switchView('mere')" style="background:var(--beige);border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer">← Tilbage</button>
+        <div style="font-family:'Lora',serif;font-size:20px">🎁 Ønskeseddel</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Tilføj et ønske</div>
+        <input class="list-input" id="onskeNavn" placeholder="Hvad ønsker du?" style="margin-bottom:8px">
+        <select id="onskeHvem" style="width:100%;padding:12px;border:2px solid var(--beige);border-radius:var(--radius-sm);font-family:Nunito,sans-serif;font-size:15px;margin-bottom:8px;background:var(--warm-white);color:var(--text-dark)">
+          <option value="Simon">Simon</option>
+          <option value="Marlene">Marlene</option>
+          <option value="August">August</option>
+          <option value="Oskar">Oskar</option>
+          <option value="Alle">Hele familien</option>
+        </select>
+        <input class="list-input" id="onskeLink" placeholder="Link (valgfrit)" style="margin-bottom:8px">
+        <button class="btn-primary" onclick="addOnske()" style="width:100%">+ Tilføj ønske</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎁 Alle ønsker</div>
+        <div id="onskerListe"></div>
+      </div>
+    </div>
+
+    <!-- VAGT & FRIPLAN -->
+    <div class="view" id="view-vagt">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <button onclick="switchView('mere')" style="background:var(--beige);border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer">← Tilbage</button>
+        <div style="font-family:'Lora',serif;font-size:20px">📋 Vagt & Friplan</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Denne uge</div>
+        <div id="vagtPlan"></div>
+      </div>
+    </div>
+
+    <!-- FERIEMODE -->
+    <div class="view" id="view-ferie">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <button onclick="switchView('mere')" style="background:var(--beige);border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer">← Tilbage</button>
+        <div style="font-family:'Lora',serif;font-size:20px">🏖️ Feriemode</div>
+      </div>
+      <div id="ferieModeIndhold"></div>
+    </div>
+
+    <!-- UGENS HØJDEPUNKT -->
+    <div class="view" id="view-ugens-hojdepunkt">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <button onclick="switchView('mere')" style="background:var(--beige);border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer">← Tilbage</button>
+        <div style="font-family:'Lora',serif;font-size:20px">🏆 Ugens højdepunkt</div>
+      </div>
+      <div class="card" style="background:linear-gradient(135deg,#e0f7fa,#b2ebf2);border:none">
+        <div class="card-title">🏆 Denne uges bedste øjeblik</div>
+        <textarea id="hojdepunktText" class="fridge-textarea" placeholder="Hvad var ugens bedste øjeblik?" style="border-color:#80deea"></textarea>
+        <button class="btn-primary" onclick="gemHojdepunkt()" style="width:100%;margin-top:8px;background:linear-gradient(135deg,#00bcd4,#0097a7)">Gem som ugens højdepunkt ⭐</button>
+      </div>
+      <div id="hojdepunktHistorik"></div>
+    </div>
+
+    <!-- FOTOBOG -->
+    <div class="view" id="view-fotobog">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <button onclick="switchView('mere')" style="background:var(--beige);border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer">← Tilbage</button>
+        <div style="font-family:'Lora',serif;font-size:20px">📖 Fotobog</div>
+      </div>
+      <div id="fotobogIndhold"></div>
+    </div>
+
   <nav class="bottom-nav">
     <div class="nav-item active" onclick="switchView('home')" id="nav-home">
       <div class="nav-icon">🏠</div>
@@ -2436,25 +3198,49 @@
     </div>
     <div class="nav-item" onclick="switchView('feed')" id="nav-feed">
       <div class="nav-icon">🌟</div>
-      <div class="nav-label">Familiefeed</div>
+      <div class="nav-label">Feed</div>
     </div>
     <div class="nav-item" onclick="switchView('mad')" id="nav-mad">
       <div class="nav-icon">🍽️</div>
       <div class="nav-label">Mad</div>
     </div>
-    <div class="nav-item" onclick="switchView('familie')" id="nav-familie">
-      <div class="nav-icon">👨‍👩‍👧‍👦</div>
-      <div class="nav-label">Familie</div>
-    </div>
-    <div class="nav-item" onclick="switchView('chat')" id="nav-chat">
-      <div class="nav-icon">💬</div>
-      <div class="nav-label">Chat</div>
-    </div>
-    <div class="nav-item" onclick="switchView('admin')" id="nav-admin" style="display:none">
-      <div class="nav-icon">⚙️</div>
-      <div class="nav-label">Admin</div>
+    <div class="nav-item" onclick="switchView('mere')" id="nav-mere">
+      <div class="nav-icon">☰</div>
+      <div class="nav-label">Mere</div>
     </div>
   </nav>
+</div>
+
+<!-- FØDSELSDAG MODAL -->
+<div class="modal-overlay" id="foedseldagModal">
+  <div class="modal">
+    <div class="modal-title">🎂 Fødselsdag</div>
+    <input type="text" id="fdNavn" placeholder="Navn (f.eks. Mormor Hanne)">
+    <input type="date" id="fdDato">
+    <input type="text" id="fdEmoji" placeholder="Emoji (f.eks. 👵)" maxlength="2">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('foedseldagModal')">Annuller</button>
+      <button class="btn-primary" style="flex:1" onclick="saveFoedseldag()">Gem</button>
+    </div>
+  </div>
+</div>
+
+<!-- BØRNEKORT REDIGER MODAL -->
+<div class="modal-overlay" id="boernekortModal">
+  <div class="modal">
+    <div class="modal-title" id="boernekortModalTitle">🎒 August — Info</div>
+    <input type="hidden" id="bkBarn">
+    <input type="text" id="bkToej" placeholder="Tøjstørrelse (f.eks. 128)">
+    <input type="text" id="bkSko" placeholder="Skostørrelse (f.eks. 33)">
+    <input type="text" id="bkAllergi" placeholder="Allergier (f.eks. Ingen)">
+    <input type="text" id="bkVenner" placeholder="Bedste venner">
+    <input type="text" id="bkInstitution" placeholder="Skole/institution">
+    <input type="text" id="bkNote" placeholder="Note (f.eks. yndlingsret, læge...)">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('boernekortModal')">Annuller</button>
+      <button class="btn-primary" style="flex:1" onclick="saveBoernekort()">Gem</button>
+    </div>
+  </div>
 </div>
 
 <!-- ADD USER MODAL -->
@@ -2676,7 +3462,7 @@ function renderFeed() {
         </div>
       </div>
 
-      ${item.image ? `<img class="feed-post-image" src="${item.image}" alt="billede">` : ''}
+      ${item.image ? `<img class="feed-post-image" src="${item.image}" alt="billede" loading="lazy">` : ''}
 
       <div class="feed-post-body">
         ${item.greeting ? `<span class="feed-post-greeting">${item.greeting}</span>` : ''}
@@ -2811,6 +3597,589 @@ function postFeedItem() {
 
   renderFeed();
   showToast('🌟 Delt med hele familien!');
+}
+
+// ── MERE VIEW ──
+function initMereView() {
+  const adminSec = document.getElementById('mereAdminSection');
+  if (adminSec) adminSec.style.display = currentUser?.role === 'admin' ? 'block' : 'none';
+}
+
+
+let stemninger = {};
+
+function saetStemning(emoji, tekst) {
+  const dato = today();
+  if (!stemninger[dato]) stemninger[dato] = {};
+  stemninger[dato][currentUser.username] = { emoji, tekst, navn: currentUser.name };
+  LOCAL.save('stemninger', stemninger);
+  document.querySelectorAll('.stemning-btn').forEach(b => b.classList.remove('valgt'));
+  renderStemningOversigt();
+  renderHomeStemning();
+  showToast(`${emoji} Stemning gemt!`);
+}
+
+function renderStemningOversigt() {
+  const el = document.getElementById('stemningOversigt');
+  if (!el) return;
+  const dato = today();
+  const dagens = stemninger[dato] || {};
+  const entries = Object.values(dagens);
+  if (!entries.length) {
+    el.innerHTML = '<div style="color:var(--text-light);font-size:14px;padding:12px 0">Ingen har sat stemning endnu i dag</div>';
+    return;
+  }
+  el.innerHTML = entries.map(s => `
+    <div class="stemning-familie-row">
+      <div style="font-size:32px">${s.emoji}</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--text-dark)">${s.navn}</div>
+        <div style="font-size:12px;color:var(--text-light)">${s.tekst}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderHomeStemning() {
+  const el = document.getElementById('homeStemning');
+  if (!el) return;
+  const dato = today();
+  const dagens = stemninger[dato] || {};
+  const entries = Object.values(dagens);
+  if (!entries.length) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">🌤️ Familiens stemning</div>
+      <div class="home-stemning-row">
+        ${entries.map(s => `<div class="home-stemning-chip">${s.emoji} ${s.navn}</div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ── DAGLIGE OPGAVER ──
+let opgaveChild = 'august';
+let opgaver = {
+  august: [
+    { id:1, tekst:'Ryd værelse', done: false },
+    { id:2, tekst:'Lav lektier', done: false },
+    { id:3, tekst:'Børste tænder', done: false },
+    { id:4, tekst:'Pakke skoletaske', done: false },
+  ],
+  oskar: [
+    { id:1, tekst:'Ryd legetøj', done: false },
+    { id:2, tekst:'Børste tænder', done: false },
+    { id:3, tekst:'Vask hænder', done: false },
+  ]
+};
+
+function switchOpgave(barn, el) {
+  opgaveChild = barn;
+  document.querySelectorAll('.opgave-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderOpgaver();
+}
+
+function renderOpgaver() {
+  const el = document.getElementById('opgaveListe');
+  const score = document.getElementById('opgaveScore');
+  if (!el) return;
+  const liste = opgaver[opgaveChild];
+  const done = liste.filter(o => o.done).length;
+  const pct = liste.length ? Math.round((done/liste.length)*100) : 0;
+
+  el.innerHTML = liste.map(o => `
+    <div class="list-item ${o.done?'checked':''}" id="opg-${o.id}">
+      <div class="list-checkbox" onclick="toggleOpgave(${o.id})" style="${o.done?'background:var(--accent-green);border-color:var(--accent-green);color:white':''}">
+        ${o.done ? '✓' : ''}
+      </div>
+      <div class="list-item-text">${o.tekst}</div>
+      <div onclick="sletOpgave(${o.id})" style="font-size:16px;color:var(--text-light);cursor:pointer;padding:4px">✕</div>
+    </div>
+  `).join('');
+
+  if (score) {
+    const stjerner = pct === 100 ? '⭐⭐⭐' : pct >= 66 ? '⭐⭐' : pct >= 33 ? '⭐' : '–';
+    score.textContent = `${done}/${liste.length} klaret ${stjerner}`;
+  }
+}
+
+function toggleOpgave(id) {
+  const o = opgaver[opgaveChild].find(x => x.id === id);
+  if (o) { o.done = !o.done; renderOpgaver(); LOCAL.save('opgaver', opgaver); }
+  if (opgaver[opgaveChild].every(x => x.done)) showToast('🌟 Alle opgaver klaret! Fantastisk!');
+}
+
+function sletOpgave(id) {
+  opgaver[opgaveChild] = opgaver[opgaveChild].filter(x => x.id !== id);
+  renderOpgaver();
+  LOCAL.save('opgaver', opgaver);
+}
+
+function addOpgave() {
+  const input = document.getElementById('opgaveInput');
+  const tekst = input.value.trim();
+  if (!tekst) return;
+  opgaver[opgaveChild].push({ id: Date.now(), tekst, done: false });
+  input.value = '';
+  renderOpgaver();
+  LOCAL.save('opgaver', opgaver);
+}
+
+function nulstilOpgaver() {
+  if (!confirm('Nulstil alle opgaver?')) return;
+  opgaver[opgaveChild].forEach(o => o.done = false);
+  renderOpgaver();
+  LOCAL.save('opgaver', opgaver);
+  showToast('🔄 Opgaver nulstillet!');
+}
+
+// ── FAMILIEPUNKTER ──
+let point = { august: 0, oskar: 0 };
+let beloenninger = [
+  { id:1, tekst:'Vælge aftensmad', point: 5 },
+  { id:2, tekst:'Ekstra skærmtid (30 min)', point: 10 },
+  { id:3, tekst:'Is i dag', point: 8 },
+  { id:4, tekst:'Vælge weekendaktivitet', point: 20 },
+];
+
+function justerPoint(barn, antal) {
+  point[barn] = Math.max(0, point[barn] + antal);
+  document.getElementById('point' + barn.charAt(0).toUpperCase() + barn.slice(1)).textContent = point[barn];
+  LOCAL.save('point', point);
+  if (antal > 0) showToast(`⭐ +1 point til ${barn === 'august' ? 'August' : 'Oskar'}!`);
+}
+
+function renderBeloenninger() {
+  const el = document.getElementById('beloenningListe');
+  if (!el) return;
+  el.innerHTML = beloenninger.map(b => `
+    <div class="list-item">
+      <div style="font-size:20px">🎁</div>
+      <div class="list-item-text">${b.tekst}</div>
+      <div class="list-item-cat">${b.point} ⭐</div>
+    </div>
+  `).join('') || '<div style="color:var(--text-light);font-size:14px">Ingen belønninger endnu</div>';
+}
+
+function addBeloenning() {
+  const input = document.getElementById('beloenningInput');
+  const tekst = input.value.trim();
+  if (!tekst) return;
+  const match = tekst.match(/(\d+)\s*point/i);
+  const pt = match ? parseInt(match[1]) : 10;
+  beloenninger.push({ id: Date.now(), tekst, point: pt });
+  input.value = '';
+  renderBeloenninger();
+  LOCAL.save('beloenninger', beloenninger);
+}
+
+function initPoint() {
+  const savedPoint = LOCAL.load('point', null);
+  if (savedPoint) point = savedPoint;
+  const savedBel = LOCAL.load('beloenninger', null);
+  if (savedBel) beloenninger = savedBel;
+  const aug = document.getElementById('pointAugust');
+  const osk = document.getElementById('pointOskar');
+  if (aug) aug.textContent = point.august;
+  if (osk) osk.textContent = point.oskar;
+  renderBeloenninger();
+}
+
+// ── ØNSKESEDDEL ──
+let onsker = [];
+
+function addOnske() {
+  const navn = document.getElementById('onskeNavn').value.trim();
+  const hvem = document.getElementById('onskeHvem').value;
+  const link = document.getElementById('onskeLink').value.trim();
+  if (!navn) { showToast('Skriv hvad du ønsker'); return; }
+  onsker.push({ id: Date.now(), navn, hvem, link });
+  document.getElementById('onskeNavn').value = '';
+  document.getElementById('onskeLink').value = '';
+  renderOnsker();
+  LOCAL.save('onsker', onsker);
+  showToast(`🎁 Ønske tilføjet!`);
+}
+
+function renderOnsker() {
+  const el = document.getElementById('onskerListe');
+  if (!el) return;
+  if (!onsker.length) { el.innerHTML = '<div style="color:var(--text-light);font-size:14px;padding:12px 0">Ingen ønsker endnu</div>'; return; }
+  const grouped = {};
+  onsker.forEach(o => { if (!grouped[o.hvem]) grouped[o.hvem] = []; grouped[o.hvem].push(o); });
+  el.innerHTML = Object.entries(grouped).map(([hvem, liste]) => `
+    <div style="margin-bottom:12px">
+      <div style="font-size:12px;font-weight:800;color:var(--text-light);text-transform:uppercase;margin-bottom:6px">${hvem}</div>
+      ${liste.map(o => `
+        <div class="onske-item">
+          <div class="onske-navn">${o.navn}
+            ${o.link ? `<div><a href="${o.link}" target="_blank" class="onske-link">🔗 Se link</a></div>` : ''}
+          </div>
+          <div onclick="sletOnske(${o.id})" style="font-size:16px;color:var(--text-light);cursor:pointer">✕</div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function sletOnske(id) {
+  onsker = onsker.filter(o => o.id !== id);
+  renderOnsker();
+  LOCAL.save('onsker', onsker);
+}
+
+// ── VAGT & FRIPLAN ──
+let vagtPlan = {};
+const VAGT_TYPER = ['Fri', 'Dagvagt', 'Aftenvagt', 'Nattevagt', 'Hjemmedag'];
+
+function renderVagtPlan() {
+  const el = document.getElementById('vagtPlan');
+  if (!el) return;
+  const dage = ['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
+  el.innerHTML = dage.map(dag => `
+    <div class="vagt-row">
+      <div class="vagt-dag">${dag}</div>
+      <div style="font-size:12px;font-weight:700;color:var(--text-light);min-width:52px">Simon</div>
+      <select class="vagt-select" onchange="gemVagt('simon','${dag}',this.value)">
+        ${VAGT_TYPER.map(t => `<option ${(vagtPlan['simon']?.[dag]||'Fri')===t?'selected':''}>${t}</option>`).join('')}
+      </select>
+    </div>
+    <div class="vagt-row" style="border-top:none;padding-top:0">
+      <div class="vagt-dag"></div>
+      <div style="font-size:12px;font-weight:700;color:var(--text-light);min-width:52px">Marlene</div>
+      <select class="vagt-select" onchange="gemVagt('marlene','${dag}',this.value)">
+        ${VAGT_TYPER.map(t => `<option ${(vagtPlan['marlene']?.[dag]||'Fri')===t?'selected':''}>${t}</option>`).join('')}
+      </select>
+    </div>
+  `).join('<hr style="border:none;border-top:1px solid var(--beige);margin:4px 0">');
+}
+
+function gemVagt(person, dag, type) {
+  if (!vagtPlan[person]) vagtPlan[person] = {};
+  vagtPlan[person][dag] = type;
+  LOCAL.save('vagtPlan', vagtPlan);
+}
+
+// ── FERIEMODE ──
+let ferieMode = false;
+
+function renderFerieMode() {
+  const el = document.getElementById('ferieModeIndhold');
+  if (!el) return;
+  if (ferieMode) {
+    el.innerHTML = `
+      <div class="ferie-banner">
+        <div style="font-size:56px;margin-bottom:12px">🏖️</div>
+        <div style="font-family:'Lora',serif;font-size:24px;margin-bottom:8px">Feriemode er aktiv!</div>
+        <div style="font-size:14px;opacity:0.8;margin-bottom:20px">Slap af og nyd ferien 😊</div>
+        <button onclick="toggleFerieMode()" style="padding:12px 24px;background:white;color:#1a237e;border:none;border-radius:20px;font-family:Nunito,sans-serif;font-size:15px;font-weight:800;cursor:pointer">
+          Sluk feriemode
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-title">📢 Del med familie</div>
+        <div style="font-size:14px;color:var(--text-mid);margin-bottom:12px">Bedsteforældre kan se at I er på ferie</div>
+        <button class="btn-primary" onclick="delFerieIFeed()" style="width:100%">📸 Del i Familiefeed</button>
+      </div>
+    `;
+  } else {
+    el.innerHTML = `
+      <div class="card" style="text-align:center;padding:30px">
+        <div style="font-size:56px;margin-bottom:16px">🏖️</div>
+        <div style="font-family:'Lora',serif;font-size:20px;margin-bottom:8px">Feriemode</div>
+        <div style="font-size:14px;color:var(--text-light);margin-bottom:20px">Slår påmindelser fra og viser ferien i feedet</div>
+        <button onclick="toggleFerieMode()" class="btn-primary" style="width:100%">🌴 Aktiver feriemode</button>
+      </div>
+    `;
+  }
+}
+
+function toggleFerieMode() {
+  ferieMode = !ferieMode;
+  LOCAL.save('ferieMode', ferieMode);
+  renderFerieMode();
+  if (ferieMode) showToast('🏖️ Feriemode aktiveret!');
+  else showToast('Feriemode slukket');
+}
+
+function delFerieIFeed() {
+  feedItems.unshift({
+    id: Date.now(),
+    author: currentUser.name,
+    avatar: currentUser.avatar,
+    avatarBg: currentUser.color + '33',
+    time: 'Netop nu',
+    text: 'Vi er på ferie! 🏖️ Vi ses snart igen! 👋',
+    image: null,
+    greeting: '🏖️',
+    reactions: {},
+    reacted: {},
+    comments: []
+  });
+  renderFeed();
+  saveAllData();
+  showToast('📸 Delt i Familiefeed!');
+}
+
+// ── UGENS HØJDEPUNKT ──
+let hojdepunkter = [];
+
+function gemHojdepunkt() {
+  const tekst = document.getElementById('hojdepunktText').value.trim();
+  if (!tekst) { showToast('Skriv ugens højdepunkt'); return; }
+  const uge = getUgeNummer();
+  hojdepunkter.unshift({
+    id: Date.now(),
+    tekst,
+    uge,
+    dato: new Date().toLocaleDateString('da-DK', { day:'numeric', month:'long', year:'numeric' }),
+    author: currentUser.name
+  });
+  LOCAL.save('hojdepunkter', hojdepunkter);
+  document.getElementById('hojdepunktText').value = '';
+  renderHojdepunkter();
+  showToast('🏆 Ugens højdepunkt gemt!');
+}
+
+function getUgeNummer() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 1);
+  return Math.ceil(((now - start) / 86400000 + start.getDay() + 1) / 7);
+}
+
+function renderHojdepunkter() {
+  const el = document.getElementById('hojdepunktHistorik');
+  if (!el) return;
+  if (!hojdepunkter.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div style="font-size:13px;font-weight:800;text-transform:uppercase;color:var(--text-light);margin-bottom:10px">Tidligere højdepunkter</div>` +
+    hojdepunkter.map(h => `
+      <div class="hojdepunkt-item">
+        <div style="font-size:12px;color:var(--text-light);margin-bottom:4px">Uge ${h.uge} · ${h.dato} · ${h.author}</div>
+        <div style="font-size:15px;color:var(--text-dark)">${h.tekst}</div>
+      </div>
+    `).join('');
+}
+
+// ── FOTOBOG ──
+function renderFotobog() {
+  const el = document.getElementById('fotobogIndhold');
+  if (!el) return;
+  const billeder = feedItems.filter(f => f.image);
+  if (!billeder.length) {
+    el.innerHTML = `<div class="card" style="text-align:center;padding:30px">
+      <div style="font-size:48px;margin-bottom:12px">📷</div>
+      <div style="color:var(--text-light)">Ingen billeder endnu — del billeder i Familiefeedet</div>
+    </div>`;
+    return;
+  }
+  // Gruppér efter måned
+  const maaneder = {};
+  billeder.forEach(f => {
+    const m = new Date().toLocaleDateString('da-DK', { month:'long', year:'numeric' });
+    if (!maaneder[m]) maaneder[m] = [];
+    maaneder[m].push(f);
+  });
+  el.innerHTML = Object.entries(maaneder).map(([m, imgs]) => `
+    <div class="fotobog-maaned">
+      <div style="font-family:'Lora',serif;font-size:16px;color:var(--text-dark);margin-bottom:8px">${m}</div>
+      <div class="fotobog-billeder">
+        ${imgs.map(f => `
+          <div class="fotobog-billede">
+            <img src="${f.image}" style="width:100%;height:100%;object-fit:cover">
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── RING TIL FAMILIEN ──
+function ringTilFamilien() {
+  const kontakter = [
+    { navn: 'Marlene', tlf: '' },
+    { navn: 'Bedstemor Lene', tlf: '' },
+    { navn: 'Bedstefar Erik', tlf: '' },
+    { navn: 'Mormor Hanne', tlf: '' },
+    { navn: 'Morfar Torben', tlf: '' },
+  ];
+  const valg = prompt('Ring til:\n' + kontakter.map((k,i) => `${i+1}. ${k.navn}`).join('\n') + '\n\nSkriv nummer:');
+  const idx = parseInt(valg) - 1;
+  if (idx >= 0 && idx < kontakter.length) {
+    if (kontakter[idx].tlf) {
+      window.location.href = 'tel:' + kontakter[idx].tlf;
+    } else {
+      showToast(`Tilføj telefonnummer til ${kontakter[idx].navn} i Admin → Rediger bruger`);
+    }
+  }
+}
+
+// ── BØRNEKORT ──
+let boernekort = {
+  august: { toej: '128', sko: '33', allergi: 'Ingen', venner: '', institution: 'Skole', note: '' },
+  oskar:  { toej: '98',  sko: '26', allergi: 'Ingen', venner: '', institution: 'Børnehave', note: '' }
+};
+
+function renderBoernekort() {
+  ['august', 'oskar'].forEach(barn => {
+    const el = document.getElementById(barn + 'Kort');
+    if (!el) return;
+    const k = boernekort[barn];
+    const rows = [
+      { label: '👕 Tøjstørrelse', value: k.toej || '–' },
+      { label: '👟 Skostørrelse',  value: k.sko  || '–' },
+      { label: '⚠️ Allergier',    value: k.allergi || 'Ingen' },
+      { label: '👫 Bedste venner', value: k.venner || '–' },
+      { label: '🏫 Institution',   value: k.institution || '–' },
+      { label: '📝 Note',          value: k.note || '–' },
+    ];
+    el.innerHTML = rows.map(r => `
+      <div class="boern-info-row">
+        <div class="boern-info-label">${r.label}</div>
+        <div class="boern-info-value">${r.value}</div>
+      </div>
+    `).join('');
+  });
+}
+
+function editBoernekort(barn) {
+  const k = boernekort[barn];
+  document.getElementById('bkBarn').value = barn;
+  document.getElementById('boernekortModalTitle').textContent = barn === 'august' ? '🎒 August — Info' : '🧸 Oskar — Info';
+  document.getElementById('bkToej').value = k.toej || '';
+  document.getElementById('bkSko').value  = k.sko  || '';
+  document.getElementById('bkAllergi').value = k.allergi || '';
+  document.getElementById('bkVenner').value  = k.venner  || '';
+  document.getElementById('bkInstitution').value = k.institution || '';
+  document.getElementById('bkNote').value = k.note || '';
+  document.getElementById('boernekortModal').classList.add('open');
+}
+
+function saveBoernekort() {
+  const barn = document.getElementById('bkBarn').value;
+  boernekort[barn] = {
+    toej: document.getElementById('bkToej').value,
+    sko:  document.getElementById('bkSko').value,
+    allergi: document.getElementById('bkAllergi').value,
+    venner:  document.getElementById('bkVenner').value,
+    institution: document.getElementById('bkInstitution').value,
+    note: document.getElementById('bkNote').value,
+  };
+  LOCAL.save('boernekort', boernekort);
+  renderBoernekort();
+  closeModal('boernekortModal');
+  showToast('✅ Børnekort gemt!');
+}
+
+// ── FØDSELSDAGE ──
+let foedseldage = [
+  { id:1,  navn:'Simon',          dato:'1307', emoji:'👑', aar: 1987 },
+  { id:2,  navn:'Marlene',        dato:'0101', emoji:'🌸', aar: 1990 },
+  { id:3,  navn:'August',         dato:'1505', emoji:'🎒', aar: 2016 },
+  { id:4,  navn:'Oskar',          dato:'2209', emoji:'🧸', aar: 2019 },
+  { id:5,  navn:'Bedstemor Lene', dato:'0603', emoji:'👵', aar: 1955 },
+  { id:6,  navn:'Bedstefar Erik', dato:'1408', emoji:'👴', aar: 1953 },
+  { id:7,  navn:'Mormor Hanne',   dato:'2311', emoji:'👵', aar: 1957 },
+  { id:8,  navn:'Morfar Torben',  dato:'0502', emoji:'👴', aar: 1955 },
+  { id:9,  navn:'Martin',         dato:'1709', emoji:'👨', aar: 1985 },
+  { id:10, navn:'Karina',         dato:'2806', emoji:'👩', aar: 1992 },
+];
+
+function renderFoedseldage() {
+  const el = document.getElementById('foedslerListe');
+  if (!el) return;
+
+  const now = new Date();
+  const imDag = String(now.getDate()).padStart(2,'0') + String(now.getMonth()+1).padStart(2,'0');
+
+  // Sorter efter næste fødselsdag
+  const sorted = foedseldage.map(f => {
+    const dag = parseInt(f.dato.slice(0,2));
+    const mdr = parseInt(f.dato.slice(2,4)) - 1;
+    const next = new Date(now.getFullYear(), mdr, dag);
+    if (next < now) next.setFullYear(now.getFullYear() + 1);
+    const dage = Math.round((next - now) / (1000*60*60*24));
+    const alder = f.aar ? now.getFullYear() - f.aar + (next.getFullYear() > now.getFullYear() ? 0 : 0) : null;
+    return { ...f, dage, alder, erIdag: f.dato === imDag };
+  }).sort((a,b) => a.dage - b.dage);
+
+  el.innerHTML = sorted.map(f => {
+    const dagStr = `${f.dato.slice(0,2)}/${f.dato.slice(2,4)}`;
+    let badge = '';
+    if (f.erIdag) badge = `<div class="foedsdag-badge foedsdag-today">🎉 I DAG!</div>`;
+    else if (f.dage <= 7) badge = `<div class="foedsdag-badge foedsdag-soon">om ${f.dage} dage</div>`;
+    else badge = `<div class="foedsdag-badge foedsdag-normal">${dagStr}</div>`;
+
+    const alderTekst = f.alder ? `Fylder ${f.alder} år` : dagStr;
+
+    return `
+      <div class="foedsdag-item">
+        <div class="foedsdag-avatar">${f.emoji}</div>
+        <div>
+          <div class="foedsdag-name">${f.navn}</div>
+          <div class="foedsdag-date">${alderTekst}</div>
+        </div>
+        ${badge}
+      </div>
+    `;
+  }).join('');
+}
+
+function openFoedseldagModal() {
+  document.getElementById('fdNavn').value = '';
+  document.getElementById('fdDato').value = '';
+  document.getElementById('fdEmoji').value = '';
+  document.getElementById('foedseldagModal').classList.add('open');
+}
+
+function saveFoedseldag() {
+  const navn  = document.getElementById('fdNavn').value.trim();
+  const dato  = document.getElementById('fdDato').value;
+  const emoji = document.getElementById('fdEmoji').value.trim() || '🎂';
+  if (!navn || !dato) { showToast('Udfyld navn og dato'); return; }
+
+  const d = new Date(dato);
+  const datoStr = String(d.getDate()).padStart(2,'0') + String(d.getMonth()+1).padStart(2,'0');
+  foedseldage.push({ id: Date.now(), navn, dato: datoStr, emoji, aar: d.getFullYear() });
+  LOCAL.save('foedseldage', foedseldage);
+  renderFoedseldage();
+  checkTodayBirthday();
+  closeModal('foedseldagModal');
+  showToast(`🎂 ${navn} tilføjet!`);
+}
+
+function checkTodayBirthday() {
+  const now = new Date();
+  const imDag = String(now.getDate()).padStart(2,'0') + String(now.getMonth()+1).padStart(2,'0');
+  const dagens = foedseldage.filter(f => f.dato === imDag);
+  if (dagens.length > 0) {
+    const navne = dagens.map(f => f.navn).join(' & ');
+    // Vis banner på forsiden
+    const banner = document.getElementById('birthdayBanner');
+    if (banner) {
+      banner.style.display = 'block';
+      banner.innerHTML = `
+        <div style="background:linear-gradient(135deg,#f06292,#e91e63);border-radius:var(--radius);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px">
+          <div style="font-size:40px">🎂</div>
+          <div>
+            <div style="font-family:'Lora',serif;font-size:16px;color:white;font-weight:600">Tillykke med fødselsdagen!</div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.9);margin-top:2px">${navne} har fødselsdag i dag! 🎉</div>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+// Opskrift visning toggle
+let recipeViewMode = 'cards'; // 'cards' or 'list'
+
+function toggleRecipeView(mode, el) {
+  recipeViewMode = mode;
+  document.querySelectorAll('.recipe-view-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderRecipes();
 }
 
 // ── NEDTÆLLING ──
@@ -3080,15 +4449,24 @@ function switchHenteChild(child, el) {
 
 function renderHentePlan() {
   const el = document.getElementById('henteWeek');
-  const childName = currentHenteChild === 'august' ? 'August 🎒' : 'Oskar 🧸';
   const inst = currentHenteChild === 'august' ? 'Skole' : 'Børnehave';
+
+  // Generer tider fra 06:00 til 18:00
+  const tider = [];
+  for (let h = 6; h <= 18; h++) {
+    tider.push(`${String(h).padStart(2,'0')}:00`);
+    tider.push(`${String(h).padStart(2,'0')}:30`);
+  }
+
   el.innerHTML = DAYS.map(day => {
     const entry = hentePlan[currentHenteChild][day] || {person:'', time: currentHenteChild==='august'?'14:00':'15:00'};
     return `
     <div class="hente-row">
       <div class="hente-day">${day.slice(0,3)}</div>
       <div class="hente-child" style="font-size:11px">${inst}</div>
-      <input type="time" class="hente-time-input" value="${entry.time}" onchange="saveHenteTime('${day}', this.value)">
+      <select class="hente-time-select" onchange="saveHenteTime('${day}', this.value)">
+        ${tider.map(t => `<option value="${t}" ${entry.time===t?'selected':''}>${t}</option>`).join('')}
+      </select>
       <select class="hente-picker" style="flex:1" onchange="saveHente('${day}', this.value)">
         <option value="">Hvem henter?</option>
         ${HENTE_PERSONS.map(p => `<option value="${p}" ${entry.person===p?'selected':''}>${p}</option>`).join('')}
@@ -3294,9 +4672,13 @@ function addUser() {
   if (pass.length < 6) { showToast('Adgangskoden skal være mindst 6 tegn'); return; }
 
   USERS[username] = { pass, role, name, avatar: role==='family'?'👤':'👥', color: '#b39ddb' };
+
+  // ── GEM STRAKS så brugeren kan logge ind med det samme ──
+  LOCAL.save('users_extra', USERS);
+
   closeModal('addUserModal');
   renderAdminUserList();
-  showToast(`✅ ${name} er oprettet som bruger!`);
+  showToast(`✅ ${name} er oprettet! De kan logge ind nu med @${username}`);
 
   loginLog.unshift({
     type: 'ok', username, name,
@@ -3321,23 +4703,39 @@ function openEditUser(username) {
 
 function saveUserEdit() {
   const username = document.getElementById('editUsername').value;
-  const newPass  = document.getElementById('editPass').value;
+  const newPass  = document.getElementById('editPass').value.trim();
   const newRole  = document.getElementById('editRole').value;
   const user = USERS[username];
   if (!user) return;
 
-  if (newPass && newPass.length < 6) { showToast('Adgangskoden skal være mindst 6 tegn'); return; }
-  if (newPass) user.pass = newPass;
+  if (newPass && newPass.length < 6) {
+    showToast('Adgangskoden skal være mindst 6 tegn');
+    return;
+  }
+
+  // Opdater adgangskode
+  if (newPass) {
+    user.pass = newPass;
+  }
+
+  // Opdater rolle (ikke for admin)
   if (user.role !== 'admin') user.role = newRole;
+
+  // ── GEM STRAKS til localStorage så det virker ved næste login ──
+  LOCAL.save('users_extra', USERS);
 
   closeModal('editUserModal');
   renderAdminUserList();
-  showToast(`✅ ${user.name} er opdateret`);
+
+  const besked = newPass
+    ? `✅ ${user.name} — ny adgangskode gemt! De kan nu logge ind med den nye kode.`
+    : `✅ ${user.name} er opdateret`;
+  showToast(besked);
 
   loginLog.unshift({
     type: 'ok', username, name: user.name,
-    time: 'Netop nu',
-    detail: `Bruger redigeret af admin${newPass ? ' (ny adgangskode sat)' : ''}`
+    time: `Netop nu`,
+    detail: newPass ? `Adgangskode ændret af admin` : `Bruger redigeret af admin`
   });
   renderAdminLog();
 }
@@ -3368,17 +4766,29 @@ function initApp() {
   document.getElementById('headerAvatar').textContent = currentUser.avatar;
   document.getElementById('headerUsername').textContent = currentUser.name;
 
-  // Show admin nav only for admin
-  if (currentUser.role === 'admin') {
-    document.getElementById('nav-admin').style.display = 'flex';
-  }
+  // Load saved data for new features
+  const savedBk = LOCAL.load('boernekort', null);
+  if (savedBk) boernekort = savedBk;
+  const savedFd = LOCAL.load('foedseldage', null);
+  if (savedFd) foedseldage = savedFd;
+  const savedStemn = LOCAL.load('stemninger', null);
+  if (savedStemn) stemninger = savedStemn;
+  const savedOpg = LOCAL.load('opgaver', null);
+  if (savedOpg) opgaver = savedOpg;
+  const savedOnsk = LOCAL.load('onsker', null);
+  if (savedOnsk) onsker = savedOnsk;
+  const savedVagt = LOCAL.load('vagtPlan', null);
+  if (savedVagt) vagtPlan = savedVagt;
+  const savedFerie = LOCAL.load('ferieMode', null);
+  if (savedFerie !== null) ferieMode = savedFerie;
+  const savedHoj = LOCAL.load('hojdepunkter', null);
+  if (savedHoj) hojdepunkter = savedHoj;
 
-  // Role access: extended sees feed + chat only
+  // Role access: extended sees feed + mere only
   if (currentUser.role === 'extended') {
     document.getElementById('nav-kalender').style.display = 'none';
     document.getElementById('nav-lister').style.display = 'none';
     document.getElementById('nav-mad').style.display = 'none';
-    document.getElementById('nav-familie').style.display = 'none';
     switchView('feed');
   }
 
@@ -3395,6 +4805,20 @@ function initApp() {
   renderAdminUserList();
   renderAdminLog();
   renderRecipes();
+  renderBoernekort();
+  renderFoedseldage();
+  renderOpgaver();
+  renderBeloenninger();
+  renderOnsker();
+  renderVagtPlan();
+  renderFerieMode();
+  renderHojdepunkter();
+  renderFotobog();
+  renderStemningOversigt();
+  renderHomeStemning();
+  initPoint();
+  initMereView();
+  checkTodayBirthday();
   initColorPicker();
   updateHomeShoppingCard();
 }
@@ -3407,23 +4831,50 @@ function setWelcome() {
 }
 
 // ── NAVIGATION ──
+const EXTENDED_VIEWS = ['feed', 'chat', 'minder', 'mere'];
+const ALL_VIEWS = ['home','kalender','lister','feed','mad','familie','chat','minder','admin','mere','boernekort','foedsler'];
+
 function switchView(view) {
-  // Extended users can only see feed and chat
-  if (currentUser && currentUser.role === 'extended' && !['feed','chat','minder'].includes(view)) return;
-  // Admin panel only for admin
-  if (view === 'admin' && currentUser && currentUser.role !== 'admin') return;
+  if (currentUser?.role === 'extended' && !EXTENDED_VIEWS.includes(view)) return;
+  if (view === 'admin' && currentUser?.role !== 'admin') return;
 
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-  document.getElementById('view-' + view).classList.add('active');
-  const navEl = document.getElementById('nav-' + view);
+  const viewEl = document.getElementById('view-' + view);
+  if (!viewEl) return;
+  viewEl.classList.add('active');
+
+  // Highlight nav — sub-views highlight "mere"
+  const mereViews = ['familie','chat','minder','admin','boernekort','foedsler','stemning','opgaver','point','onsker','vagt','ferie','ugens-hojdepunkt','fotobog'];
+  const navId = mereViews.includes(view) ? 'nav-mere' : 'nav-' + view;
+  const navEl = document.getElementById(navId);
   if (navEl) navEl.classList.add('active');
+
   currentView = view;
 
-  // Hide/show fab
+  // FAB
   const fab = document.querySelector('.add-event-btn');
   if (fab) fab.style.display = view === 'kalender' ? 'flex' : 'none';
+
+  // Refresh when entering views
+  if (view === 'mere') initMereView();
+  if (view === 'foedsler') renderFoedseldage();
+  if (view === 'boernekort') renderBoernekort();
+  if (view === 'stemning') { renderStemningOversigt(); }
+  if (view === 'opgaver') renderOpgaver();
+  if (view === 'point') { initPoint(); }
+  if (view === 'onsker') renderOnsker();
+  if (view === 'vagt') renderVagtPlan();
+  if (view === 'ferie') renderFerieMode();
+  if (view === 'ugens-hojdepunkt') renderHojdepunkter();
+  if (view === 'fotobog') renderFotobog();
+
+  // Auto-close calendar modal
+  if (view !== 'kalender') closeModal('eventModal');
+
+  // Clear badges
+  if (typeof NOTIF !== 'undefined') NOTIF.clearBadge(view);
 }
 
 // ── CALENDAR ──
@@ -3514,8 +4965,23 @@ function openEventModal() {
 }
 
 function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('open');
 }
+
+// Luk modal ved tryk på baggrund eller ESC
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-overlay') && e.target.classList.contains('open')) {
+    e.target.classList.remove('open');
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  }
+});
 
 function saveEvent() {
   const title = document.getElementById('evtTitle').value.trim();
@@ -3532,6 +4998,9 @@ function saveEvent() {
   renderCalendar();
   closeModal('eventModal');
   showToast('✅ Aftale gemt!');
+  saveAllData();
+  // Auto-bekræftelse
+  if (typeof NOTIF !== 'undefined') NOTIF.showBanner('📅 Aftale tilføjet til kalenderen', 'success');
 }
 
 // ── LISTS ──
@@ -3591,8 +5060,9 @@ function updateHomeShoppingCard() {
   if (!unchecked.length) {
     el.textContent = 'Ingen varer mangler ✅';
   } else {
-    el.innerHTML = unchecked.slice(0,5).map(i => `<div style="padding:6px 0;border-bottom:1px solid var(--beige);font-size:15px;font-weight:600;">• ${i.text}</div>`).join('');
-    if (unchecked.length > 5) el.innerHTML += `<div style="padding:6px 0;color:var(--text-light);font-size:13px;">+${unchecked.length-5} mere...</div>`;
+    const items = unchecked.slice(0,5).map(i => `<div style="padding:6px 0;border-bottom:1px solid var(--beige);font-size:15px;font-weight:600;">• ${i.text}</div>`);
+    if (unchecked.length > 5) items.push(`<div style="padding:6px 0;color:var(--text-light);font-size:13px;">+${unchecked.length-5} mere...</div>`);
+    el.innerHTML = items.join('');
   }
 }
 
@@ -3701,126 +5171,56 @@ function changePersons(dir) {
 
 // ── DANSKE OPSKRIFTER ──
 const OPSKRIFTER = [
-  {
-    id: 1, navn: 'Spaghetti Bolognese', emoji: '🍝', kategori: 'hverdagsmad',
-    tid: '35 min', sværhed: 'Let',
-    ingredienser: ['400g hakket oksekød', '2 løg', '3 fed hvidløg', '400g hakkede tomater', '2 spsk tomatpuré', '200g spaghetti pr. person', 'Olivenolie', 'Salt og peber', 'Frisk basilikum'],
-    fremgangsmåde: ['Hak løg og hvidløg fint og svits i olivenolie', 'Brun det hakkede kød grundigt', 'Tilsæt tomatpuré og svits 2 minutter', 'Hæld hakkede tomater i og lad det simre 20 min', 'Kog spaghetti efter pakken', 'Server med revet parmesan og basilikum']
-  },
-  {
-    id: 2, navn: 'Hjemmelavet Pizza', emoji: '🍕', kategori: 'weekend',
-    tid: '60 min', sværhed: 'Mellem',
-    ingredienser: ['500g pizzamel', '25g gær', '3 dl lunkent vand', '2 spsk olivenolie', '1 tsk salt', '200g tomatsauce', '200g mozzarella', 'Valgfri toppings'],
-    fremgangsmåde: ['Opløs gær i lunkent vand', 'Bland mel, salt og olivenolie i', 'Ælt dejen 10 min og lad hæve 1 time', 'Del i portioner og rul tynde bunde', 'Smør med tomatsauce og top med ost', 'Bag ved 250°C i 10-12 min']
-  },
-  {
-    id: 3, navn: 'Cremet Kyllingesuppe', emoji: '🍲', kategori: 'supper',
-    tid: '40 min', sværhed: 'Let',
-    ingredienser: ['600g kyllingefilet', '3 gulerødder', '2 stængler selleri', '1 løg', '1 liter hønsebouillon', '2 dl fløde', 'Persille', 'Salt og peber'],
-    fremgangsmåde: ['Skær kylling og grøntsager i tern', 'Svits løg i smør', 'Tilsæt grøntsager og bouillon', 'Kog kyllingen mør i 20 min', 'Tilsæt fløde og varm igennem', 'Smag til og server med brød']
-  },
-  {
-    id: 4, navn: 'Ovnbagt Laks med Grøntsager', emoji: '🐟', kategori: 'fisk',
-    tid: '30 min', sværhed: 'Let',
-    ingredienser: ['600g laksefilet', '4 kartofler', '2 gulerødder', '1 squash', 'Citron', 'Dild', 'Olivenolie', 'Salt og peber'],
-    fremgangsmåde: ['Forvarm ovn til 200°C', 'Skær grøntsager i tern og læg i ovnfad', 'Dryp med olie, salt og peber', 'Bag grøntsager 15 min', 'Læg laks ovenpå og bag 12-15 min mere', 'Server med citron og dild']
-  },
-  {
-    id: 5, navn: 'Kylling i Karry', emoji: '🍗', kategori: 'kylling',
-    tid: '35 min', sværhed: 'Let',
-    ingredienser: ['600g kyllingefilet', '2 spsk karrypasta', '400ml kokosmælk', '1 løg', '2 fed hvidløg', '1 rød peber', 'Ris til 4 pers', 'Koriander'],
-    fremgangsmåde: ['Skær kylling i stykker og brun', 'Svits løg, hvidløg og peber', 'Tilsæt karrypasta og svits 1 min', 'Hæld kokosmælk i og tilsæt kylling', 'Simre 20 min til saucen tykner', 'Server med ris og frisk koriander']
-  },
-  {
-    id: 6, navn: 'Dansk Frikadeller', emoji: '🥩', kategori: 'hverdagsmad',
-    tid: '40 min', sværhed: 'Let',
-    ingredienser: ['500g blandet hakket kød', '1 æg', '1 løg', '3 spsk mel', '1 dl mælk', 'Salt og peber', 'Persille', 'Smør til stegning'],
-    fremgangsmåde: ['Riv løg fint og bland med hakket kød', 'Tilsæt æg, mel, mælk og krydderier', 'Rør farsen godt og stil køl 30 min', 'Form frikadeller med en ske', 'Steg gyldne på begge sider ca. 8 min', 'Server med kartofler og brun sovs']
-  },
-  {
-    id: 7, navn: 'Tomatsovs Pasta', emoji: '🍅', kategori: 'vegetar',
-    tid: '25 min', sværhed: 'Let',
-    ingredienser: ['400g pasta', '2 dåser hakkede tomater', '3 fed hvidløg', '1 løg', 'Frisk basilikum', 'Olivenolie', 'Salt og peber', 'Parmesan'],
-    fremgangsmåde: ['Kog pasta efter pakken', 'Svits løg og hvidløg i olivenolie', 'Tilsæt tomater og simre 15 min', 'Smag til med salt, peber og sukker', 'Bland med pasta og server med parmesan']
-  },
-  {
-    id: 8, navn: 'Ærtesuppe med Flæsk', emoji: '🥣', kategori: 'supper',
-    tid: '45 min', sværhed: 'Let',
-    ingredienser: ['500g gule ærter', '300g røget flæsk', '2 gulerødder', '1 løg', '2 fed hvidløg', 'Timian', 'Laurbærblad', '1.5 liter vand'],
-    fremgangsmåde: ['Udblød ærter natten over', 'Kog ærter med flæsk og krydderier', 'Tilsæt gulerødder og løg', 'Kog til ærterne er møre ca. 40 min', 'Tag flæsket op og skær i tern', 'Server suppen med flæsk og sennep']
-  },
-  {
-    id: 9, navn: 'Ovnstegt Kylling', emoji: '🍗', kategori: 'kylling',
-    tid: '90 min', sværhed: 'Let',
-    ingredienser: ['1 hel kylling', 'Smør', 'Citronskal', 'Hvidløg', 'Timian', 'Rosmarin', 'Salt og peber', 'Kartofler'],
-    fremgangsmåde: ['Forvarm ovn til 180°C', 'Gnid kylling med smør og krydderier', 'Læg kartofler rundt om kyllingen', 'Bag 1 time og 15 min', 'Lad hvile 10 min før servering', 'Server med grøn salat']
-  },
-  {
-    id: 10, navn: 'Laks med Dildkartofler', emoji: '🐟', kategori: 'fisk',
-    tid: '30 min', sværhed: 'Let',
-    ingredienser: ['600g laksefilet', '800g nye kartofler', 'Frisk dild', '2 spsk smør', 'Citron', 'Salt og peber', '2 dl creme fraiche'],
-    fremgangsmåde: ['Kog kartofler med salt', 'Krydr laks med salt, peber og citronsaft', 'Steg laks 4 min på hver side', 'Vend kartofler i smør og dild', 'Server med creme fraiche og citron']
-  },
-  {
-    id: 11, navn: 'Vegetarisk Chili', emoji: '🌶️', kategori: 'vegetar',
-    tid: '40 min', sværhed: 'Let',
-    ingredienser: ['2 dåser kidney bønner', '1 dåse majs', '2 dåser hakkede tomater', '2 pebre', '1 løg', '2 fed hvidløg', 'Chili, spidskommen', 'Ris'],
-    fremgangsmåde: ['Svits løg, hvidløg og peber', 'Tilsæt krydderier og svits 1 min', 'Tilsæt tomater, bønner og majs', 'Simre 25 min', 'Server med ris, creme fraiche og koriander']
-  },
-  {
-    id: 12, navn: 'Røget Pølse med Kartofler', emoji: '🌭', kategori: 'hverdagsmad',
-    tid: '25 min', sværhed: 'Let',
-    ingredienser: ['4 røgede pølser', '800g kartofler', '1 løg', '2 spsk smør', 'Sennep', 'Ketchup', 'Persille'],
-    fremgangsmåde: ['Kog kartofler i saltet vand', 'Skær pølser og løg i skiver', 'Steg pølser og løg gyldne', 'Mos kartofler med smør og mælk', 'Server med sennep og ketchup']
-  },
-  {
-    id: 13, navn: 'Grøntsagssuppe', emoji: '🥕', kategori: 'supper',
-    tid: '35 min', sværhed: 'Let',
-    ingredienser: ['3 gulerødder', '2 kartofler', '1 pastinak', '1 løg', '2 fed hvidløg', '1 liter grøntsagsbouillon', 'Fløde', 'Persille'],
-    fremgangsmåde: ['Skær alle grøntsager i tern', 'Svits løg og hvidløg', 'Tilsæt grøntsager og bouillon', 'Kog 20 min til møre', 'Blend suppen', 'Tilsæt fløde og server med brød']
-  },
-  {
-    id: 14, navn: 'Kylling Caesar Salat', emoji: '🥗', kategori: 'kylling',
-    tid: '25 min', sværhed: 'Let',
-    ingredienser: ['400g kyllingebryst', 'Romaine salat', 'Parmesan', 'Croutoner', 'Caesar dressing', 'Citron', 'Salt og peber'],
-    fremgangsmåde: ['Krydr og grill kyllingebryst', 'Lad hvile og skær i skiver', 'Riv salat og bland med dressing', 'Top med kylling, parmesan og croutoner', 'Server straks']
-  },
-  {
-    id: 15, navn: 'Pandekager', emoji: '🥞', kategori: 'weekend',
-    tid: '30 min', sværhed: 'Let',
-    ingredienser: ['3 æg', '3 dl mælk', '150g mel', '1 spsk sukker', 'Smør til stegning', 'Syltetøj', 'Flødeskum'],
-    fremgangsmåde: ['Pisk æg, mælk og mel til en jævn dej', 'Tilsæt sukker og lad hvile 10 min', 'Steg tynde pandekager i smør', 'Server med syltetøj og flødeskum']
-  },
-  {
-    id: 16, navn: 'Lasagne', emoji: '🫕', kategori: 'weekend',
-    tid: '75 min', sværhed: 'Mellem',
-    ingredienser: ['400g hakket oksekød', 'Lasagneplader', '400g hakkede tomater', 'Bechamelsauce', 'Revet ost', '1 løg', 'Hvidløg', 'Tomatpuré'],
-    fremgangsmåde: ['Lav kødsovs: brun kød med løg og tomater', 'Lav bechamel: smelt smør, tilsæt mel og mælk', 'Skift lag af pasta, kødsovs og bechamel', 'Top med revet ost', 'Bag ved 180°C i 40 min']
-  },
-  {
-    id: 17, navn: 'Torsk med Sennepssovs', emoji: '🐟', kategori: 'fisk',
-    tid: '30 min', sværhed: 'Let',
-    ingredienser: ['600g torskefilet', '2 spsk sennep', '2 dl fløde', '1 løg', 'Persille', 'Kartofler', 'Smør', 'Salt og peber'],
-    fremgangsmåde: ['Kog kartofler', 'Krydr torsk og steg i smør', 'Lav sauce: svits løg, tilsæt fløde og sennep', 'Simre sauce 5 min', 'Server torsk med sauce og kartofler']
-  },
-  {
-    id: 18, navn: 'Blomkålssupe', emoji: '🥦', kategori: 'vegetar',
-    tid: '30 min', sværhed: 'Let',
-    ingredienser: ['1 blomkål', '1 løg', '2 fed hvidløg', '1 liter grøntsagsbouillon', '2 dl fløde', 'Karry', 'Salt og peber', 'Brød'],
-    fremgangsmåde: ['Del blomkål i buketter', 'Svits løg og hvidløg', 'Tilsæt blomkål og bouillon', 'Kog 15 min', 'Blend til cremet suppe', 'Tilsæt fløde og karry']
-  },
-  {
-    id: 19, navn: 'Bøf med Bearnaise', emoji: '🥩', kategori: 'weekend',
-    tid: '30 min', sværhed: 'Svær',
-    ingredienser: ['4 bøffer', 'Bearnaisesauce', 'Pommes frites', 'Smør', 'Rosmarin', 'Salt og groft peber', 'Grøn salat'],
-    fremgangsmåde: ['Tag bøffer ud af køleskabet 30 min før', 'Varm pande meget godt op', 'Steg bøffer 2-3 min pr side', 'Lad hvile 5 min', 'Server med bearnaise og pommes frites']
-  },
-  {
-    id: 20, navn: 'Pasta med Pesto og Rejer', emoji: '🦐', kategori: 'fisk',
-    tid: '20 min', sværhed: 'Let',
-    ingredienser: ['400g pasta', '300g rejer', '4 spsk grøn pesto', 'Cherrytomater', 'Rucola', 'Parmesan', 'Citronsaft'],
-    fremgangsmåde: ['Kog pasta', 'Varm rejer i panden', 'Bland pasta med pesto', 'Tilsæt rejer og cherrytomater', 'Top med rucola og parmesan']
-  }
+  { id:1, navn:'Spaghetti Bolognese', emoji:'🍝', kategori:'hverdagsmad', tid:'35 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=400&q=80', ingredienser:[{v:'400g',n:'hakket oksekød'},{v:'2',n:'løg'},{v:'3 fed',n:'hvidløg'},{v:'400g',n:'hakkede tomater'},{v:'2 spsk',n:'tomatpuré'},{v:'400g',n:'spaghetti'},{v:'2 spsk',n:'olivenolie'},{v:'50g',n:'parmesan'}], fremgangsmåde:['Hak løg og hvidløg og svits i olivenolie','Brun det hakkede kød','Tilsæt tomatpuré og svits 2 min','Tilsæt tomater og simre 20 min','Kog spaghetti','Server med parmesan'] },
+  { id:2, navn:'Hjemmelavet Pizza', emoji:'🍕', kategori:'weekend', tid:'60 min', sværhed:'Mellem', billede:'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80', ingredienser:[{v:'500g',n:'pizzamel'},{v:'25g',n:'gær'},{v:'3 dl',n:'lunkent vand'},{v:'2 spsk',n:'olivenolie'},{v:'200g',n:'tomatsauce'},{v:'200g',n:'mozzarella'},{v:'1',n:'rød peber'}], fremgangsmåde:['Opløs gær i lunkent vand','Bland mel, salt og olivenolie i','Ælt 10 min og hæv 1 time','Rul tynde bunde','Smør med sauce og top med ost','Bag ved 250°C i 10-12 min'] },
+  { id:3, navn:'Cremet Kyllingesuppe', emoji:'🍲', kategori:'supper', tid:'40 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80', ingredienser:[{v:'600g',n:'kyllingefilet'},{v:'3',n:'gulerødder'},{v:'2 stængler',n:'selleri'},{v:'1',n:'løg'},{v:'1 liter',n:'hønsebouillon'},{v:'2 dl',n:'fløde'},{v:'1 håndfuld',n:'persille'}], fremgangsmåde:['Skær kylling og grøntsager i tern','Svits løg i smør','Tilsæt grøntsager og bouillon','Kog 20 min','Tilsæt fløde','Server med brød'] },
+  { id:4, navn:'Ovnbagt Laks', emoji:'🐟', kategori:'fisk', tid:'30 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80', ingredienser:[{v:'600g',n:'laksefilet'},{v:'4',n:'kartofler'},{v:'2',n:'gulerødder'},{v:'1',n:'squash'},{v:'1',n:'citron'},{v:'1 håndfuld',n:'dild'},{v:'2 spsk',n:'olivenolie'}], fremgangsmåde:['Forvarm ovn til 200°C','Skær grøntsager i tern','Bag grøntsager 15 min','Læg laks ovenpå og bag 12 min mere','Server med citron og dild'] },
+  { id:5, navn:'Kylling i Karry', emoji:'🍛', kategori:'kylling', tid:'35 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&q=80', ingredienser:[{v:'600g',n:'kyllingefilet'},{v:'2 spsk',n:'karrypasta'},{v:'400ml',n:'kokosmælk'},{v:'1',n:'løg'},{v:'2 fed',n:'hvidløg'},{v:'1',n:'rød peber'},{v:'300g',n:'ris'},{v:'1 håndfuld',n:'koriander'}], fremgangsmåde:['Skær kylling i stykker og brun','Svits løg og hvidløg','Tilsæt karrypasta','Tilsæt kokosmælk og kylling','Simre 20 min','Server med ris'] },
+  { id:6, navn:'Danske Frikadeller', emoji:'🍖', kategori:'hverdagsmad', tid:'40 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1529042410759-befb1204b468?w=400&q=80', ingredienser:[{v:'500g',n:'blandet hakket kød'},{v:'1',n:'æg'},{v:'1',n:'løg'},{v:'3 spsk',n:'mel'},{v:'1 dl',n:'mælk'},{v:'2 spsk',n:'smør'},{v:'800g',n:'kartofler'}], fremgangsmåde:['Riv løg og bland med kød','Tilsæt æg mel mælk og krydderier','Stil på køl 30 min','Form frikadeller','Steg gyldne 8 min','Server med kartofler og sovs'] },
+  { id:7, navn:'Tomatsovs Pasta', emoji:'🍅', kategori:'vegetar', tid:'25 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=400&q=80', ingredienser:[{v:'400g',n:'pasta'},{v:'2 dåser',n:'hakkede tomater'},{v:'3 fed',n:'hvidløg'},{v:'1',n:'løg'},{v:'1 håndfuld',n:'frisk basilikum'},{v:'2 spsk',n:'olivenolie'},{v:'50g',n:'parmesan'}], fremgangsmåde:['Kog pasta','Svits løg og hvidløg','Tilsæt tomater og simre 15 min','Bland med pasta','Server med parmesan'] },
+  { id:8, navn:'Ærtesuppe med Flæsk', emoji:'🥣', kategori:'supper', tid:'45 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1576577445504-6af96477db52?w=400&q=80', ingredienser:[{v:'500g',n:'gule ærter'},{v:'300g',n:'røget flæsk'},{v:'2',n:'gulerødder'},{v:'1',n:'løg'},{v:'2 fed',n:'hvidløg'},{v:'1 tsk',n:'timian'},{v:'1.5 liter',n:'vand'}], fremgangsmåde:['Udblød ærter natten over','Kog ærter med flæsk','Tilsæt gulerødder og løg','Kog 40 min','Tag flæsk op og skær i tern','Server med sennep'] },
+  { id:9, navn:'Ovnstegt Kylling', emoji:'🍗', kategori:'kylling', tid:'90 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1518492104633-130d0cc84637?w=400&q=80', ingredienser:[{v:'1 hel',n:'kylling'},{v:'50g',n:'smør'},{v:'1',n:'citron'},{v:'4 fed',n:'hvidløg'},{v:'1 tsk',n:'timian'},{v:'1 tsk',n:'rosmarin'},{v:'800g',n:'kartofler'}], fremgangsmåde:['Forvarm ovn til 180°C','Gnid kylling med smør og krydderier','Læg kartofler rundt om','Bag 75 min','Hvil 10 min','Server med salat'] },
+  { id:10, navn:'Laks med Dildkartofler', emoji:'🌿', kategori:'fisk', tid:'30 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&q=80', ingredienser:[{v:'600g',n:'laksefilet'},{v:'800g',n:'nye kartofler'},{v:'1 håndfuld',n:'frisk dild'},{v:'2 spsk',n:'smør'},{v:'1',n:'citron'},{v:'2 dl',n:'creme fraiche'}], fremgangsmåde:['Kog kartofler','Krydr laks og steg 4 min pr side','Vend kartofler i smør og dild','Server med creme fraiche og citron'] },
+  { id:11, navn:'Vegetarisk Chili', emoji:'🌶️', kategori:'vegetar', tid:'40 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=400&q=80', ingredienser:[{v:'2 dåser',n:'kidney bønner'},{v:'1 dåse',n:'majs'},{v:'2 dåser',n:'hakkede tomater'},{v:'2',n:'pebre'},{v:'1',n:'løg'},{v:'2 fed',n:'hvidløg'},{v:'1 tsk',n:'chili'},{v:'300g',n:'ris'}], fremgangsmåde:['Svits løg hvidløg og peber','Tilsæt krydderier','Tilsæt tomater bønner og majs','Simre 25 min','Server med ris og creme fraiche'] },
+  { id:12, navn:'Røget Pølse med Kartofler', emoji:'🌭', kategori:'hverdagsmad', tid:'25 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1618774942765-c5a4e23a5b06?w=400&q=80', ingredienser:[{v:'4',n:'røgede pølser'},{v:'800g',n:'kartofler'},{v:'1',n:'løg'},{v:'2 spsk',n:'smør'},{v:'2 spsk',n:'sennep'}], fremgangsmåde:['Kog kartofler','Skær pølser og løg i skiver','Steg pølser og løg gyldne','Mos kartofler med smør','Server med sennep'] },
+  { id:13, navn:'Grøntsagssuppe', emoji:'🥕', kategori:'supper', tid:'35 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80', ingredienser:[{v:'3',n:'gulerødder'},{v:'2',n:'kartofler'},{v:'1',n:'pastinak'},{v:'1',n:'løg'},{v:'2 fed',n:'hvidløg'},{v:'1 liter',n:'grøntsagsbouillon'},{v:'1 dl',n:'fløde'}], fremgangsmåde:['Skær grøntsager i tern','Svits løg og hvidløg','Tilsæt grøntsager og bouillon','Kog 20 min','Blend og tilsæt fløde','Server med brød'] },
+  { id:14, navn:'Kylling Caesar Salat', emoji:'🥗', kategori:'kylling', tid:'25 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=400&q=80', ingredienser:[{v:'400g',n:'kyllingebryst'},{v:'1 hoved',n:'romaine salat'},{v:'50g',n:'parmesan'},{v:'100g',n:'croutoner'},{v:'4 spsk',n:'caesar dressing'},{v:'1',n:'citron'}], fremgangsmåde:['Grill kyllingebryst','Skær i skiver','Bland salat med dressing','Top med kylling parmesan og croutoner','Server straks'] },
+  { id:15, navn:'Pandekager', emoji:'🥞', kategori:'weekend', tid:'30 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1554520735-0a6b8b6ce8b7?w=400&q=80', ingredienser:[{v:'3',n:'æg'},{v:'3 dl',n:'mælk'},{v:'150g',n:'mel'},{v:'1 spsk',n:'sukker'},{v:'2 spsk',n:'smør'},{v:'1 glas',n:'syltetøj'},{v:'2 dl',n:'piskefløde'}], fremgangsmåde:['Pisk æg mælk og mel til jævn dej','Tilsæt sukker og hvil 10 min','Steg tynde pandekager i smør','Server med syltetøj og flødeskum'] },
+  { id:16, navn:'Lasagne', emoji:'🫕', kategori:'weekend', tid:'75 min', sværhed:'Mellem', billede:'https://images.unsplash.com/photo-1619895092538-128341789043?w=400&q=80', ingredienser:[{v:'400g',n:'hakket oksekød'},{v:'12',n:'lasagneplader'},{v:'400g',n:'hakkede tomater'},{v:'5 dl',n:'bechamelsauce'},{v:'150g',n:'revet ost'},{v:'1',n:'løg'},{v:'2 fed',n:'hvidløg'},{v:'2 spsk',n:'tomatpuré'}], fremgangsmåde:['Lav kødsovs med kød løg og tomater','Lav bechamel','Skift lag pasta kødsovs og bechamel','Top med ost','Bag 180°C i 40 min'] },
+  { id:17, navn:'Torsk med Sennepssovs', emoji:'🐠', kategori:'fisk', tid:'30 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80', ingredienser:[{v:'600g',n:'torskefilet'},{v:'2 spsk',n:'sennep'},{v:'2 dl',n:'fløde'},{v:'1',n:'løg'},{v:'1 håndfuld',n:'persille'},{v:'800g',n:'kartofler'},{v:'2 spsk',n:'smør'}], fremgangsmåde:['Kog kartofler','Steg torsk i smør','Lav sauce med løg fløde og sennep','Simre 5 min','Server med sauce og kartofler'] },
+  { id:18, navn:'Blomkålssuppe', emoji:'🥦', kategori:'supper', tid:'30 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1603105037880-880cd4edfb0d?w=400&q=80', ingredienser:[{v:'1 hoved',n:'blomkål'},{v:'1',n:'løg'},{v:'2 fed',n:'hvidløg'},{v:'1 liter',n:'grøntsagsbouillon'},{v:'2 dl',n:'fløde'},{v:'1 tsk',n:'karry'}], fremgangsmåde:['Del blomkål i buketter','Svits løg og hvidløg','Tilsæt blomkål og bouillon','Kog 15 min','Blend til cremet suppe','Tilsæt fløde og karry'] },
+  { id:19, navn:'Bøf med Bearnaise', emoji:'🥩', kategori:'weekend', tid:'30 min', sværhed:'Svær', billede:'https://images.unsplash.com/photo-1558030006-450675393462?w=400&q=80', ingredienser:[{v:'4',n:'oksebøffer'},{v:'1 glas',n:'bearnaisesauce'},{v:'800g',n:'pommes frites'},{v:'50g',n:'smør'},{v:'1 tsk',n:'rosmarin'},{v:'1 pose',n:'grøn salat'}], fremgangsmåde:['Tag bøffer ud 30 min før','Varm pande meget godt op','Steg bøffer 2-3 min pr side','Hvil 5 min','Server med bearnaise og pommes frites'] },
+  { id:20, navn:'Pasta med Pesto og Rejer', emoji:'🦐', kategori:'fisk', tid:'20 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1627308595229-7830a5c18106?w=400&q=80', ingredienser:[{v:'400g',n:'pasta'},{v:'300g',n:'rejer'},{v:'4 spsk',n:'grøn pesto'},{v:'200g',n:'cherrytomater'},{v:'1 håndfuld',n:'rucola'},{v:'50g',n:'parmesan'},{v:'1',n:'citron'}], fremgangsmåde:['Kog pasta','Varm rejer på panden','Bland pasta med pesto','Tilsæt rejer og tomater','Top med rucola og parmesan'] },
+  { id:21, navn:'Hakkebøf med Løg', emoji:'🍔', kategori:'hverdagsmad', tid:'25 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80', ingredienser:[{v:'600g',n:'hakket oksekød'},{v:'3',n:'løg'},{v:'2 spsk',n:'smør'},{v:'800g',n:'kartofler'},{v:'2 dl',n:'brun sovs'},{v:'2 spsk',n:'mel'}], fremgangsmåde:['Form hakkebøffer og krydr','Steg bøfferne gyldne','Svits løgringe bløde','Kog kartofler','Lav brun sovs','Server med løg sovs og kartofler'] },
+  { id:22, navn:'Stegt Flæsk med Persillesovs', emoji:'🥓', kategori:'hverdagsmad', tid:'35 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&q=80', ingredienser:[{v:'600g',n:'stegt flæsk'},{v:'800g',n:'kartofler'},{v:'3 dl',n:'mælk'},{v:'2 spsk',n:'mel'},{v:'2 spsk',n:'smør'},{v:'1 stor håndfuld',n:'persille'}], fremgangsmåde:['Kog kartofler','Steg flæsk sprødt','Lav persillesovs med smør mel og mælk','Rør persille i sovsen','Server flæsk med kartofler og sovs'] },
+  { id:23, navn:'Kyllingewok', emoji:'🥢', kategori:'kylling', tid:'20 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80', ingredienser:[{v:'500g',n:'kyllingefilet'},{v:'1',n:'rød peber'},{v:'1',n:'gul peber'},{v:'2',n:'gulerødder'},{v:'200g',n:'broccolibuketter'},{v:'3 spsk',n:'soyasauce'},{v:'1 spsk',n:'sesamolie'},{v:'300g',n:'ris'}], fremgangsmåde:['Skær kylling og grøntsager i strimler','Varm wok op','Steg kylling 4 min','Tilsæt grøntsager 3 min','Tilsæt soya og sesamolie','Server med ris'] },
+  { id:24, navn:'Fiskedeller', emoji:'🐡', kategori:'fisk', tid:'35 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1519984388953-d2406bc725e1?w=400&q=80', ingredienser:[{v:'500g',n:'fiskefars'},{v:'1',n:'æg'},{v:'1',n:'løg'},{v:'3 spsk',n:'mel'},{v:'1 dl',n:'mælk'},{v:'1 håndfuld',n:'dild'},{v:'2 spsk',n:'smør'}], fremgangsmåde:['Bland fiskefars med æg løg og dild','Tilsæt mel og mælk','Form fiskedeller','Steg gyldne i smør','Server med remoulade og kartoffelsalat'] },
+  { id:25, navn:'Tomatsuppe', emoji:'🍅', kategori:'supper', tid:'30 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80', ingredienser:[{v:'800g',n:'hakkede tomater'},{v:'1',n:'løg'},{v:'3 fed',n:'hvidløg'},{v:'5 dl',n:'grøntsagsbouillon'},{v:'2 dl',n:'fløde'},{v:'2 spsk',n:'tomatpuré'},{v:'4 skiver',n:'brød'}], fremgangsmåde:['Svits løg og hvidløg','Tilsæt tomatpuré','Tilsæt tomater og bouillon','Kog 20 min','Blend og tilsæt fløde','Server med brød'] },
+  { id:26, navn:'Pasta Carbonara', emoji:'🥚', kategori:'hverdagsmad', tid:'20 min', sværhed:'Mellem', billede:'https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400&q=80', ingredienser:[{v:'400g',n:'spaghetti'},{v:'200g',n:'bacon i tern'},{v:'4',n:'æg'},{v:'100g',n:'parmesan'},{v:'2 fed',n:'hvidløg'},{v:'1 tsk',n:'sort peber'}], fremgangsmåde:['Kog spaghetti al dente','Steg bacon sprødt med hvidløg','Pisk æg med parmesan og peber','Tag pasta af varmen','Rør æggesmasse i hurtigt','Server straks'] },
+  { id:27, navn:'Boller i Karry', emoji:'🥘', kategori:'hverdagsmad', tid:'50 min', sværhed:'Mellem', billede:'https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=400&q=80', ingredienser:[{v:'500g',n:'hakket svinekød'},{v:'1',n:'æg'},{v:'3 spsk',n:'mel'},{v:'1 dl',n:'mælk'},{v:'2 spsk',n:'karry'},{v:'1',n:'løg'},{v:'5 dl',n:'bouillon'},{v:'300g',n:'ris'}], fremgangsmåde:['Lav kødboller af svinekød æg mel og mælk','Kog kødboller i bouillon 10 min','Svits løg og karry','Tilsæt bouillon og jævn','Tilsæt kødboller','Server med ris'] },
+  { id:28, navn:'Grillede Kyllingelår', emoji:'🍗', kategori:'kylling', tid:'45 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1598103442097-8b74394b95c3?w=400&q=80', ingredienser:[{v:'8',n:'kyllingelår'},{v:'3 spsk',n:'olivenolie'},{v:'2',n:'citron'},{v:'4 fed',n:'hvidløg'},{v:'1 tsk',n:'paprika'},{v:'1 tsk',n:'rosmarin'},{v:'800g',n:'kartofler'}], fremgangsmåde:['Marinér kyllingelår med olie citron og krydderier','Lad marinere 30 min','Bag i ovn 200°C i 40 min','Vend halvvejs','Server med kartofler og salat'] },
+  { id:29, navn:'Rejesalat på Rugbrød', emoji:'🍞', kategori:'fisk', tid:'15 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1499028344343-cd173ffc68a9?w=400&q=80', ingredienser:[{v:'300g',n:'rejer'},{v:'4 spsk',n:'mayonnaise'},{v:'1 spsk',n:'ketchup'},{v:'1',n:'citron'},{v:'1 håndfuld',n:'dild'},{v:'8 skiver',n:'rugbrød'},{v:'1 pose',n:'salatblade'}], fremgangsmåde:['Bland mayo ketchup og citronsaft','Vend rejer i dressingen','Tilsæt frisk dild','Anret på rugbrød med salatblade','Pynt med citronbåde'] },
+  { id:30, navn:'Oksekød Tacos', emoji:'🌮', kategori:'weekend', tid:'30 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=400&q=80', ingredienser:[{v:'500g',n:'hakket oksekød'},{v:'1 pose',n:'tacokrydderi'},{v:'8',n:'tacoskaller'},{v:'200g',n:'revet ost'},{v:'2',n:'tomater'},{v:'1 pose',n:'salatblade'},{v:'2 dl',n:'creme fraiche'},{v:'1 dåse',n:'majs'}], fremgangsmåde:['Brun hakket oksekød','Tilsæt tacokrydderi og vand','Simre 10 min','Anret toppingbord','Fyld tacoskaller'] },
+  { id:31, navn:'Hakkebøf Burger', emoji:'🍔', kategori:'weekend', tid:'25 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80', ingredienser:[{v:'500g',n:'hakket oksekød'},{v:'4',n:'burgerboller'},{v:'4 skiver',n:'ost'},{v:'1',n:'tomat'},{v:'1 hoved',n:'salatblade'},{v:'1',n:'rødløg'},{v:'4 spsk',n:'remoulade'}], fremgangsmåde:['Form burgere og krydr','Steg 3-4 min pr side','Læg ost på og smelt','Anret boller med salat tomat og løg','Tilsæt burgere og remoulade'] },
+  { id:32, navn:'Squashsuppe', emoji:'🎃', kategori:'vegetar', tid:'35 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=400&q=80', ingredienser:[{v:'1 stor',n:'butternut squash'},{v:'1',n:'løg'},{v:'2 fed',n:'hvidløg'},{v:'1 liter',n:'grøntsagsbouillon'},{v:'2 dl',n:'kokosmælk'},{v:'1 tsk',n:'ingefær'},{v:'1 tsk',n:'karry'}], fremgangsmåde:['Skær squash i tern','Svits løg og hvidløg','Tilsæt squash og bouillon','Kog 20 min','Blend og tilsæt kokosmælk','Server med brød'] },
+  { id:33, navn:'Medisterpølse med Rødkål', emoji:'🌭', kategori:'hverdagsmad', tid:'30 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1529042410759-befb1204b468?w=400&q=80', ingredienser:[{v:'600g',n:'medisterpølse'},{v:'1 glas',n:'rødkål'},{v:'800g',n:'kartofler'},{v:'2 spsk',n:'smør'},{v:'1 dl',n:'mælk'},{v:'2 dl',n:'brun sovs'}], fremgangsmåde:['Kog kartofler','Steg medisterpølse langsomt','Varm rødkål','Mos kartofler med smør og mælk','Lav brun sovs','Server traditionelt'] },
+  { id:34, navn:'Pasta med Grøntsagssovs', emoji:'🍝', kategori:'hverdagsmad', tid:'40 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1598866594230-a7c12756260f?w=400&q=80', ingredienser:[{v:'400g',n:'hakket oksekød'},{v:'400g',n:'pasta'},{v:'2 dåser',n:'hakkede tomater'},{v:'1',n:'squash'},{v:'2',n:'gulerødder'},{v:'1',n:'løg'},{v:'2 fed',n:'hvidløg'},{v:'1 tsk',n:'oregano'}], fremgangsmåde:['Brun kød med løg og hvidløg','Tilsæt grøntsager i tern','Tilsæt tomater og oregano','Simre 20 min','Kog pasta','Server med ost'] },
+  { id:35, navn:'Halloumi med Grøntsager', emoji:'🧀', kategori:'vegetar', tid:'40 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80', ingredienser:[{v:'250g',n:'halloumi'},{v:'2',n:'pebre'},{v:'1',n:'squash'},{v:'200g',n:'cherrytomater'},{v:'1',n:'rødløg'},{v:'3 spsk',n:'olivenolie'},{v:'1 tsk',n:'oregano'}], fremgangsmåde:['Skær grøntsager i grove stykker','Vend med olie og oregano','Bag ved 200°C i 25 min','Tilsæt halloumi de sidste 10 min','Server med brød'] },
+  { id:36, navn:'Kylling med Citron og Timian', emoji:'🍋', kategori:'kylling', tid:'25 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80', ingredienser:[{v:'600g',n:'kyllingefilet'},{v:'2',n:'citron'},{v:'1 tsk',n:'timian'},{v:'3 fed',n:'hvidløg'},{v:'2 spsk',n:'olivenolie'},{v:'800g',n:'kartofler'},{v:'1 pose',n:'grøn salat'}], fremgangsmåde:['Marinér kylling i citronsaft og timian','Steg 5-6 min pr side','Kog kartofler','Hvil kylling 5 min','Server med salat og citronbåde'] },
+  { id:37, navn:'Muslinger i Hvidvin', emoji:'🦪', kategori:'fisk', tid:'25 min', sværhed:'Mellem', billede:'https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=400&q=80', ingredienser:[{v:'1 kg',n:'muslinger'},{v:'2 dl',n:'hvidvin'},{v:'1',n:'løg'},{v:'3 fed',n:'hvidløg'},{v:'2 dl',n:'fløde'},{v:'1 håndfuld',n:'persille'},{v:'2 spsk',n:'smør'},{v:'4 skiver',n:'flûte'}], fremgangsmåde:['Rens muslinger','Svits løg og hvidløg i smør','Tilsæt hvidvin og muslinger','Damp til åbne 5 min','Tilsæt fløde og persille','Server med flûte'] },
+  { id:38, navn:'Linsesuppe', emoji:'🫘', kategori:'vegetar', tid:'35 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80', ingredienser:[{v:'300g',n:'røde linser'},{v:'2',n:'gulerødder'},{v:'1',n:'løg'},{v:'3 fed',n:'hvidløg'},{v:'1 liter',n:'grøntsagsbouillon'},{v:'1 dåse',n:'hakkede tomater'},{v:'2 tsk',n:'spidskommen'},{v:'1 tsk',n:'gurkemeje'}], fremgangsmåde:['Svits løg hvidløg og krydderier','Tilsæt gulerødder og linser','Tilsæt bouillon og tomater','Kog 20 min','Blend halvt','Server med brød og citron'] },
+  { id:39, navn:'Shepherd\'s Pie', emoji:'🥧', kategori:'weekend', tid:'70 min', sværhed:'Mellem', billede:'https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80', ingredienser:[{v:'500g',n:'hakket lammekød'},{v:'2',n:'gulerødder'},{v:'1',n:'løg'},{v:'200g',n:'frosne ærter'},{v:'2 spsk',n:'tomatpuré'},{v:'800g',n:'kartofler'},{v:'50g',n:'smør'},{v:'1 dl',n:'mælk'}], fremgangsmåde:['Brun lammekød med løg og gulerødder','Tilsæt tomatpuré og ærter','Lav kartoffelmos','Fyld i ovnfad','Læg kartoffelmos ovenpå','Bag 180°C i 30 min'] },
+  { id:40, navn:'Risotto med Svampe', emoji:'🍄', kategori:'vegetar', tid:'40 min', sværhed:'Svær', billede:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80', ingredienser:[{v:'300g',n:'risottoris'},{v:'400g',n:'blandede svampe'},{v:'1',n:'løg'},{v:'2 fed',n:'hvidløg'},{v:'1 dl',n:'hvidvin'},{v:'1 liter',n:'varm grøntsagsbouillon'},{v:'50g',n:'parmesan'},{v:'2 spsk',n:'smør'}], fremgangsmåde:['Svits løg og hvidløg','Tilsæt ris og rist 2 min','Tilsæt hvidvin','Tilsæt bouillon lidt ad gangen','Svits svampe separat','Rør svampe smør og parmesan i'] },
+  { id:41, navn:'Pasta Carbonara', emoji:'🥚', kategori:'hverdagsmad', tid:'20 min', sværhed:'Mellem', billede:'https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400&q=80', ingredienser:[{v:'400g',n:'spaghetti'},{v:'200g',n:'bacon i tern'},{v:'4',n:'æg'},{v:'100g',n:'parmesan'},{v:'2 fed',n:'hvidløg'},{v:'1 tsk',n:'sort peber'}], fremgangsmåde:['Kog spaghetti al dente','Steg bacon sprødt','Pisk æg med parmesan og peber','Tag pasta af varmen','Rør æggesmasse i hurtigt','Server straks'] },
+  { id:42, navn:'Boller i Karry', emoji:'🥘', kategori:'hverdagsmad', tid:'50 min', sværhed:'Mellem', billede:'https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=400&q=80', ingredienser:[{v:'500g',n:'hakket svinekød'},{v:'1',n:'æg'},{v:'3 spsk',n:'mel'},{v:'1 dl',n:'mælk'},{v:'2 spsk',n:'karry'},{v:'1',n:'løg'},{v:'5 dl',n:'bouillon'},{v:'300g',n:'ris'}], fremgangsmåde:['Lav kødboller','Kog i bouillon 10 min','Svits løg og karry','Tilsæt bouillon og jævn','Tilsæt kødboller','Server med ris'] },
+  { id:43, navn:'Kylling Tikka Masala', emoji:'🍛', kategori:'kylling', tid:'45 min', sværhed:'Mellem', billede:'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&q=80', ingredienser:[{v:'600g',n:'kyllingefilet'},{v:'400g',n:'hakkede tomater'},{v:'200ml',n:'fløde'},{v:'1 spsk',n:'garam masala'},{v:'1 tsk',n:'gurkemeje'},{v:'1',n:'løg'},{v:'3 fed',n:'hvidløg'},{v:'300g',n:'ris'}], fremgangsmåde:['Marinér og brun kylling','Svits løg og hvidløg','Tilsæt krydderier og tomater','Simre 15 min','Tilsæt fløde og kylling','Server med ris og naan'] },
+  { id:44, navn:'Æggekage med Bacon', emoji:'🍳', kategori:'hverdagsmad', tid:'20 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1510693206972-df098062cb71?w=400&q=80', ingredienser:[{v:'6',n:'æg'},{v:'200g',n:'bacon'},{v:'1 dl',n:'mælk'},{v:'1',n:'løg'},{v:'2 spsk',n:'smør'},{v:'1 håndfuld',n:'purløg'},{v:'4 skiver',n:'rugbrød'}], fremgangsmåde:['Steg bacon sprødt','Pisk æg med mælk','Svits løg','Tilsæt æggemassen','Rør langsomt til cremet','Server med purløg og rugbrød'] },
+  { id:45, navn:'Svinekoteletter med Æbler', emoji:'🍎', kategori:'hverdagsmad', tid:'30 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&q=80', ingredienser:[{v:'4',n:'svinekoteletter'},{v:'2',n:'æbler'},{v:'1',n:'løg'},{v:'2 dl',n:'fløde'},{v:'1 spsk',n:'sennep'},{v:'2 spsk',n:'smør'},{v:'800g',n:'kartofler'}], fremgangsmåde:['Steg koteletter gyldne','Tag koteletter af','Svits løg og æbler i smør','Tilsæt fløde og sennep','Simre 5 min','Server med kartofler'] },
+  { id:46, navn:'Butterchicken', emoji:'🍗', kategori:'kylling', tid:'45 min', sværhed:'Mellem', billede:'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400&q=80', ingredienser:[{v:'600g',n:'kyllingefilet'},{v:'400g',n:'hakkede tomater'},{v:'200ml',n:'fløde'},{v:'2 spsk',n:'smør'},{v:'1 tsk',n:'karry'},{v:'1 tsk',n:'garam masala'},{v:'1',n:'løg'},{v:'300g',n:'ris'}], fremgangsmåde:['Brun kylling i smør','Svits løg og krydderier','Tilsæt tomater og simre 15 min','Blend saucen glat','Tilsæt fløde og kylling','Server med ris og naan'] },
+  { id:47, navn:'Hjemmelavet Burger', emoji:'🍔', kategori:'weekend', tid:'30 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80', ingredienser:[{v:'600g',n:'hakket oksekød'},{v:'4',n:'burgerboller'},{v:'4 skiver',n:'cheddar'},{v:'1',n:'tomat'},{v:'1 pose',n:'salatblade'},{v:'1',n:'rødløg'},{v:'4 spsk',n:'burger sauce'},{v:'1 spsk',n:'sennep'}], fremgangsmåde:['Form burgere og krydr godt','Steg 3-4 min pr side','Smelt ost på toppen','Rist boller','Byg burger med alle topping'] },
+  { id:48, navn:'Fiskepinde med Remoulade', emoji:'🐟', kategori:'fisk', tid:'20 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1519984388953-d2406bc725e1?w=400&q=80', ingredienser:[{v:'8',n:'fiskepinde'},{v:'4 spsk',n:'remoulade'},{v:'800g',n:'kartofler'},{v:'2 dl',n:'frosne ærter'},{v:'2 spsk',n:'smør'},{v:'1 tsk',n:'salt'}], fremgangsmåde:['Bag fiskepinde i ovnen 200°C','Kog kartofler','Varm ærter','Server med remoulade'] },
+  { id:49, navn:'Gulasch', emoji:'🥘', kategori:'weekend', tid:'90 min', sværhed:'Mellem', billede:'https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80', ingredienser:[{v:'600g',n:'oksetykkam i tern'},{v:'2',n:'løg'},{v:'2',n:'pebre'},{v:'400g',n:'hakkede tomater'},{v:'2 spsk',n:'paprika'},{v:'5 dl',n:'bouillon'},{v:'2 fed',n:'hvidløg'},{v:'300g',n:'ris'}], fremgangsmåde:['Brun oksekød i portioner','Svits løg hvidløg og pebre','Tilsæt paprika og tomater','Tilsæt bouillon','Simre 1 time til mørt','Server med ris eller brød'] },
+  { id:50, navn:'Linser med Spinat og Æg', emoji:'🥬', kategori:'vegetar', tid:'25 min', sværhed:'Let', billede:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80', ingredienser:[{v:'300g',n:'røde linser'},{v:'200g',n:'frisk spinat'},{v:'4',n:'æg'},{v:'1 dåse',n:'hakkede tomater'},{v:'1',n:'løg'},{v:'2 fed',n:'hvidløg'},{v:'1 tsk',n:'spidskommen'},{v:'4 skiver',n:'brød'}], fremgangsmåde:['Svits løg og hvidløg','Tilsæt linser og tomater','Kog 15 min','Tilsæt spinat','Lav fordybninger og slå æg i','Damp til æg er sat','Server med brød'] }
 ];
 
 let filtreretKategori = 'alle';
@@ -3851,7 +5251,7 @@ function renderRecipes() {
   if (filtreretSøgning) {
     liste = liste.filter(r =>
       r.navn.toLowerCase().includes(filtreretSøgning) ||
-      r.ingredienser.some(i => i.toLowerCase().includes(filtreretSøgning))
+      getIngredientNames(r).some(i => i.toLowerCase().includes(filtreretSøgning))
     );
   }
 
@@ -3860,10 +5260,28 @@ function renderRecipes() {
     return;
   }
 
-  el.innerHTML = liste.map(r => `
-    <div class="recipe-card">
-      <div class="recipe-emoji">${r.emoji}</div>
-      <div class="recipe-info">
+  // Liste-visning — hurtig scroll
+  if (recipeViewMode === 'list') {
+    el.innerHTML = `<div class="card" style="padding:8px 16px">` + liste.map(r => `
+      <div class="recipe-row">
+        <div class="recipe-row-emoji">${r.emoji}</div>
+        <div>
+          <div class="recipe-row-name">${r.navn}</div>
+          <div class="recipe-row-meta">⏱ ${r.tid} · ${r.sværhed}</div>
+        </div>
+        <div class="recipe-row-add" onclick="addToPlanFromDB(${r.id})">＋</div>
+      </div>
+    `).join('') + `</div>`;
+    return;
+  }
+
+  el.innerHTML = liste.map(r => {
+    const ingNavne = getIngredientNames(r);
+    const ingVis = r.ingredienser.slice(0,3).map(i => typeof i === 'object' ? `${i.v} ${i.n}` : i).join(' · ');
+    return `
+    <div class="recipe-card" style="flex-direction:column;padding:0;overflow:hidden">
+      ${r.billede ? `<img src="${r.billede}" style="width:100%;height:160px;object-fit:cover" onerror="this.style.display='none'" loading="lazy">` : ''}
+      <div style="padding:14px">
         ${r.matchPct ? `<div class="recipe-match-badge">✅ ${r.matchPct}% match</div>` : ''}
         <div class="recipe-name">${r.navn}</div>
         <div class="recipe-meta">
@@ -3871,16 +5289,17 @@ function renderRecipes() {
           <span>📊 ${r.sværhed}</span>
           <span>👥 ${persons} pers.</span>
         </div>
-        <div class="recipe-ingredients">
-          ${r.ingredienser.slice(0,3).join(' · ')}${r.ingredienser.length > 3 ? ` · +${r.ingredienser.length-3} mere` : ''}
-        </div>
+        <div class="recipe-ingredients">${ingVis}${r.ingredienser.length > 3 ? ` · +${r.ingredienser.length-3} mere` : ''}</div>
         <div class="recipe-actions">
           <button class="btn-recipe-plan" onclick="addToPlanFromDB(${r.id})">+ Ugeplanen</button>
-          <button class="btn-recipe-expand" onclick="toggleSteps(${r.id})">📋 Fremgangsmåde</button>
+          <button class="btn-recipe-expand" onclick="toggleSteps(${r.id})">📋 Vis opskrift</button>
         </div>
         <div class="recipe-steps" id="steps-${r.id}">
-          <div style="font-size:12px;font-weight:800;color:var(--text-light);margin-bottom:8px;text-transform:uppercase">INGREDIENSER (${persons} pers.)</div>
-          ${r.ingredienser.map(i => `<div style="font-size:13px;padding:3px 0;border-bottom:1px solid var(--beige)">${i}</div>`).join('')}
+          <div style="font-size:12px;font-weight:800;color:var(--text-light);margin-bottom:8px;text-transform:uppercase">INGREDIENSER</div>
+          ${r.ingredienser.map(i => {
+            const tekst = typeof i === 'object' ? `${i.v} ${i.n}` : i;
+            return `<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--beige)">${tekst}</div>`;
+          }).join('')}
           <div style="font-size:12px;font-weight:800;color:var(--text-light);margin:10px 0 8px;text-transform:uppercase">FREMGANGSMÅDE</div>
           ${r.fremgangsmåde.map((s,i) => `
             <div class="recipe-step">
@@ -3891,7 +5310,12 @@ function renderRecipes() {
         </div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
+}
+
+// Hjælpefunktion til at hente ingrediensnavne uanset format
+function getIngredientNames(recipe) {
+  return recipe.ingredienser.map(i => typeof i === 'object' ? i.n : i);
 }
 
 function toggleSteps(id) {
@@ -3980,184 +5404,12 @@ function generateShoppingFromPlan() {
 
 
 
-async function handleFridgePhoto(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  // Show preview
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const base64 = e.target.result;
-    fridgePhotoBase64 = base64.split(',')[1]; // strip data URL prefix
-
-    document.getElementById('fridgePhotoImg').src = base64;
-    document.getElementById('fridgePhotoPreview').style.display = 'block';
-    document.getElementById('cameraZone').classList.add('has-photo');
-
-    // Scan with AI
-    await scanFridgePhoto();
-  };
-  reader.readAsDataURL(file);
-  event.target.value = ''; // reset so same file can be re-selected
-}
-
-async function scanFridgePhoto() {
-  const status = document.getElementById('fridgeScanStatus');
-  const found  = document.getElementById('fridgeFoundItems');
-  const tags   = document.getElementById('fridgeTagsContainer');
-
-  status.style.display = 'flex';
-  found.style.display = 'none';
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 500,
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: { type: 'base64', media_type: 'image/jpeg', data: fridgePhotoBase64 }
-            },
-            {
-              type: 'text',
-              text: 'Se på dette billede af et køleskab. List alle ingredienser og madvarer du kan se. Svar KUN med JSON uden markdown backticks: {"ingredients": ["ingrediens1", "ingrediens2", "ingrediens3"]}'
-            }
-          ]
-        }]
-      })
-    });
-
-    const data = await response.json();
-    const text = data.content.map(c => c.text || '').join('');
-    const clean = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
-    fridgeFoundIngredients = parsed.ingredients || [];
-
-    // Render tags
-    tags.innerHTML = fridgeFoundIngredients.map((ing, i) => `
-      <div class="fridge-tag" id="ftag-${i}" onclick="removeFridgeTag(${i})">
-        ${ing} ✕
-      </div>
-    `).join('');
-
-    // Also populate textarea
-    document.getElementById('fridgeText').value = fridgeFoundIngredients.join(', ');
-
-    found.style.display = 'block';
-    showToast(`🧊 Fandt ${fridgeFoundIngredients.length} ingredienser!`);
-
-  } catch(e) {
-    showToast('Kunne ikke scanne billedet. Prøv at skrive ingredienserne selv.');
-  }
-
-  status.style.display = 'none';
-}
-
-function removeFridgeTag(i) {
-  document.getElementById('ftag-' + i).classList.add('removed');
-  fridgeFoundIngredients[i] = null;
-  // Update textarea
-  const remaining = fridgeFoundIngredients.filter(Boolean);
-  document.getElementById('fridgeText').value = remaining.join(', ');
-}
-
-function clearFridgePhoto() {
-  fridgePhotoBase64 = null;
-  fridgeFoundIngredients = [];
-  document.getElementById('fridgePhotoPreview').style.display = 'none';
-  document.getElementById('fridgeFoundItems').style.display = 'none';
-  document.getElementById('fridgeScanStatus').style.display = 'none';
-  document.getElementById('cameraZone').classList.remove('has-photo');
-  document.getElementById('fridgeText').value = '';
-}
-
-async function getAIRecipes() {
-  const fridge = document.getElementById('fridgeText').value.trim();
-  if (!fridge) { showToast('Tag et billede eller skriv ingredienser 🧊'); return; }
-
-  const btn = document.getElementById('aiBtn');
-  btn.innerHTML = '<div class="spinner"></div><span>Finder opskrifter...</span>';
-  btn.disabled = true;
-
-  const resultsEl = document.getElementById('aiResults');
-  resultsEl.innerHTML = '';
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: `Jeg har følgende ingredienser i køleskabet: ${fridge}. Opskriften skal passe til ${persons} personer.
-
-Foreslå 3 lækre, nemme middagsopskrifter jeg kan lave. Svar KUN med JSON og ingenting andet (ingen markdown backticks):
-{
-  "recipes": [
-    {
-      "title": "Opskrift navn",
-      "time": "30 min",
-      "difficulty": "Let",
-      "ingredients": ["ingrediens 1 med mængde", "ingrediens 2 med mængde"],
-      "steps": ["Trin 1", "Trin 2", "Trin 3"]
-    }
-  ]
-}`
-        }]
-      })
-    });
-
-    const data = await response.json();
-    const text = data.content.map(c => c.text || '').join('');
-    const clean = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
-    aiRecipes = parsed.recipes;
-
-    resultsEl.innerHTML = aiRecipes.map((r, i) => `
-      <div class="ai-result">
-        <div class="ai-recipe-title">🍳 ${r.title}</div>
-        <div class="ai-recipe-meta">
-          <span>⏱ ${r.time}</span>
-          <span>📊 ${r.difficulty}</span>
-          <span>👥 ${persons} pers.</span>
-        </div>
-        <div class="ai-recipe-text">
-          <strong>Ingredienser:</strong><br>
-          ${r.ingredients.join(', ')}<br><br>
-          <strong>Fremgangsmåde:</strong><br>
-          ${r.steps.map((s,j) => `${j+1}. ${s}`).join('<br>')}
-        </div>
-        <button class="btn-add-to-plan" onclick="addToPlan('${r.title}', ${i})">+ Tilføj til ugeplan</button>
-      </div>
-    `).join('');
-
-  } catch(e) {
-    resultsEl.innerHTML = '<div class="ai-result">Kunne ikke hente opskrifter. Prøv igen. 😕</div>';
-  }
-
-  btn.innerHTML = '<span>✨ Find opskrifter</span>';
-  btn.disabled = false;
-}
-
+// Legacy addToPlan wrapper (bruges af gammel kode)
 function addToPlan(title, recipeIdx) {
-  const days = ['man','tir','ons','tor','fre','lør','søn'];
-  const freeDay = days.find(d => !weekPlan[d]);
-  if (freeDay) {
-    weekPlan[freeDay] = { title, ingredients: aiRecipes[recipeIdx]?.ingredients || [] };
-    renderWeekPlan();
-    updateMealShopList();
-    showToast(`✅ ${title} tilføjet til ${freeDay}`);
-  } else {
-    showToast('Ugeplanen er fuld! Fjern en dag først.');
-  }
+  addToPlanFromDB ? addToPlanFromDB(recipeIdx) : null;
 }
+
+
 
 function renderWeekPlan() {
   const el = document.getElementById('weekPlan');
@@ -4193,39 +5445,76 @@ function removePlan(day) {
 function updateMealShopList() {
   const el = document.getElementById('mealShopList');
   const dage = ['man','tir','ons','tor','fre','lør','søn'];
-  const dagNavne = { man:'Mandag',tir:'Tirsdag',ons:'Onsdag',tor:'Torsdag',fre:'Fredag',lør:'Lørdag',søn:'Søndag' };
-
   const planlagte = dage.filter(d => weekPlan[d]);
+
   if (!planlagte.length) {
     el.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:20px;font-size:15px">Tilføj opskrifter til ugeplanen først 🍽️</div>';
     return;
   }
 
-  // Saml alle ingredienser og fjern dubletter
-  const alleIngr = {};
+  // Smart sammenlægning af ingredienser
+  const merged = {};
   planlagte.forEach(d => {
     const ret = weekPlan[d];
-    if (ret?.ingredients) {
-      ret.ingredients.forEach(ing => {
-        const key = ing.toLowerCase();
-        if (!alleIngr[key]) alleIngr[key] = { navn: ing, ret: ret.title };
-      });
-    }
+    if (!ret?.ingredients) return;
+    ret.ingredients.forEach(ing => {
+      const obj = typeof ing === 'object' ? ing : { v: '', n: ing };
+      const key = obj.n.toLowerCase().trim();
+
+      if (!merged[key]) {
+        merged[key] = { n: obj.n, mængder: [], retter: [] };
+      }
+      if (obj.v) merged[key].mængder.push(obj.v);
+      if (!merged[key].retter.includes(ret.title)) merged[key].retter.push(ret.title);
+    });
   });
 
-  const ingredienser = Object.values(alleIngr);
+  // Forsøg at lægge numeriske mængder sammen
+  function sumMængder(mængder) {
+    if (mængder.length === 0) return '';
+    if (mængder.length === 1) return mængder[0];
+
+    // Prøv at parse og summere tal med samme enhed
+    const parsed = mængder.map(m => {
+      const match = m.match(/^([\d.,]+)\s*(.*)$/);
+      return match ? { tal: parseFloat(match[1].replace(',','.')), enhed: match[2].trim() } : null;
+    });
+
+    const alleParsed = parsed.every(Boolean);
+    const sammeEnhed = alleParsed && new Set(parsed.map(p => p.enhed)).size === 1;
+
+    if (sammeEnhed) {
+      const total = parsed.reduce((s, p) => s + p.tal, 0);
+      const enhed = parsed[0].enhed;
+      // Pæn formatering
+      const totalStr = Number.isInteger(total) ? total : total.toFixed(1);
+      return `${totalStr} ${enhed}`.trim();
+    }
+
+    // Kan ikke summere — vis alle mængder
+    return mængder.join(' + ');
+  }
+
+  const liste = Object.values(merged);
 
   el.innerHTML = `
     <div style="font-size:13px;color:var(--text-light);margin-bottom:12px">
-      Sæt hak ved det du allerede har — resten skal købes
+      ✅ Mængder er lagt sammen på tværs af ugens opskrifter. Sæt hak ved hvad du har hjemme.
     </div>
-    ${ingredienser.map((ing, i) => `
+    ${liste.map((ing, i) => {
+      const mængde = sumMængder(ing.mængder);
+      const fraRetter = ing.retter.length > 1
+        ? `<span style="font-size:10px;color:var(--accent-orange);font-weight:800;margin-left:6px">${ing.retter.length} retter</span>`
+        : `<span style="font-size:10px;color:var(--text-light)">${ing.retter[0]||''}</span>`;
+      return `
       <div class="list-item" id="shop-ing-${i}">
         <div class="list-checkbox" onclick="toggleShopIng(${i}, this)"></div>
-        <div class="list-item-text">${ing.navn}</div>
-        <div class="list-item-cat" style="font-size:10px">${ing.ret}</div>
-      </div>
-    `).join('')}
+        <div class="list-item-text">
+          ${mængde ? `<strong>${mængde}</strong> ` : ''}${ing.n}
+        </div>
+        <div>${fraRetter}</div>
+      </div>`;
+    }).join('')}
     <div style="margin-top:16px;padding-top:12px;border-top:2px solid var(--beige)">
       <button class="btn-primary" onclick="exportShoppingList()" style="width:100%">
         📋 Kopier indkøbsliste
@@ -4279,7 +5568,34 @@ function saveAllData() {
   LOCAL.save('hentePlan',    hentePlan);
   LOCAL.save('weekPlan',     weekPlan);
   LOCAL.save('users_extra',  USERS);
+  LOCAL.save('boernekort',   boernekort);
+  LOCAL.save('foedseldage',  foedseldage);
+  LOCAL.save('stemninger',   stemninger);
+  LOCAL.save('opgaver',      opgaver);
+  LOCAL.save('onsker',       onsker);
+  LOCAL.save('vagtPlan',     vagtPlan);
+  LOCAL.save('ferieMode',    ferieMode);
+  LOCAL.save('hojdepunkter', hojdepunkter);
+  LOCAL.save('point',        point);
+  LOCAL.save('beloenninger', beloenninger);
   if (countdown) LOCAL.save('countdown', countdown);
+}
+
+// Auto-nulstil ugeplan mandag morgen
+function checkWeekReset() {
+  const lastReset = LOCAL.load('lastWeekReset', null);
+  const now = new Date();
+  const thisMonday = new Date(now);
+  thisMonday.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay() - 1));
+  thisMonday.setHours(0,0,0,0);
+  const thisMondayStr = thisMonday.toISOString().split('T')[0];
+
+  if (lastReset !== thisMondayStr) {
+    weekPlan = { man:null, tir:null, ons:null, tor:null, fre:null, lør:null, søn:null };
+    LOCAL.save('lastWeekReset', thisMondayStr);
+    LOCAL.save('weekPlan', weekPlan);
+    console.log('[FamilieHub] Ugeplan nulstillet for ny uge');
+  }
 }
 
 // Gem data automatisk ved ændringer
@@ -4293,17 +5609,47 @@ function patchSave(fn) {
 
 // Indlæs data fra localStorage ved opstart
 function loadAllData() {
-  const saved = LOCAL.loadAll ? LOCAL.loadAll() : null;
-  if (!saved) return;
+  // Indlæs alle gemte data fra localStorage
+  const load = (key, fallback) => LOCAL.load(key, fallback);
 
-  if (saved.events?.length)       events       = saved.events;
-  if (saved.lists?.shopping)      lists        = saved.lists;
-  if (saved.memories?.length)     memories     = saved.memories;
-  if (saved.chatMessages?.length) chatMessages = saved.chatMessages;
-  if (saved.feedItems?.length)    feedItems    = saved.feedItems;
-  if (saved.hentePlan)            Object.assign(hentePlan, saved.hentePlan);
-  if (saved.weekPlan)             Object.assign(weekPlan, saved.weekPlan);
-  if (saved.countdown)            countdown    = saved.countdown;
+  const savedEvents = load('events', null);
+  if (savedEvents?.length) events = savedEvents;
+
+  const savedLists = load('lists', null);
+  if (savedLists?.shopping) lists = savedLists;
+
+  const savedMemories = load('memories', null);
+  if (savedMemories?.length) memories = savedMemories;
+
+  const savedChat = load('chatMessages', null);
+  if (savedChat?.length) chatMessages = savedChat;
+
+  const savedFeed = load('feedItems', null);
+  if (savedFeed?.length) feedItems = savedFeed;
+
+  const savedHente = load('hentePlan', null);
+  if (savedHente) Object.assign(hentePlan, savedHente);
+
+  const savedWeek = load('weekPlan', null);
+  if (savedWeek) Object.assign(weekPlan, savedWeek);
+
+  const savedCountdown = load('countdown', null);
+  if (savedCountdown) countdown = savedCountdown;
+
+  // ── VIGTIGT: Indlæs gemte brugere og adgangskoder ──
+  // Dette sikrer at ændringer fra admin-panel overlever genstart
+  const savedUsers = load('users_extra', null);
+  if (savedUsers) {
+    Object.keys(savedUsers).forEach(username => {
+      if (USERS[username]) {
+        // Opdater eksisterende bruger (bevar alt undtagen det der er slettet)
+        USERS[username] = { ...USERS[username], ...savedUsers[username] };
+      } else {
+        // Tilføj nye brugere oprettet via admin
+        USERS[username] = savedUsers[username];
+      }
+    });
+  }
 }
 
 // Gem ved siden-lukning
@@ -4315,6 +5661,7 @@ setInterval(saveAllData, 30000);
 
 // Indlæs gemt data
 loadAllData();
+checkWeekReset();
 
 </script>
 
@@ -4325,22 +5672,26 @@ loadAllData();
 <script>
 // ── STARTUP ──
 (async function startup() {
-  // Registrer service worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('[SW] Registreret ✅', reg.scope))
-      .catch(err => console.warn('[SW] Fejlede:', err));
-  }
+  try {
+    // Registrer service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('[SW] Registreret ✅', reg.scope))
+        .catch(err => console.warn('[SW] Fejlede:', err));
+    }
 
-  // Vis iOS installationsguide efter kort pause
-  setTimeout(() => {
-    if (typeof NOTIF !== 'undefined') NOTIF.showIOSInstallGuide();
-  }, 3000);
+    // Vis iOS installationsguide efter kort pause
+    setTimeout(() => {
+      if (typeof NOTIF !== 'undefined') NOTIF.showIOSInstallGuide();
+    }, 3000);
 
-  // Tjek online status
-  if (typeof DATA !== 'undefined') {
-    await DATA.checkOnline();
-    console.log('[FamilieHub] Online:', DATA.online);
+    // Tjek online status
+    if (typeof DATA !== 'undefined') {
+      await DATA.checkOnline();
+      console.log('[FamilieHub] Online:', DATA.online);
+    }
+  } catch(e) {
+    console.warn('[FamilieHub] Startup fejl:', e);
   }
 })();
 
