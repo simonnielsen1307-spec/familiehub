@@ -5977,21 +5977,16 @@ async function syncWithFirebase() {
 // Ingen automatisk gem — ingen konflikter
 
 // ── VERSION CHECK — ryd gammel data ved ny version ──
-const APP_VERSION = '2.1';
+const APP_VERSION = '3.0';
 const storedVersion = localStorage.getItem('fh_version');
 if (storedVersion !== APP_VERSION) {
-  console.log('[FamilieHub] Ny version — rydder gammel cache...');
-  // Bevar kun adgangskoder
-  const oldPw = localStorage.getItem('fh_pw');
-  // Ryd alt
+  console.log('[FamilieHub] Ny version 3.0 — rydder AL gammel cache...');
+  // Ryd ALT — ingen gammel data bevares
   Object.keys(localStorage)
     .filter(k => k.startsWith('fh_'))
     .forEach(k => localStorage.removeItem(k));
-  // Gendan adgangskoder
-  if (oldPw) localStorage.setItem('fh_pw', oldPw);
-  // Sæt ny version
   localStorage.setItem('fh_version', APP_VERSION);
-  console.log('[FamilieHub] Cache ryddet ✅');
+  console.log('[FamilieHub] Cache ryddet fuldstændigt ✅');
 }
 
 // Indlæs lokal data øjeblikkeligt
