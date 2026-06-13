@@ -4748,19 +4748,31 @@ let currentLogFilter = 'all';
 function renderAdminUserList() {
   const el = document.getElementById('adminUserList');
   if (!el) return;
-  const entries = Object.entries(USERS).filter(([,u]) => !u.deleted);
+
+  // Filtrer dubletter (marlene er alias for malene — vis kun malene)
+  const entries = Object.entries(USERS).filter(([username, u]) =>
+    !u.deleted && username !== 'marlene'
+  );
+
+  if (!entries.length) {
+    el.innerHTML = '<div style="color:var(--text-light);font-size:14px;padding:12px 0">Ingen brugere endnu</div>';
+    return;
+  }
+
   el.innerHTML = entries.map(([username, user]) => `
     <div class="admin-user-row">
       <div class="admin-user-avatar" style="background:${user.color}33">${user.avatar}</div>
       <div class="admin-user-info">
         <div class="admin-user-name">${user.name}</div>
         <div class="admin-user-meta">
-          <span style="background:${ROLE_COLORS[user.role]};padding:2px 8px;border-radius:10px;font-weight:800;font-size:11px">${ROLE_LABELS[user.role]}</span>
+          <span style="background:${ROLE_COLORS[user.role]||'#eee'};padding:2px 8px;border-radius:10px;font-weight:800;font-size:11px">${ROLE_LABELS[user.role]||user.role}</span>
           &nbsp; @${username}
         </div>
       </div>
       <div class="admin-user-status">
-        ${username !== 'simon' ? `<button class="admin-edit-btn" onclick="openEditUser('${username}')">✏️ Rediger</button>` : '<span style="font-size:11px;color:var(--text-light)">Dig selv</span>'}
+        ${username !== 'simon'
+          ? `<button class="admin-edit-btn" onclick="openEditUser('${username}')">✏️ Rediger</button>`
+          : '<span style="font-size:11px;color:var(--text-light)">Dig selv</span>'}
       </div>
     </div>
   `).join('');
@@ -4769,20 +4781,25 @@ function renderAdminUserList() {
 function renderAdminLog() {
   const el = document.getElementById('adminLogList');
   if (!el) return;
+
   const filtered = currentLogFilter === 'all' ? loginLog
     : currentLogFilter === 'fail' ? loginLog.filter(l => l.type === 'fail')
     : loginLog.filter(l => l.type === 'ok');
 
   if (!filtered.length) {
-    el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-light);font-size:14px">Ingen aktivitet at vise</div>`;
+    el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-light);font-size:14px">
+      ${currentLogFilter === 'fail' ? '✅ Ingen mislykkede forsøg' : 'Ingen aktivitet endnu'}
+    </div>`;
     return;
   }
 
-  el.innerHTML = filtered.map(entry => `
+  el.innerHTML = filtered.slice(0, 20).map(entry => `
     <div class="log-entry">
       <div class="log-icon">${entry.type==='ok' ? '✅' : entry.type==='fail' ? '❌' : '🚪'}</div>
       <div class="log-info">
-        <div class="log-user">${entry.name} <span class="log-badge-${entry.type}">${entry.type==='ok'?'Logget ind':entry.type==='fail'?'Mislykket':'Logget ud'}</span></div>
+        <div class="log-user">${entry.name}
+          <span class="log-badge-${entry.type}">${entry.type==='ok'?'Logget ind':entry.type==='fail'?'Mislykket':'Logget ud'}</span>
+        </div>
         <div class="log-detail">${entry.detail}</div>
       </div>
       <div class="log-time">${entry.time}</div>
@@ -5003,6 +5020,7 @@ function switchView(view) {
 
   // Refresh when entering views
   if (view === 'mere') initMereView();
+  if (view === 'admin') { renderAdminUserList(); renderAdminLog(); }
   if (view === 'foedsler') renderFoedseldage();
   if (view === 'boernekort') renderBoernekort();
   if (view === 'stemning') { renderStemningOversigt(); }
