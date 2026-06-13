@@ -2862,7 +2862,8 @@
       <div class="card">
         <div class="card-title">👥 Brugere på appen</div>
         <div id="adminUserList"></div>
-        <button class="btn-primary" style="margin-top:14px" onclick="openAddUserModal()">+ Tilføj ny bruger</button>
+        <button class="btn-primary" style="margin-top:14px;width:100%" onclick="openAddUserModal()">+ Tilføj ny bruger</button>
+        <button onclick="resetUsers()" style="margin-top:8px;width:100%;padding:10px;background:var(--beige);border:none;border-radius:var(--radius-sm);font-family:Nunito,sans-serif;font-size:13px;font-weight:700;color:var(--text-mid);cursor:pointer">🔄 Nulstil brugerliste hvis Marlene mangler</button>
       </div>
 
       <!-- LOGIN LOG -->
@@ -3733,6 +3734,14 @@ function postFeedItem() {
 function initMereView() {
   const adminSec = document.getElementById('mereAdminSection');
   if (adminSec) adminSec.style.display = currentUser?.role === 'admin' ? 'block' : 'none';
+}
+
+// Nulstil brugerliste hvis noget er galt
+function resetUsers() {
+  if (!confirm('Dette nulstiller brugerlisten til standard. Egne adgangskoder bevares hvis muligt. Fortsæt?')) return;
+  LOCAL.remove('users_extra');
+  showToast('✅ Brugerliste nulstillet — genindlæser...');
+  setTimeout(() => location.reload(), 1500);
 }
 
 
@@ -4771,7 +4780,7 @@ function renderAdminUserList() {
       <div class="admin-user-status">
         ${username !== 'simon'
           ? `<button class="admin-edit-btn" onclick="openEditUser('${username}')">✏️ Rediger</button>`
-          : '<span style="font-size:11px;color:var(--text-light)">Dig selv</span>'}
+          : `<button class="admin-edit-btn" onclick="openEditUser('${username}')">🔑 Min kode</button>`}
       </div>
     </div>
   `).join('');
@@ -4857,7 +4866,7 @@ function openEditUser(username) {
   document.getElementById('editPass').value = '';
   document.getElementById('editRole').value = user.role === 'admin' ? 'family' : user.role;
   // Hide delete for family role users if needed
-  document.getElementById('deleteUserBtn').style.display = user.role === 'admin' ? 'none' : 'block';
+  document.getElementById('deleteUserBtn').style.display = (user.role === 'admin') ? 'none' : 'block';
   document.getElementById('editUserModal').classList.add('open');
 }
 
@@ -5805,14 +5814,21 @@ function loadAllData() {
   if (savedUsers) {
     // Migrer gammel 'malene' til 'marlene'
     if (savedUsers['malene'] && !savedUsers['marlene']) {
-      savedUsers['marlene'] = savedUsers['malene'];
+      savedUsers['marlene'] = { ...savedUsers['malene'] };
       delete savedUsers['malene'];
     }
+    // Opdater kun adgangskoder og roller — bevar altid kernebugerne
     Object.keys(savedUsers).forEach(username => {
       if (username === 'malene') return; // spring gammel alias over
       if (USERS[username]) {
-        USERS[username] = { ...USERS[username], ...savedUsers[username] };
-      } else {
+        // Kun opdater pass og role — ikke name, avatar, color
+        if (savedUsers[username].pass) USERS[username].pass = savedUsers[username].pass;
+        if (savedUsers[username].role && USERS[username].role !== 'admin') {
+          USERS[username].role = savedUsers[username].role;
+        }
+        if (savedUsers[username].deleted) USERS[username].deleted = true;
+      } else if (!['malene'].includes(username)) {
+        // Tilføj nye brugere oprettet via admin
         USERS[username] = savedUsers[username];
       }
     });
