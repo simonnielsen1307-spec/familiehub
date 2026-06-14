@@ -8,6 +8,9 @@
 <!-- PWA & Apple -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#f4845f">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="FamilieHub">
@@ -2536,7 +2539,7 @@
       <div class="header-logo">🏡</div>
       <div>
         <div class="header-title">FamilieHub</div>
-        <div class="header-sub" id="headerSub">Familien Nielsen</div>
+        <div class="header-sub" id="headerSub">Familien Nielsen · v3.1</div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
@@ -4849,13 +4852,10 @@ function renderAdminUserList() {
   const el = document.getElementById('adminUserList');
   if (!el) return;
 
-  // Filtrer dubletter (marlene er alias for malene — vis kun malene)
-  const entries = Object.entries(USERS).filter(([username, u]) =>
-    !u.deleted && username !== 'marlene'
-  );
+  const entries = Object.entries(USERS).filter(([, u]) => !u.deleted);
 
   if (!entries.length) {
-    el.innerHTML = '<div style="color:var(--text-light);font-size:14px;padding:12px 0">Ingen brugere endnu</div>';
+    el.innerHTML = '<div style="color:var(--text-light);font-size:14px;padding:12px 0">Ingen brugere</div>';
     return;
   }
 
@@ -4870,9 +4870,9 @@ function renderAdminUserList() {
         </div>
       </div>
       <div class="admin-user-status">
-        ${username !== 'simon'
-          ? `<button class="admin-edit-btn" onclick="openEditUser('${username}')">✏️ Rediger</button>`
-          : `<button class="admin-edit-btn" onclick="openEditUser('${username}')">🔑 Min kode</button>`}
+        <button class="admin-edit-btn" onclick="openEditUser('${username}')">
+          ${username === 'simon' ? '🔑 Min kode' : '✏️ Rediger'}
+        </button>
       </div>
     </div>
   `).join('');
@@ -5853,13 +5853,17 @@ function saveAllData() {
   LOCAL.save('pw', pw);
 }
 
-// Gem delt data til Firebase — kun kaldet ved brugerhandlinger
+// Gem delt data til Firebase når bruger trykker Gem
 function syncToFirebase() {
   if (!DB.online) return;
   DB.save('lists',        lists);
   DB.save('feedItems',    feedItems);
   DB.save('chatMessages', chatMessages);
   DB.save('memories',     memories);
+  DB.save('events',       events);
+  DB.save('weekPlan',     weekPlan);
+  DB.save('hentePlan',    hentePlan);
+  console.log('[DB] Gemt til Firebase ✅');
 }
 
 function loadAllData() {
@@ -5918,57 +5922,63 @@ function checkWeekReset() {
 }
 
 // Synk med Firebase i baggrunden efter opstart
+// Firebase synk — sikker version der aldrig overskriver med tom data
 async function syncWithFirebase() {
   const online = await DB.checkOnline();
   if (!online) {
     console.log('[DB] Offline — bruger lokal data');
     return;
   }
-
   console.log('[DB] Online — synkroniserer med Firebase...');
 
   try {
-    const [fbLists, fbEvents, fbFeed, fbChat, fbHente, fbWeek, fbMemories] = await Promise.all([
-      DB.load('lists', null),
-      DB.load('events', null),
-      DB.load('feedItems', null),
-      DB.load('chatMessages', null),
-      DB.load('hentePlan', null),
-      DB.load('weekPlan', null),
-      DB.load('memories', null),
-    ]);
-
-    // Firebase kan returnere objekter i stedet for arrays — konverter
-    const toArray = (data) => {
-      if (!data) return null;
-      if (Array.isArray(data)) return data.filter(Boolean);
-      if (typeof data === 'object') return Object.values(data).filter(Boolean);
+    // Helper: konverter Firebase objekt/array til array
+    const toArr = (d) => {
+      if (!d) return null;
+      if (Array.isArray(d)) return d.filter(Boolean);
+      if (typeof d === 'object') return Object.values(d).filter(Boolean);
       return null;
     };
 
-    if (fbLists?.shopping)  { lists = fbLists; renderList(); updateHomeShoppingCard(); }
+    // Indlæs kun hvis Firebase har MERE data end os lokalt
+    const [fbLists, fbFeed, fbChat, fbMem, fbEvents, fbWeek, fbHente] = await Promise.all([
+      DB.load('lists', null),
+      DB.load('feedItems', null),
+      DB.load('chatMessages', null),
+      DB.load('memories', null),
+      DB.load('events', null),
+      DB.load('weekPlan', null),
+      DB.load('hentePlan', null),
+    ]);
 
-    const evArr = toArray(fbEvents);
-    if (evArr?.length)      { events = evArr; renderCalendar(); }
+    // Lists — kun opdater hvis Firebase har varer
+    if (fbLists?.shopping?.length > 0) {
+      lists = fbLists; renderList(); updateHomeShoppingCard();
+    }
 
-    const feedArr = toArray(fbFeed);
-    if (feedArr?.length)    { feedItems = feedArr; renderFeed(); }
+    // Arrays — kun opdater hvis Firebase har flere items end lokalt
+    const feedArr = toArr(fbFeed);
+    if (feedArr?.length > feedItems.length) { feedItems = feedArr; renderFeed(); }
 
-    const chatArr = toArray(fbChat);
-    if (chatArr?.length)    { chatMessages = chatArr; renderChat(); }
+    const chatArr = toArr(fbChat);
+    if (chatArr?.length > chatMessages.length) { chatMessages = chatArr; renderChat(); }
 
-    if (fbHente)            { Object.assign(hentePlan, fbHente); renderHenteOversigt(); }
+    const memArr = toArr(fbMem);
+    if (memArr?.length > memories.length) { memories = memArr; renderMemories(); }
 
-    if (fbWeek)             { Object.assign(weekPlan, fbWeek); renderWeekPlan(); }
+    const evArr = toArr(fbEvents);
+    if (evArr?.length > events.length) { events = evArr; renderCalendar(); }
 
-    const memArr = toArray(fbMemories);
-    if (memArr?.length)     { memories = memArr; renderMemories(); }
+    if (fbWeek) { Object.assign(weekPlan, fbWeek); renderWeekPlan(); }
+    if (fbHente) { Object.assign(hentePlan, fbHente); renderHenteOversigt(); }
 
     console.log('[DB] Synkronisering færdig ✅');
+
+    // Start polling så Marlene og Simon ser hinandens ændringer
     DB.startSync();
 
   } catch(e) {
-    console.warn('[DB] Synkronisering fejlede:', e);
+    console.warn('[DB] Synk fejl:', e);
   }
 }
 
@@ -5976,8 +5986,13 @@ async function syncWithFirebase() {
 // Data gemmes KUN når brugeren trykker Gem-knappen
 // Ingen automatisk gem — ingen konflikter
 
+// Gem også automatisk efter hver brugerhandling som sikkerhed
+function gemEfterHandling() {
+  saveAllData();
+}
+
 // ── VERSION CHECK — ryd gammel data ved ny version ──
-const APP_VERSION = '3.0';
+const APP_VERSION = '3.1';
 const storedVersion = localStorage.getItem('fh_version');
 if (storedVersion !== APP_VERSION) {
   console.log('[FamilieHub] Ny version 3.0 — rydder AL gammel cache...');
