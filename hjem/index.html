@@ -13,7 +13,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
-/* Layout: vægpanel — ur + vejr, Spørg Claude, scener, apps, timer + video */
+/* Layout: vægpanel — ur + vejr, Claude-assistent, scener, apps, timer + video */
 :root{
   --bg:#eef1f4;--panel:#fff;--line:#d9dee5;--fg:#1b2430;--muted:#5d6878;
   --lamp:#f2a51a;--lamp-soft:#fdf0d4;--ok:#2f8a5b;--cool:#2f6fb0;--danger:#b8432f;
@@ -46,6 +46,22 @@ header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;
 h2{font-family:var(--f-display);font-weight:500;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
 .ask form{display:flex;gap:8px}
 .ask input{flex:1;min-width:0;font-size:19px;padding:15px 16px;border-radius:12px;border:1px solid var(--line);background:var(--bg)}
+.ask .bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ask .bar h2{margin:0}
+.mic{width:58px;flex:0 0 58px;border-radius:12px;border:1px solid var(--line);background:var(--bg);display:grid;place-items:center}
+.mic svg{width:26px;height:26px}
+.mic.on{background:var(--danger);border-color:var(--danger);color:#fff;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.6}}
+.log{display:grid;gap:8px;margin-top:12px;max-height:340px;overflow-y:auto}
+.log:empty{display:none}
+.msg{padding:10px 14px;border-radius:14px;max-width:85%;white-space:pre-wrap;font-size:17px}
+.msg.u{justify-self:end;background:var(--fg);color:var(--bg)}
+.msg.a{justify-self:start;background:var(--bg);border:1px solid var(--line)}
+.msg.t{justify-self:start;font-size:13px;color:var(--muted);padding:2px 14px}
+.msg.e{justify-self:start;color:var(--danger)}
+.setup{display:none;gap:8px;flex-wrap:wrap;margin-top:12px}
+.setup.open{display:flex}
+.setup input,.setup select{flex:1;min-width:180px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font:inherit;color:inherit}
 .btn{background:var(--fg);color:var(--bg);border:0;border-radius:12px;padding:0 22px;font-weight:600;font-size:17px;text-decoration:none;display:inline-grid;place-items:center}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .chip{border:1px solid var(--line);background:transparent;border-radius:99px;padding:8px 14px;font-size:15px}
@@ -90,11 +106,29 @@ h2{font-family:var(--f-display);font-weight:500;font-size:13px;letter-spacing:.0
   </header>
 
   <section class="card ask">
-    <h2>Spørg Claude</h2>
+    <div class="bar">
+      <h2>Claude</h2>
+      <div class="top">
+        <button class="ghost" id="talkBtn" type="button">Oplæsning til</button>
+        <button class="ghost" id="newBtn" type="button">Ny samtale</button>
+        <button class="ghost" id="setBtn" type="button">Indstillinger</button>
+      </div>
+    </div>
     <form id="askForm">
-      <input id="askIn" type="text" placeholder="Opskrift, lektiehjælp, hvad som helst…" autocomplete="off" enterkeyhint="send">
-      <button class="btn" type="submit">Spørg</button>
+      <button class="mic" id="micBtn" type="button" aria-label="Tal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      <input id="askIn" type="text" placeholder="Tænd lyset, start en timer, en opskrift…" autocomplete="off" enterkeyhint="send">
+      <button class="btn" type="submit">Send</button>
     </form>
+    <div class="setup" id="setup">
+      <input id="keyIn" type="password" placeholder="Anthropic API-nøgle (sk-ant-…)" autocomplete="off" autocapitalize="off">
+      <select id="modelIn">
+        <option value="claude-haiku-5-5">Haiku – hurtig og billig</option>
+        <option value="claude-sonnet-5-5">Sonnet – klogere</option>
+      </select>
+      <button class="chip" id="saveKey" type="button">Gem</button>
+      <p class="note" style="flex-basis:100%">Nøglen gemmes kun på denne iPad. Lav en nøgle på console.anthropic.com og sæt en månedlig udgiftsgrænse.</p>
+    </div>
+    <div class="log" id="log"></div>
     <div class="chips" id="chips"></div>
   </section>
 
@@ -214,11 +248,99 @@ $('addApp').onsubmit=e=>{e.preventDefault();const n=$('apName').value.trim();let
   if(!/^[a-z][a-z0-9+.-]*:/i.test(u))u='https://'+u;apps.push({n,u});store.set('hjem_apps',apps);$('apName').value='';$('apUrl').value='';renderApps();};
 renderApps();
 
-/* spørg Claude */
-const ask=q=>{if(q)go('https://claude.ai/new?q='+encodeURIComponent(q));};
-$('askForm').onsubmit=e=>{e.preventDefault();ask($('askIn').value.trim());};
-['Aftensmad til 4 på 30 min','Hvad kan børnene lave i regnvejr?','Brug rester: kartofler, løg, æg','Ugeplan for aftensmad'].forEach(c=>{
-  const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=c;b.onclick=()=>ask(c);$('chips').appendChild(b);});
+/* Claude-assistent: styrer appen via værktøjer */
+const API='https://api.anthropic.com/v1/messages';
+let cfg=store.get('hjem_claude',{key:'',model:'claude-haiku-5-5',talk:true});
+let hist=[],lastAt=0,busy=false;
+$('keyIn').value=cfg.key?'••••••••':'';$('modelIn').value=cfg.model;
+const setTalk=()=>{$('talkBtn').textContent=cfg.talk?'Oplæsning til':'Oplæsning fra';$('talkBtn').classList.toggle('on',cfg.talk);};setTalk();
+$('talkBtn').onclick=()=>{cfg.talk=!cfg.talk;store.set('hjem_claude',cfg);setTalk();if(!cfg.talk)speechSynthesis.cancel();};
+$('setBtn').onclick=()=>$('setup').classList.toggle('open');
+$('saveKey').onclick=()=>{const k=$('keyIn').value.trim();if(k&&!k.startsWith('•'))cfg.key=k;cfg.model=$('modelIn').value;store.set('hjem_claude',cfg);$('keyIn').value=cfg.key?'••••••••':'';$('setup').classList.remove('open');say('Gemt. Du kan nu tale med mig.','a');};
+$('newBtn').onclick=()=>{hist=[];$('log').innerHTML='';speechSynthesis.cancel();};
+if(!cfg.key)$('setup').classList.add('open');
+
+function say(text,cls){const d=document.createElement('div');d.className='msg '+cls;d.textContent=text;$('log').appendChild(d);$('log').scrollTop=1e6;return d;}
+
+/* oplæsning */
+let daVoice=null;
+function pickVoice(){const v=speechSynthesis.getVoices();daVoice=v.find(x=>x.lang==='da-DK'&&/premium|enhanced|forbedret/i.test(x.name))||v.find(x=>x.lang&&x.lang.startsWith('da'))||null;}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function speak(t,done){if(!cfg.talk||!('speechSynthesis' in window)){done&&done();return;}
+  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='da-DK';if(daVoice)u.voice=daVoice;u.rate=1.05;
+  let fired=false;const fin=()=>{if(!fired){fired=true;done&&done();}};u.onend=fin;u.onerror=fin;setTimeout(fin,Math.min(20000,800+t.length*80));speechSynthesis.speak(u);}
+function unlockAudio(){try{if(cfg.talk&&!window._ttsOk){speechSynthesis.speak(new SpeechSynthesisUtterance(' '));window._ttsOk=1;}}catch(e){}}
+
+/* tale-input */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null;
+$('micBtn').onclick=()=>{unlockAudio();speechSynthesis.cancel();
+  if(!SR){$('askIn').focus();say('Tryk på mikrofonen på tastaturet for at diktere.','t');return;}
+  if(rec){rec.stop();return;}
+  rec=new SR();rec.lang='da-DK';rec.interimResults=true;rec.continuous=false;let final='';
+  rec.onresult=e=>{let t='';for(const r of e.results){t+=r[0].transcript;if(r.isFinal)final=t;}$('askIn').value=t;};
+  rec.onerror=e=>{if(e.error==='not-allowed')say('Giv adgang til mikrofon og talegenkendelse i Indstillinger på iPad.','e');};
+  rec.onend=()=>{$('micBtn').classList.remove('on');rec=null;const q=(final||$('askIn').value).trim();if(q)run(q);};
+  $('micBtn').classList.add('on');try{rec.start();}catch(e){$('micBtn').classList.remove('on');rec=null;}};
+
+/* værktøjer Claude kan bruge */
+const TOOLS=[
+ {name:'koer_genvej',description:'Kør en genvej i iPad-appen Genveje. Bruges til at styre lys, varme, TV, højttalere og alle HomeKit-enheder og scener. Navnet skal matche genvejens navn præcist.',input_schema:{type:'object',properties:{navn:{type:'string'}},required:['navn']}},
+ {name:'start_timer',description:'Start køkkentimeren.',input_schema:{type:'object',properties:{minutter:{type:'number'}},required:['minutter']}},
+ {name:'stop_timer',description:'Stop køkkentimeren.',input_schema:{type:'object',properties:{}}},
+ {name:'timer_status',description:'Hvor lang tid er der tilbage på timeren.',input_schema:{type:'object',properties:{}}},
+ {name:'soeg_video',description:'Søg efter en video på YouTube og vis resultaterne.',input_schema:{type:'object',properties:{soegning:{type:'string'}},required:['soegning']}},
+ {name:'aabn_app',description:'Åbn en af appsene på hjemmecentralen.',input_schema:{type:'object',properties:{navn:{type:'string'}},required:['navn']}},
+ {name:'tilfoej_scene',description:'Tilføj en scene-knap på hjemmecentralen (genvejen med samme navn skal findes i Genveje).',input_schema:{type:'object',properties:{navn:{type:'string'},beskrivelse:{type:'string'}},required:['navn']}},
+ {name:'fjern_scene',description:'Fjern en scene-knap.',input_schema:{type:'object',properties:{navn:{type:'string'}},required:['navn']}},
+ {name:'tilfoej_app',description:'Tilføj en app-knap med navn og link (https:// eller app-skema).',input_schema:{type:'object',properties:{navn:{type:'string'},link:{type:'string'}},required:['navn','link']}},
+ {name:'fjern_app',description:'Fjern en app-knap.',input_schema:{type:'object',properties:{navn:{type:'string'}},required:['navn']}},
+ {name:'vejret',description:'Aktuelt vejr i Grenå.',input_schema:{type:'object',properties:{}}}
+];
+const find=(arr,n)=>arr.find(x=>x.n.toLowerCase()===String(n).toLowerCase())||arr.find(x=>x.n.toLowerCase().includes(String(n).toLowerCase()));
+let pendingNav=null;
+function doTool(name,a){switch(name){
+  case 'koer_genvej':{const back=location.href.split('#')[0];pendingNav='shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(a.navn)+'&x-success='+encodeURIComponent(back)+'&x-error='+encodeURIComponent(back);return 'Genvejen "'+a.navn+'" startes, når du har svaret.';}
+  case 'start_timer':startT(Number(a.minutter)||1);return 'Timer startet på '+a.minutter+' min.';
+  case 'stop_timer':clearInterval(iv);show(0);$('timerCard').classList.remove('ring');end=0;return 'Timer stoppet.';
+  case 'timer_status':{const s=Math.max(0,Math.round((end-Date.now())/1000));return end&&s?Math.floor(s/60)+' min '+(s%60)+' sek tilbage.':'Ingen timer kører.';}
+  case 'soeg_video':pendingNav='https://www.youtube.com/results?search_query='+encodeURIComponent(a.soegning);return 'Videosøgning åbnes efter svaret.';
+  case 'aabn_app':{const x=find(apps,a.navn);if(!x)return 'Ingen app hedder '+a.navn+'. Findes: '+apps.map(y=>y.n).join(', ');pendingNav=x.u;return x.n+' åbnes efter svaret.';}
+  case 'tilfoej_scene':scenes.push({n:a.navn,d:a.beskrivelse||''});store.set('hjem_scenes',scenes);renderScenes();return 'Scene tilføjet.';
+  case 'fjern_scene':{const x=find(scenes,a.navn);if(!x)return 'Fandt ingen scene.';scenes.splice(scenes.indexOf(x),1);store.set('hjem_scenes',scenes);renderScenes();return 'Scene fjernet.';}
+  case 'tilfoej_app':{let u=a.link;if(!/^[a-z][a-z0-9+.-]*:/i.test(u))u='https://'+u;apps.push({n:a.navn,u});store.set('hjem_apps',apps);renderApps();return 'App tilføjet.';}
+  case 'fjern_app':{const x=find(apps,a.navn);if(!x)return 'Fandt ingen app.';apps.splice(apps.indexOf(x),1);store.set('hjem_apps',apps);renderApps();return 'App fjernet.';}
+  case 'vejret':return $('wxT').textContent+' · '+$('wxS').textContent;
+  default:return 'Ukendt værktøj.';}}
+
+function sysPrompt(){return 'Du er stemmeassistent på familiens hjemmecentral, en iPad på væggen i et hus i Grenå. Svar altid på dansk, kort og naturligt, som tale: ingen markdown, ingen punkttegn, ingen emojis. Opskrifter og vejledninger må gerne være længere, men skriv dem som almindelige sætninger. Udfør ting med værktøjerne frem for at forklare. Enheder i huset styres ved at køre genveje fra appen Genveje; kendte scener/genveje: '+scenes.map(x=>x.n+(x.d?' ('+x.d+')':'')).join(', ')+'. Bed brugeren om at oprette en genvej, hvis der ikke findes en der passer. Apps: '+apps.map(x=>x.n).join(', ')+'. Klokken er '+$('clock').textContent+', '+$('date').textContent+'. Brug metriske enheder.';}
+
+async function callClaude(){
+  const r=await fetch(API,{method:'POST',headers:{'content-type':'application/json','x-api-key':cfg.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:cfg.model,max_tokens:1500,system:sysPrompt(),tools:TOOLS,messages:hist})});
+  const j=await r.json();if(!r.ok)throw new Error(j.error?.message||('HTTP '+r.status));return j;}
+
+async function run(q){
+  if(busy||!q)return;
+  if(!cfg.key){$('setup').classList.add('open');say('Indtast din API-nøgle først.','e');return;}
+  if(Date.now()-lastAt>5*60000){hist=[];$('log').innerHTML='';}
+  busy=true;pendingNav=null;$('askIn').value='';say(q,'u');hist.push({role:'user',content:q});
+  const wait=say('…','t');let reply='';
+  try{for(let i=0;i<6;i++){
+    const j=await callClaude();hist.push({role:'assistant',content:j.content});
+    const txt=j.content.filter(c=>c.type==='text').map(c=>c.text).join('\n').trim();if(txt)reply=txt;
+    const uses=j.content.filter(c=>c.type==='tool_use');
+    if(j.stop_reason!=='tool_use'||!uses.length)break;
+    const res=uses.map(u=>{const out=doTool(u.name,u.input||{});say('✓ '+out,'t');return {type:'tool_result',tool_use_id:u.id,content:out};});
+    hist.push({role:'user',content:res});}
+  }catch(e){wait.remove();say('Fejl: '+e.message,'e');busy=false;hist=[];return;}
+  wait.remove();lastAt=Date.now();busy=false;
+  if(reply)say(reply,'a');
+  const nav=pendingNav;pendingNav=null;
+  speak(reply||'Okay.',()=>{if(nav)go(nav);});}
+
+$('askForm').onsubmit=e=>{e.preventDefault();unlockAudio();run($('askIn').value.trim());};
+['Aftensmad til 4 på 30 min','Sæt en timer på 12 minutter','Hvad kan børnene lave i regnvejr?','Godnat'].forEach(c=>{
+  const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=c;b.onclick=()=>{unlockAudio();run(c);};$('chips').appendChild(b);});
 
 /* video */
 const yt=q=>go('https://www.youtube.com/results?search_query='+encodeURIComponent(q));
