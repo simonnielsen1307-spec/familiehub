@@ -120,13 +120,13 @@ h2{font-family:var(--f-display);font-weight:500;font-size:13px;letter-spacing:.0
       <button class="btn" type="submit">Send</button>
     </form>
     <div class="setup" id="setup">
-      <input id="keyIn" type="password" placeholder="Anthropic API-nøgle (sk-ant-…)" autocomplete="off" autocapitalize="off">
+      <input id="keyIn" type="password" placeholder="API-nøgle (valgfri)" autocomplete="off" autocapitalize="off">
       <select id="modelIn">
         <option value="claude-haiku-5-5">Haiku – hurtig og billig</option>
         <option value="claude-sonnet-5-5">Sonnet – klogere</option>
       </select>
       <button class="chip" id="saveKey" type="button">Gem</button>
-      <p class="note" style="flex-basis:100%">Nøglen gemmes kun på denne iPad. Lav en nøgle på console.anthropic.com og sæt en månedlig udgiftsgrænse.</p>
+      <p class="note" style="flex-basis:100%">Valgfrit. Uden nøgle åbnes spørgsmål i Claude-appen på dit abonnement, og lys, scener, apps og timer styres gratis direkte her. Med en API-nøgle (betales separat) svarer Claude inde i appen.</p>
     </div>
     <div class="log" id="log"></div>
     <div class="chips" id="chips"></div>
@@ -258,7 +258,7 @@ $('talkBtn').onclick=()=>{cfg.talk=!cfg.talk;store.set('hjem_claude',cfg);setTal
 $('setBtn').onclick=()=>$('setup').classList.toggle('open');
 $('saveKey').onclick=()=>{const k=$('keyIn').value.trim();if(k&&!k.startsWith('•')){if(!/^sk-ant-/.test(k)){say('Det ligner ikke en API-nøgle. Den starter med sk-ant-','e');return;}cfg.key=k;}cfg.model=$('modelIn').value;store.set('hjem_claude',cfg);$('keyIn').value=cfg.key?'••••••••':'';if(!cfg.key){say('Ingen nøgle indtastet. Indsæt nøglen i feltet og tryk Gem.','e');return;}$('setup').classList.remove('open');say('Gemt. Du kan nu tale med mig.','a');};
 $('newBtn').onclick=()=>{hist=[];$('log').innerHTML='';speechSynthesis.cancel();};
-if(!cfg.key)$('setup').classList.add('open');
+
 
 function say(text,cls){const d=document.createElement('div');d.className='msg '+cls;d.textContent=text;$('log').appendChild(d);$('log').scrollTop=1e6;return d;}
 
@@ -319,9 +319,26 @@ async function callClaude(){
     body:JSON.stringify({model:cfg.model,max_tokens:1500,system:sysPrompt(),tools:TOOLS,messages:hist})});
   const j=await r.json();if(!r.ok)throw new Error(j.error?.message||('HTTP '+r.status));return j;}
 
+
+/* gratis lokale kommandoer (ingen API) */
+function local(q){const t=q.toLowerCase().trim().replace(/[.!?]+$/,'');
+  const done=(msg,nav)=>{$('askIn').value='';say(q,'u');say('✓ '+msg,'a');speak(msg,()=>{if(nav)go(nav);});return true;};
+  let m=t.match(/(?:timer|æggeur|ur)\D*(\d+)\s*min/)||t.match(/(\d+)\s*min\w*\s*timer/);
+  if(m){startT(+m[1]);return done('Timer sat til '+m[1]+' minutter.');}
+  if(/stop.*timer|timer.*stop|sluk.*timer/.test(t)){clearInterval(iv);show(0);end=0;$('timerCard').classList.remove('ring');return done('Timeren er stoppet.');}
+  const back=location.href.split('#')[0];
+  const sc=scenes.find(x=>t===x.n.toLowerCase()||t.includes(x.n.toLowerCase()));
+  if(sc)return done(sc.n+'.', 'shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(sc.n)+'&x-success='+encodeURIComponent(back)+'&x-error='+encodeURIComponent(back));
+  m=t.match(/^(?:åbn|start|vis|gå til|jeg vil se|jeg vil høre)\s+(.+)$/);
+  if(m){const a=apps.find(x=>m[1].includes(x.n.toLowerCase())||x.n.toLowerCase().includes(m[1]));if(a)return done('Åbner '+a.n+'.',a.u);}
+  m=t.match(/^(?:find|vis|søg)?\s*(?:en\s+)?video\s+(?:om|med|af)?\s*(.+)$/);
+  if(m)return done('Søger video.','https://www.youtube.com/results?search_query='+encodeURIComponent(m[1]));
+  return false;}
+
 async function run(q){
   if(busy||!q)return;
-  if(!cfg.key){$('setup').classList.add('open');say('Indtast din API-nøgle først.','e');return;}
+  if(local(q))return;
+  if(!cfg.key){say(q,'u');say('Åbner Claude-appen med dit spørgsmål…','t');$('askIn').value='';setTimeout(()=>go('https://claude.ai/new?q='+encodeURIComponent(q)),400);return;}
   if(Date.now()-lastAt>5*60000){hist=[];$('log').innerHTML='';}
   busy=true;pendingNav=null;$('askIn').value='';say(q,'u');hist.push({role:'user',content:q});
   const wait=say('…','t');let reply='';
@@ -332,7 +349,7 @@ async function run(q){
     if(j.stop_reason!=='tool_use'||!uses.length)break;
     const res=uses.map(u=>{const out=doTool(u.name,u.input||{});say('✓ '+out,'t');return {type:'tool_result',tool_use_id:u.id,content:out};});
     hist.push({role:'user',content:res});}
-  }catch(e){wait.remove();say('Fejl: '+e.message,'e');busy=false;hist=[];return;}
+  }catch(e){wait.remove();busy=false;hist=[];if(/credit|balance|billing|authentication|api.key/i.test(e.message)){say('API-nøglen virker ikke ('+e.message+'). Åbner Claude-appen i stedet…','t');setTimeout(()=>go('https://claude.ai/new?q='+encodeURIComponent(q)),600);return;}say('Fejl: '+e.message,'e');return;}
   wait.remove();lastAt=Date.now();busy=false;
   if(reply)say(reply,'a');
   const nav=pendingNav;pendingNav=null;
