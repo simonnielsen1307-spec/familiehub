@@ -256,7 +256,7 @@ $('keyIn').value=cfg.key?'••••••••':'';$('modelIn').value=cfg.mo
 const setTalk=()=>{$('talkBtn').textContent=cfg.talk?'Oplæsning til':'Oplæsning fra';$('talkBtn').classList.toggle('on',cfg.talk);};setTalk();
 $('talkBtn').onclick=()=>{cfg.talk=!cfg.talk;store.set('hjem_claude',cfg);setTalk();if(!cfg.talk)speechSynthesis.cancel();};
 $('setBtn').onclick=()=>$('setup').classList.toggle('open');
-$('saveKey').onclick=()=>{const k=$('keyIn').value.trim();if(k&&!k.startsWith('•'))cfg.key=k;cfg.model=$('modelIn').value;store.set('hjem_claude',cfg);$('keyIn').value=cfg.key?'••••••••':'';$('setup').classList.remove('open');say('Gemt. Du kan nu tale med mig.','a');};
+$('saveKey').onclick=()=>{const k=$('keyIn').value.trim();if(k&&!k.startsWith('•')){if(!/^sk-ant-/.test(k)){say('Det ligner ikke en API-nøgle. Den starter med sk-ant-','e');return;}cfg.key=k;}cfg.model=$('modelIn').value;store.set('hjem_claude',cfg);$('keyIn').value=cfg.key?'••••••••':'';if(!cfg.key){say('Ingen nøgle indtastet. Indsæt nøglen i feltet og tryk Gem.','e');return;}$('setup').classList.remove('open');say('Gemt. Du kan nu tale med mig.','a');};
 $('newBtn').onclick=()=>{hist=[];$('log').innerHTML='';speechSynthesis.cancel();};
 if(!cfg.key)$('setup').classList.add('open');
 
