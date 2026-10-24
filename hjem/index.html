@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hjemmecentral</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hjem">
+<meta name="theme-color" content="#1b2430">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: vægpanel — ur + vejr, Spørg Claude, scener, apps, timer + video */
+:root{
+  --bg:#eef1f4;--panel:#fff;--line:#d9dee5;--fg:#1b2430;--muted:#5d6878;
+  --lamp:#f2a51a;--lamp-soft:#fdf0d4;--ok:#2f8a5b;--cool:#2f6fb0;--danger:#b8432f;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Figtree",ui-sans-serif,system-ui,sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#11161d;--panel:#1a212b;--line:#2a3340;--fg:#e8edf3;--muted:#9aa6b6;
+  --lamp:#f5b23a;--lamp-soft:#3a2f1a;--ok:#4fbf86;--cool:#6aa5e0;--danger:#e0705c;color-scheme:dark}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.45}
+.wrap{max-width:1280px;margin:0 auto;display:grid;gap:16px;
+  padding-top:max(16px,env(safe-area-inset-top,0px));padding-bottom:max(24px,env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--cool);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.clock{font-family:var(--f-display);font-weight:700;font-size:clamp(60px,10vw,112px);line-height:.9;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.date{color:var(--muted);font-size:17px;margin-top:6px}
+.wx{text-align:right}
+.wx .t{font-family:var(--f-display);font-size:40px;font-weight:500}
+.wx .s{color:var(--muted);font-size:15px}
+.top{display:flex;gap:8px}
+.ghost{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:8px 16px;font-size:14px}
+.ghost.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0}
+h2{font-family:var(--f-display);font-weight:500;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.ask form{display:flex;gap:8px}
+.ask input{flex:1;min-width:0;font-size:19px;padding:15px 16px;border-radius:12px;border:1px solid var(--line);background:var(--bg)}
+.btn{background:var(--fg);color:var(--bg);border:0;border-radius:12px;padding:0 22px;font-weight:600;font-size:17px;text-decoration:none;display:inline-grid;place-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:99px;padding:8px 14px;font-size:15px}
+.scenes{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.scene{position:relative;display:grid;gap:4px;padding:20px 16px;border-radius:16px;border:1px solid var(--line);background:var(--panel);text-decoration:none;color:var(--fg);min-height:96px}
+.scene .n{font-family:var(--f-display);font-weight:700;font-size:21px}
+.scene .d{font-size:13px;color:var(--muted)}
+.scene:active,.app:active{transform:scale(.97)}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px}
+.app{position:relative;display:grid;justify-items:center;gap:8px;padding:14px 6px;border-radius:16px;text-decoration:none;color:var(--fg);font-weight:600;font-size:14px;text-align:center}
+.app .ic{width:68px;height:68px;border-radius:18px;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:28px;color:#fff}
+.x{position:absolute;top:2px;right:2px;width:30px;height:30px;border-radius:50%;border:0;background:var(--danger);color:#fff;font-size:18px;line-height:1;display:none}
+.edit .x{display:block}
+.addform{display:none;gap:8px;flex-wrap:wrap;margin-top:14px}
+.edit .addform{display:flex}
+.addform input{flex:1;min-width:150px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.timer .v{font-family:var(--f-num);font-size:46px;text-align:center;margin:4px 0 12px;font-variant-numeric:tabular-nums}
+.timer.ring .v{color:var(--lamp)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .chip{flex:1;text-align:center}
+.vid form{display:flex;gap:8px}
+.vid input{flex:1;min-width:0;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+.hint{background:var(--lamp-soft);border-radius:12px;padding:12px 16px;font-size:15px}
+.note{font-size:13px;color:var(--muted);margin:0}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}.wx{text-align:left}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="root">
+  <div class="hint" id="installHint" hidden>Installer som app: tryk <b>Del</b> (firkant med pil) → <b>Føj til hjemmeskærm</b>. Så åbner den i fuld skærm uden Safari.</div>
+
+  <header>
+    <div>
+      <div class="clock" id="clock">--:--</div>
+      <div class="date" id="date"></div>
+    </div>
+    <div>
+      <div class="wx"><div class="t" id="wxT">–</div><div class="s" id="wxS">Grenå</div></div>
+    </div>
+  </header>
+
+  <section class="card ask">
+    <h2>Spørg Claude</h2>
+    <form id="askForm">
+      <input id="askIn" type="text" placeholder="Opskrift, lektiehjælp, hvad som helst…" autocomplete="off" enterkeyhint="send">
+      <button class="btn" type="submit">Spørg</button>
+    </form>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <section id="sceneSec">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h2 style="margin:0">Scener</h2>
+      <button class="ghost" id="editBtn" type="button">Rediger</button>
+    </div>
+    <div class="scenes" id="scenes"></div>
+    <form class="addform" id="addScene">
+      <input id="scName" placeholder="Navn på genvej, fx Godnat" autocomplete="off">
+      <input id="scDesc" placeholder="Kort tekst, fx Alt slukket" autocomplete="off">
+      <button class="chip" type="submit">Tilføj scene</button>
+    </form>
+    <p class="note" style="margin-top:8px">Hver scene starter en genvej med samme navn i appen Genveje.</p>
+  </section>
+
+  <section class="card" id="appSec">
+    <h2>Apps</h2>
+    <div class="apps" id="apps"></div>
+    <form class="addform" id="addApp">
+      <input id="apName" placeholder="Navn, fx MitID" autocomplete="off">
+      <input id="apUrl" placeholder="Link, fx https://… eller app://" autocomplete="off" autocapitalize="off">
+      <button class="chip" type="submit">Tilføj app</button>
+    </form>
+  </section>
+
+  <div class="grid2">
+    <section class="card timer" id="timerCard">
+      <h2>Køkkentimer</h2>
+      <div class="v" id="tmr">00:00</div>
+      <div class="row" id="tmrBtns"></div>
+    </section>
+    <section class="card vid">
+      <h2>Video</h2>
+      <form id="vidForm">
+        <input id="vidIn" placeholder="Fx filetere and" autocomplete="off" enterkeyhint="search">
+        <button class="btn" type="submit">Søg</button>
+      </form>
+      <div class="chips" id="vchips"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const go=url=>{location.href=url};
+
+/* installer-hint */
+const standalone=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+if(!standalone) $('installHint').hidden=false;
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+/* ur */
+const DAGE=['søndag','mandag','tirsdag','onsdag','torsdag','fredag','lørdag'];
+function tick(){const n=new Date(),p=x=>String(x).padStart(2,'0');
+  $('clock').textContent=p(n.getHours())+':'+p(n.getMinutes());
+  $('date').textContent=DAGE[n.getDay()]+' '+p(n.getDate())+'-'+p(n.getMonth()+1)+'-'+n.getFullYear();}
+tick();setInterval(tick,5000);
+async function wake(){try{await navigator.wakeLock.request('screen')}catch(e){}}
+wake();document.addEventListener('visibilitychange',()=>{if(!document.hidden)wake()});
+
+/* vejr (Open-Meteo, Grenå) */
+const WMO={0:'Klart',1:'Mest klart',2:'Delvist skyet',3:'Overskyet',45:'Tåge',48:'Rimtåge',51:'Let støvregn',53:'Støvregn',55:'Kraftig støvregn',61:'Let regn',63:'Regn',65:'Kraftig regn',71:'Let sne',73:'Sne',75:'Kraftig sne',80:'Regnbyger',81:'Regnbyger',82:'Kraftige byger',95:'Torden'};
+async function weather(){try{
+  const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=56.416&longitude=10.878&current=temperature_2m,weather_code,wind_speed_10m&wind_speed_unit=ms&timezone=Europe%2FCopenhagen');
+  const j=await r.json(),c=j.current;
+  $('wxT').textContent=Math.round(c.temperature_2m)+'°';
+  $('wxS').textContent='Grenå · '+(WMO[c.weather_code]||'')+' · '+String(Math.round(c.wind_speed_10m))+' m/s';
+}catch(e){$('wxS').textContent='Grenå · vejret kunne ikke hentes';}}
+weather();setInterval(weather,15*60000);
+
+/* rediger-tilstand */
+let editing=false;
+$('editBtn').onclick=()=>{editing=!editing;$('root').classList.toggle('edit',editing);$('editBtn').classList.toggle('on',editing);$('editBtn').textContent=editing?'Færdig':'Rediger';};
+
+/* scener via Genveje */
+const SC_DEF=[{n:'Godmorgen',d:'Lys op, varme 21°'},{n:'Aftensmad',d:'Køkken 80 %, stue dæmpet'},{n:'Film',d:'TV tændt, lys 10 %'},{n:'Godnat',d:'Alt slukket'}];
+let scenes=store.get('hjem_scenes',SC_DEF);
+function renderScenes(){$('scenes').innerHTML='';scenes.forEach((s,i)=>{
+  const a=document.createElement('a');a.className='scene';a.href='shortcuts://run-shortcut?name='+encodeURIComponent(s.n);
+  a.innerHTML='<span class="n"></span><span class="d"></span><button class="x" type="button" aria-label="Fjern">×</button>';
+  a.querySelector('.n').textContent=s.n;a.querySelector('.d').textContent=s.d||'';
+  a.querySelector('.x').onclick=e=>{e.preventDefault();e.stopPropagation();scenes.splice(i,1);store.set('hjem_scenes',scenes);renderScenes();};
+  a.addEventListener('click',e=>{if(editing)e.preventDefault();});
+  $('scenes').appendChild(a);});}
+$('addScene').onsubmit=e=>{e.preventDefault();const n=$('scName').value.trim();if(!n)return;scenes.push({n,d:$('scDesc').value.trim()});store.set('hjem_scenes',scenes);$('scName').value='';$('scDesc').value='';renderScenes();};
+renderScenes();
+
+/* apps */
+const APP_DEF=[
+ {n:'Netflix',u:'nflx://',c:'#b81d24'},
+ {n:'YouTube',u:'youtube://',c:'#d42a1f'},
+ {n:'Spotify',u:'spotify://',c:'#1a9b4b'},
+ {n:'DR TV',u:'https://www.dr.dk/drtv',c:'#2b2b2b'},
+ {n:'TV 2 Play',u:'https://play.tv2.dk',c:'#1f4fbf'},
+ {n:'Musik',u:'music://',c:'#e0334f'},
+ {n:'Hjem',u:'com.apple.home://',c:'#e8962a'},
+ {n:'Genveje',u:'shortcuts://',c:'#4b55c9'},
+ {n:'Kalender',u:'calshow://',c:'#d9473a'},
+ {n:'Fotos',u:'photos-redirect://',c:'#c3772b'},
+ {n:'Kort',u:'maps://',c:'#3a8f5c'},
+ {n:'Claude',u:'https://claude.ai',c:'#c96442'}
+];
+const PAL=['#4b6b8f','#7a5c99','#2f8a7a','#9a6b2f','#8f4b5c','#3f7a3a'];
+let apps=store.get('hjem_apps',APP_DEF);
+function renderApps(){$('apps').innerHTML='';apps.forEach((a,i)=>{
+  const el=document.createElement('a');el.className='app';el.href=a.u;
+  el.innerHTML='<span class="ic"></span><span class="nm"></span><button class="x" type="button" aria-label="Fjern">×</button>';
+  const ic=el.querySelector('.ic');ic.textContent=a.n.charAt(0).toUpperCase();ic.style.background=a.c||PAL[i%PAL.length];
+  el.querySelector('.nm').textContent=a.n;
+  el.querySelector('.x').onclick=e=>{e.preventDefault();e.stopPropagation();apps.splice(i,1);store.set('hjem_apps',apps);renderApps();};
+  el.addEventListener('click',e=>{if(editing)e.preventDefault();});
+  $('apps').appendChild(el);});}
+$('addApp').onsubmit=e=>{e.preventDefault();const n=$('apName').value.trim();let u=$('apUrl').value.trim();if(!n||!u)return;
+  if(!/^[a-z][a-z0-9+.-]*:/i.test(u))u='https://'+u;apps.push({n,u});store.set('hjem_apps',apps);$('apName').value='';$('apUrl').value='';renderApps();};
+renderApps();
+
+/* spørg Claude */
+const ask=q=>{if(q)go('https://claude.ai/new?q='+encodeURIComponent(q));};
+$('askForm').onsubmit=e=>{e.preventDefault();ask($('askIn').value.trim());};
+['Aftensmad til 4 på 30 min','Hvad kan børnene lave i regnvejr?','Brug rester: kartofler, løg, æg','Ugeplan for aftensmad'].forEach(c=>{
+  const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=c;b.onclick=()=>ask(c);$('chips').appendChild(b);});
+
+/* video */
+const yt=q=>go('https://www.youtube.com/results?search_query='+encodeURIComponent(q));
+$('vidForm').onsubmit=e=>{e.preventDefault();const q=$('vidIn').value.trim();if(q)yt(q);};
+['Godnathistorie for børn','Filetere and','Hurtig aftensmad'].forEach(q=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent='▶ '+q;b.onclick=()=>yt(q);$('vchips').appendChild(b);});
+
+/* timer */
+let end=0,iv=null,actx=null;
+function beep(){try{[0,.45,.9,1.35].forEach(t=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;o.connect(g);g.connect(actx.destination);g.gain.setValueAtTime(.25,actx.currentTime+t);o.start(actx.currentTime+t);o.stop(actx.currentTime+t+.3);});}catch(e){}}
+function show(s){$('tmr').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function startT(m){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();actx.resume();}catch(e){}
+  end=Date.now()+m*60000;$('timerCard').classList.remove('ring');clearInterval(iv);
+  iv=setInterval(()=>{const s=Math.max(0,Math.round((end-Date.now())/1000));show(s);if(!s){clearInterval(iv);$('timerCard').classList.add('ring');$('tmr').textContent='Færdig';beep();}},250);}
+[[3,'3 min'],[10,'10 min'],[25,'25 min']].forEach(([m,l])=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=l;b.onclick=()=>startT(m);$('tmrBtns').appendChild(b);});
+const st=document.createElement('button');st.type='button';st.className='chip';st.textContent='Stop';st.onclick=()=>{clearInterval(iv);show(0);$('timerCard').classList.remove('ring');};$('tmrBtns').appendChild(st);
+</script>
+</body>
+</html>
