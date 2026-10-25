@@ -1,106 +1,110 @@
-// FamilieHub Service Worker v1.0
-// Håndterer offline caching og push notifikationer
+// FamilieHub service worker
+// • Appens egne filer: hent fra nettet først (så opdateringer altid slår igennem),
+//   brug cachen når der ikke er net.
+// • Skrifttyper og opskriftsbilleder: brug cachen først.
+// • Firebase-trafik røres ikke.
+// Skift VERSION ved større ændringer, så gamle caches ryddes.
 
-const CACHE_NAME = 'familiehub-v1';
-const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap'
+const VERSION = 'fh-4.0.0';
+const APP_CACHE = 'familiehub-app-' + VERSION;
+const ASSET_CACHE = 'familiehub-assets-v1';
+const PHOTO_CACHE = 'familiehub-photos-v1';   // bruges af js/photos.js
+
+const APP_SHELL = [
+  './',
+  'index.html',
+  'manifest.json',
+  'css/app.css',
+  'js/vendor/firebase.js',
+  'js/config.js',
+  'js/backend.js',
+  'js/core.js',
+  'js/photos.js',
+  'data/opskrifter.js',
+  'js/kalender.js',
+  'js/lister.js',
+  'js/feed.js',
+  'js/mad.js',
+  'js/boern.js',
+  'js/mere.js',
+  'js/home.js',
+  'js/sync.js',
+  'js/auth.js',
+  'icons/icon-180.png',
+  'icons/icon-192.png',
+  'icons/icon-512.png'
 ];
 
-// ── INSTALL: cache app shell ──
 self.addEventListener('install', event => {
-  console.log('[SW] Installing...');
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
+    caches.open(APP_CACHE)
+      .then(cache => cache.addAll(APP_SHELL.map(u => new Request(u, { cache: 'reload' }))))
+      .then(() => self.skipWaiting())
   );
 });
 
-// ── ACTIVATE: ryd gamle caches ──
 self.addEventListener('activate', event => {
-  console.log('[SW] Activating...');
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      )
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then(keys => Promise.all(keys
+        .filter(k => k !== APP_CACHE && k !== ASSET_CACHE && k !== PHOTO_CACHE)
+        .map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
 
-// ── FETCH: serve fra cache, fallback til netværk ──
+function networkFirst(req) {
+  return new Promise(resolve => {
+    let done = false;
+    const fromCache = () => caches.match(req, { ignoreSearch: true })
+      .then(r => r || (req.mode === 'navigate' ? caches.match('index.html') : undefined))
+      .then(r => r || new Response('Offline', { status: 503, statusText: 'Offline' }));
+
+    // Hvis nettet er langsomt (>4 sek), så vis cachen
+    const timer = setTimeout(() => {
+      fromCache().then(r => { if (!done && r.status !== 503) { done = true; resolve(r); } });
+    }, 4000);
+
+    fetch(req).then(res => {
+      clearTimeout(timer);
+      if (res && res.ok && res.type === 'basic') {
+        const copy = res.clone();
+        caches.open(APP_CACHE).then(c => c.put(req, copy));
+      }
+      if (!done) { done = true; resolve(res); }
+    }).catch(() => {
+      clearTimeout(timer);
+      if (!done) { fromCache().then(r => { done = true; resolve(r); }); }
+    });
+  });
+}
+
+function cacheFirst(req) {
+  return caches.match(req).then(hit => hit || fetch(req).then(res => {
+    if (res && (res.ok || res.type === 'opaque')) {
+      const copy = res.clone();
+      caches.open(ASSET_CACHE).then(c => c.put(req, copy));
+    }
+    return res;
+  }).catch(() => hit));
+}
+
 self.addEventListener('fetch', event => {
-  // Spring Firebase REST calls over — de skal altid gå til netværk
-  if (event.request.url.includes('firebasedatabase.app') ||
-      event.request.url.includes('googleapis.com/identitytoolkit') ||
-      event.request.url.includes('anthropic.com')) {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+
+  if (url.origin === self.location.origin) {
+    if (url.pathname.includes('/__foto/')) return;   // lokale billeder håndteres af photos.js
+    event.respondWith(networkFirst(req));
     return;
   }
-
-  event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) return cachedResponse;
-      return fetch(event.request).then(networkResponse => {
-        // Cache nye svar dynamisk
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-          const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseClone);
-          });
-        }
-        return networkResponse;
-      }).catch(() => {
-        // Offline fallback
-        if (event.request.destination === 'document') {
-          return caches.match('/index.html');
-        }
-      });
-    })
-  );
-});
-
-// ── PUSH NOTIFIKATIONER ──
-self.addEventListener('push', event => {
-  let data = { title: 'FamilieHub 🏡', body: 'Du har en ny besked', icon: '/icons/icon-192.png' };
-
-  if (event.data) {
-    try { data = { ...data, ...event.data.json() }; } catch(e) {}
+  if (/(^|\.)fonts\.(googleapis|gstatic)\.com$/.test(url.hostname) || url.hostname === 'images.unsplash.com') {
+    event.respondWith(cacheFirst(req));
   }
-
-  event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: data.icon || '/icons/icon-192.png',
-      badge: '/icons/icon-192.png',
-      vibrate: [200, 100, 200],
-      data: { url: data.url || '/' },
-      actions: data.actions || []
-    })
-  );
+  // Alt andet (Firebase m.m.) går direkte til nettet
 });
 
-// ── NOTIFIKATION KLIK ──
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-  const url = event.notification.data?.url || '/';
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
-      for (const client of windowClients) {
-        if (client.url === url && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      if (clients.openWindow) return clients.openWindow(url);
-    })
-  );
-});
-
-// ── BACKGROUND SYNC (fremtidigt) ──
-self.addEventListener('sync', event => {
-  if (event.tag === 'sync-data') {
-    console.log('[SW] Background sync triggered');
-  }
+self.addEventListener('message', event => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });

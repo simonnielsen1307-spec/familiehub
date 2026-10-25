@@ -1,0 +1,13 @@
+{
+  "name": "familiehub-tools",
+  "private": true,
+  "scripts": {
+    "build": "esbuild firebase-entry.js --bundle --format=iife --minify --target=es2019 --outfile=../js/vendor/firebase.js"
+  },
+  "dependencies": {
+    "firebase": "13.1.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0"
+  }
+}

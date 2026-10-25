@@ -1,0 +1,121 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "family": {
+      "members": {
+        ".read": "auth != null && root.child('family/members/' + auth.uid).exists()",
+        "$uid": {
+          ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin' || (auth != null && !root.child('family/members').exists() && $uid === auth.uid && newData.child('role').val() === 'admin')",
+          ".validate": "newData.hasChildren(['name', 'role', 'username']) && newData.child('role').isString() && newData.child('role').val().matches(/^(admin|family|extended)$/) && !(auth.uid === $uid && data.child('role').val() === 'admin' && newData.child('role').val() !== 'admin')",
+          "name": {
+            ".write": "auth != null && auth.uid === $uid && data.parent().exists()",
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+          },
+          "avatar": {
+            ".write": "auth != null && auth.uid === $uid && data.parent().exists()",
+            ".validate": "newData.isString() && newData.val().length <= 16"
+          },
+          "color": {
+            ".write": "auth != null && auth.uid === $uid && data.parent().exists()",
+            ".validate": "newData.isString() && newData.val().length <= 16"
+          },
+          "tlf": {
+            ".write": "auth != null && auth.uid === $uid && data.parent().exists()",
+            ".validate": "newData.isString() && newData.val().length <= 30"
+          },
+          "role": {
+            ".validate": "newData.isString()"
+          },
+          "username": {
+            ".validate": "newData.isString() && newData.val().length <= 60"
+          },
+          "email": {
+            ".validate": "newData.isString() && newData.val().length <= 120"
+          },
+          "created": {
+            ".validate": "newData.isNumber()"
+          },
+          "createdBy": {
+            ".validate": "newData.isString()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      },
+      "data": {
+        ".read": "auth != null && (root.child('family/members/' + auth.uid + '/role').val() === 'admin' || root.child('family/members/' + auth.uid + '/role').val() === 'family')",
+        ".write": "auth != null && (root.child('family/members/' + auth.uid + '/role').val() === 'admin' || root.child('family/members/' + auth.uid + '/role').val() === 'family')"
+      },
+      "shared": {
+        ".read": "auth != null && root.child('family/members/' + auth.uid).exists()",
+        ".write": "auth != null && root.child('family/members/' + auth.uid).exists()",
+        "photos": {
+          "$pid": {
+            ".validate": "newData.hasChildren(['d']) && newData.child('d').isString() && newData.child('d').val().beginsWith('data:image/') && newData.child('d').val().length < 3500000"
+          }
+        }
+      },
+      "meta": {
+        ".read": "auth != null && root.child('family/members/' + auth.uid).exists()",
+        ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'"
+      },
+      "loginLog": {
+        ".read": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'",
+        "$id": {
+          ".write": "auth != null && root.child('family/members/' + auth.uid).exists() && !data.exists()",
+          ".validate": "newData.hasChildren(['uid', 'type', 'ts']) && newData.child('uid').val() === auth.uid"
+        }
+      }
+    },
+    "lists": {
+      ".read": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'",
+      ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'"
+    },
+    "feedItems": {
+      ".read": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'",
+      ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'"
+    },
+    "chatMessages": {
+      ".read": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'",
+      ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'"
+    },
+    "memories": {
+      ".read": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'",
+      ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'"
+    },
+    "events": {
+      ".read": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'",
+      ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'"
+    },
+    "weekPlan": {
+      ".read": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'",
+      ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'"
+    },
+    "hentePlan": {
+      ".read": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'",
+      ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'"
+    },
+    "users": {
+      ".read": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'",
+      ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'"
+    },
+    "loginLog": {
+      ".read": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'",
+      ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'"
+    },
+    "pushSubscriptions": {
+      ".read": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'",
+      ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'"
+    },
+    "ping": {
+      ".read": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'",
+      ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'"
+    },
+    "countdown": {
+      ".read": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'",
+      ".write": "auth != null && root.child('family/members/' + auth.uid + '/role').val() === 'admin'"
+    }
+  }
+}
